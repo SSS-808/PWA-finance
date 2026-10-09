@@ -113,6 +113,7 @@ Changes from the brief's suggested structure, and why:
 ## 6. How data moves
 
 - **Reads:** Server Components call `server/queries.ts`. There is no client-side fetching in the MVP.
+- **Cache Components** is on (the Next.js 16.4 default, and it becomes mandatory in the next major version). Data is fresh on every request unless marked `use cache`. Anything that reads the login cookie sits inside `<Suspense>`, while the static shell (layout, nav) appears instantly. Per-user data never goes into a plain `use cache`.
 - **Writes:** Server Actions in `server/actions.ts`. Each one does: check the user → Zod → database → revalidate → return a typed result.
 - **State:** filters, month and sort order live in the URL (`?month=2026-10&account=…`). Form state lives in React. There is no global store (no Zustand) in the MVP.
 - **Errors:** actions return `{ ok: true, data } | { ok: false, error: { message, fieldErrors? } }`. Raw database errors are logged on the server and never sent to the browser.
