@@ -11,6 +11,7 @@ This is Next.js 16.4 with Cache Components on. Before writing Next.js code, read
 - Unit tests: `pnpm test` (coverage gate: `pnpm test:coverage`, 100% on `modules/money` and `domain/calculations.ts`)
 - E2E tests: `pnpm test:e2e` (starts the dev server itself)
 - Build: `pnpm build`
+- Database (Docker must be running): `pnpm db:start`, `pnpm db:reset` (migrations + seed), `pnpm test:db` (pgTAP), `pnpm db:types` (after every migration)
 
 All of them must pass after every change.
 
@@ -20,3 +21,4 @@ All of them must pass after every change.
 - UI text lives in `src/messages/en.ts`.
 - Colours and design tokens live only in `src/app/globals.css`. Components use token classes (`bg-background`, `text-muted-foreground`), never raw colours.
 - Line endings are LF (`.gitattributes`).
+- `supabase/migrations/` is the source of truth for the schema. Never edit a migration that has run on production; add a new one. Every new table gets RLS, policies and pgTAP tests in the same change (docs/security.md §8).

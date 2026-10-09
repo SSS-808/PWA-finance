@@ -2,7 +2,7 @@
 
 Phase 0 · 2026-10-09 · PostgreSQL on Supabase · Decisions: [ADR-001](adr/001-postgresql.md), [ADR-003](adr/003-money-integer-minor-units.md), [ADR-005](adr/005-derived-balances.md), [ADR-006](adr/006-transactions-as-legs.md), [ADR-007](adr/007-soft-delete-and-audit.md)
 
-This is the proposal for the MVP schema. In Phase 1 it becomes the first migration files.
+This explains the MVP schema. Since Phase 1 (task 1.3), the files in `supabase/migrations/` are the source of truth, and `supabase/tests/database/` proves the rules below.
 
 ## 1. ERD (MVP)
 

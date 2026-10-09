@@ -25,15 +25,15 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 
 ### Phase 1: Foundation
 1. **App skeleton:** Next.js (TypeScript strict, App Router, `src/`), Tailwind v4, shadcn/ui, ESLint (with module-boundary rules), Prettier, `.gitattributes`, and a project `CLAUDE.md` listing the real commands.
-2. **Database:** Supabase CLI, `supabase init`, the first migrations from [database.md](database.md), seed data, generated types, `lib/supabase`, and `lib/env.ts`.
+2. **Database:** Supabase CLI, `supabase init`, the first migrations from [database.md](database.md), seed data, pgTAP tests, and generated types. (`lib/supabase` and `lib/env.ts` move to Phase 2, their first real user.)
 3. **Tests:** Vitest with the `money` module and its full tests, pgTAP tests for RLS and constraints, and a Playwright smoke test.
 4. **CI:** a GitHub Actions workflow.
 5. **First deploy:** you create the Supabase cloud project and the Vercel project, push the migrations, and deploy an empty "Hello" page. Why now: deployment problems are cheapest to fix while the app is tiny.
 
-**Done when:** every check passes locally and in CI, and the empty app is live on Vercel, connected to production Supabase.
+**Done when:** every check passes locally and in CI, the empty app is live on Vercel, and the migrations have run on the staging and production Supabase projects. The app first talks to Supabase in Phase 2.
 
 ### Phase 2: Authentication
-Sign-up, login, logout, forgot and reset password, `/auth/callback`, `proxy.ts`, the logged-in layout that checks the user, profile settings (name, base currency, time zone), `messages/en.ts`, and an end-to-end auth test.
+`lib/supabase` clients and `lib/env.ts` (with `.env.example`), sign-up, login, logout, forgot and reset password, `/auth/callback`, `proxy.ts`, the logged-in layout that checks the user, profile settings (name, base currency, time zone), `messages/en.ts`, and an end-to-end auth test.
 **Done when:** logged-out visitors are redirected, a password reset works through the local email inbox, and the RLS tests pass.
 
 ### Phase 3: Accounts

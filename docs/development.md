@@ -16,12 +16,15 @@ Phase 0 · 2026-10-09 · The commands below become real in Phase 1.
 
 ```bash
 pnpm install
-pnpm supabase start
-cp .env.example .env.local
+pnpm db:start
+pnpm db:reset
 pnpm dev
 ```
 
-`supabase start` prints the local URL and keys. Copy them into `.env.local`.
+- `db:start` runs local Supabase in Docker. The first run downloads the images, which takes a few minutes.
+- `db:reset` builds the database from the migrations and loads `supabase/seed.sql`. The demo login is written at the top of that file, and it only exists locally.
+- Local URLs: API `http://127.0.0.1:54321`, **Studio** (browse the database) `http://127.0.0.1:54323`, **Mailpit** (catches auth emails) `http://127.0.0.1:54324`.
+- From Phase 2: copy `.env.example` to `.env.local` and fill in the values `pnpm supabase status` prints.
 
 ## 3. Scripts
 
@@ -36,6 +39,7 @@ pnpm dev
 | `pnpm test:db` | pgTAP tests against local Supabase |
 | `pnpm test:e2e` | Playwright end-to-end tests |
 | `pnpm build` | Production build |
+| `pnpm db:start` / `pnpm db:stop` | Starts or stops local Supabase in Docker |
 | `pnpm db:reset` | Rebuilds the local database from migrations and seed data |
 | `pnpm db:types` | Regenerates `src/lib/supabase/database.types.ts` |
 

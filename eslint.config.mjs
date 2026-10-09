@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated reports from Vitest and Playwright
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
   ]),
   {
     files: ["src/**/*.{ts,tsx}"],
