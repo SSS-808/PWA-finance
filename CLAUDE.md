@@ -1,0 +1,22 @@
+# Personal Wallet: project notes
+
+Read `docs/` first: requirements, architecture, database, security, development, roadmap, adr/.
+
+This is Next.js 16.4 with Cache Components on. Before writing Next.js code, read the matching guide in `node_modules/next/dist/docs/` (see `AGENTS.md`), not memory.
+
+## Commands
+- Typecheck: `pnpm typecheck`
+- Lint: `pnpm lint`
+- Format: `pnpm format:check` (fix with `pnpm format`)
+- Unit tests: `pnpm test`
+- E2E tests: `pnpm test:e2e` (starts the dev server itself)
+- Build: `pnpm build`
+
+All of them must pass after every change.
+
+## Project rules
+- Money only goes through `src/modules/money` (integer minor units plus currency). Never floats, never `parseFloat` on amounts. See docs/adr/003.
+- Import other modules only through `@/modules/<name>`. `domain/` stays pure (no React, Next.js or Supabase). ESLint enforces this.
+- UI text lives in `src/messages/en.ts`.
+- Colours and design tokens live only in `src/app/globals.css`. Components use token classes (`bg-background`, `text-muted-foreground`), never raw colours.
+- Line endings are LF (`.gitattributes`).
