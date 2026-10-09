@@ -319,6 +319,16 @@ export type Database = {
         };
         Returns: string;
       };
+      delete_transfer: { Args: { p_transfer_id: string }; Returns: undefined };
+      set_account_balance: {
+        Args: {
+          p_account_id: string;
+          p_date: string;
+          p_description?: string;
+          p_target_balance_minor: number;
+        };
+        Returns: number;
+      };
       update_account: {
         Args: {
           p_account_id: string;
@@ -326,6 +336,18 @@ export type Database = {
           p_opened_on: string;
           p_opening_balance_minor: number;
           p_type: string;
+        };
+        Returns: undefined;
+      };
+      update_transfer: {
+        Args: {
+          p_date: string;
+          p_description?: string;
+          p_from_account: string;
+          p_from_amount_minor: number;
+          p_to_account: string;
+          p_to_amount_minor: number;
+          p_transfer_id: string;
         };
         Returns: undefined;
       };

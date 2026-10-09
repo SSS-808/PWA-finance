@@ -292,9 +292,11 @@ Other MVP functions follow the same pattern (written in Phases 3–4):
 |---|---|
 | `create_account(name, type, currency, opening_balance_minor, opened_on)` ✅ Phase 3 | Inserts the account and, if the amount isn't 0, its `opening_balance` row |
 | `update_account(account_id, name, type, opening_balance_minor, opened_on)` ✅ Phase 3 | Renames or retypes the account and adds, changes or soft-deletes its `opening_balance` row, all in one step |
-| `update_transfer(transfer_id, from_account, to_account, from_amount, to_amount, date, description)` | Changes both sides together |
-| `delete_transfer(transfer_id)` | Soft-deletes both sides together |
-| `set_account_balance(account_id, target_balance_minor, date)` | Works out the difference inside the database and inserts an `adjustment` row |
+| `update_transfer(transfer_id, from_account, to_account, from_amount, to_amount, date, description)` ✅ Phase 4 | Changes both sides together, with the same rules as `create_transfer`; can turn a transfer into a currency exchange |
+| `delete_transfer(transfer_id)` ✅ Phase 4 | Soft-deletes both sides together |
+| `set_account_balance(account_id, target_balance_minor, date, description)` ✅ Phase 4 | Locks the account, works out the difference, inserts an `adjustment` row, and returns the difference (0 means nothing to fix) |
+
+Accounts that are archived can't be used in a new or edited transfer or balance fix. Bring the account back first.
 
 `opened_on` and `date` always come from the app (today in your time zone). Never use `current_date`, because the database clock runs in UTC.
 
