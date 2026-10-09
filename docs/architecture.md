@@ -38,7 +38,7 @@ All data access happens on the server. The browser only renders pages and submit
 | `money` | The Money type, parsing, formatting, currency rules | `parseMoney`, `formatMoney`, `addMoney` |
 | `auth` | Session helpers, login/signup/reset actions | `requireUser()`, `getCurrentUser()`, `logIn` |
 | `profile` | Your preferences: name, main currency, time zone | `getProfile()`, `updateProfile`, `ProfileForm` |
-| `accounts` | Accounts, balances, archiving | `listAccountsWithBalances()`, `createAccount` |
+| `accounts` | Accounts, balances, archiving, totals per currency | `listAccounts()`, `getAccount(id)`, `createAccount`, `groupByCurrency()` |
 | `categories` | Default and custom categories | `listCategories(kind)` |
 | `transactions` | Income, expense, transfer, adjustment; history filters | `createTransaction`, `createTransfer`, `listTransactions(filters)` |
 | `dashboard` | Monthly summary, totals per currency | `getMonthSummary(month)` |

@@ -15,6 +15,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase (Pos
 - A transfer is two linked rows saved together by one database function, and it can never be counted as income or expense. ([ADR-006](docs/adr/006-transactions-as-legs.md))
 - Row Level Security plus composite foreign keys make it impossible to reach another user's data at the database level. ([ADR-004](docs/adr/004-supabase-auth-rls.md))
 - Every change to a transaction is written to an audit log. ([ADR-007](docs/adr/007-soft-delete-and-audit.md))
+- Every query runs as the logged-in user, so the database's own guard (RLS) applies. No ORM holds a master key. ([ADR-009](docs/adr/009-supabase-client-not-orm.md))
 
 ## Docs
 
@@ -27,7 +28,8 @@ Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase (Pos
 | [security.md](docs/security.md) | Auth, keys, layers of protection, checklists |
 | [development.md](docs/development.md) | Setup, scripts, testing strategy, Git workflow |
 | [roadmap.md](docs/roadmap.md) | Phases, sizes, risks |
-| [adr/](docs/adr/) | Architecture Decision Records 001–008 |
+| [deploy.md](docs/deploy.md) | The step-by-step checklist for going online |
+| [adr/](docs/adr/) | Architecture Decision Records 001–009 |
 
 ## Getting started
 

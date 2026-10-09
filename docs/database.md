@@ -290,7 +290,8 @@ Other MVP functions follow the same pattern (written in Phases 3–4):
 
 | Function | Does |
 |---|---|
-| `create_account(name, type, currency, opening_balance_minor, opened_on)` | Inserts the account and, if the amount isn't 0, its `opening_balance` row |
+| `create_account(name, type, currency, opening_balance_minor, opened_on)` ✅ Phase 3 | Inserts the account and, if the amount isn't 0, its `opening_balance` row |
+| `update_account(account_id, name, type, opening_balance_minor, opened_on)` ✅ Phase 3 | Renames or retypes the account and adds, changes or soft-deletes its `opening_balance` row, all in one step |
 | `update_transfer(transfer_id, from_account, to_account, from_amount, to_amount, date, description)` | Changes both sides together |
 | `delete_transfer(transfer_id)` | Soft-deletes both sides together |
 | `set_account_balance(account_id, target_balance_minor, date)` | Works out the difference inside the database and inserts an `adjustment` row |

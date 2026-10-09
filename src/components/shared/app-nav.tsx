@@ -1,6 +1,6 @@
 "use client";
 
-import { House, Settings } from "lucide-react";
+import { House, Settings, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,17 +8,23 @@ import { en } from "@/messages/en";
 
 const items = [
   { href: "/", label: en.nav.home, icon: House },
+  { href: "/accounts", label: en.nav.accounts, icon: Wallet },
   { href: "/settings", label: en.nav.settings, icon: Settings },
 ];
 
 // Home matches only itself; the other pages also match their sub-pages
-function isActive(pathname: string, href: string): boolean {
+function isActive(pathname: string | null, href: string): boolean {
+  if (pathname === null) return false;
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function AppNav() {
-  const pathname = usePathname();
+  return <AppNavFrame pathname={usePathname()} />;
+}
+
+// The bar itself; with pathname null nothing is highlighted (used while the address is still unknown)
+export function AppNavFrame({ pathname }: { pathname: string | null }) {
   return (
     <nav
       aria-label={en.nav.label}

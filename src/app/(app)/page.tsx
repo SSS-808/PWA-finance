@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
+import { listAccounts } from "@/modules/accounts";
 import { getProfile } from "@/modules/profile";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
@@ -18,8 +21,9 @@ async function HomeContent({
 }: {
   searchParams: PageProps<"/">["searchParams"];
 }) {
-  const profile = await getProfile();
+  const [profile, accounts] = await Promise.all([getProfile(), listAccounts()]);
   const { notice } = await searchParams;
+  const hasActiveAccounts = accounts.some((account) => !account.archived);
   const greeting = profile.displayName
     ? en.home.greetingNamed.replace("{name}", profile.displayName)
     : en.home.greeting.replace("{email}", profile.email);
@@ -37,6 +41,15 @@ async function HomeContent({
         <p className="text-base break-words">{greeting}</p>
         <p className="text-base text-muted-foreground">{en.home.comingSoon}</p>
       </div>
+      {hasActiveAccounts ? null : (
+        <div className="space-y-4 rounded-lg border border-border px-4 py-6">
+          <h2 className="text-xl font-semibold">{en.home.startTitle}</h2>
+          <p className="text-base text-muted-foreground">{en.home.startBody}</p>
+          <Button asChild className="h-12 w-full text-base">
+            <Link href="/accounts/new">{en.accounts.addFirst}</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

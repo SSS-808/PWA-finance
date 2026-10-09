@@ -13,6 +13,7 @@ export default defineConfig({
         "src/modules/money/**/*.ts",
         "src/modules/*/domain/calculations.ts",
         "src/modules/profile/domain/*.ts",
+        "src/modules/accounts/domain/*.ts",
       ],
       exclude: ["**/*.test.ts", "**/index.ts"],
       thresholds: {

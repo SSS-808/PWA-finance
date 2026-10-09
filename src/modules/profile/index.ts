@@ -1,4 +1,4 @@
-export { isValidTimeZone, timeZoneOptions } from "./domain/time-zones";
+export { isValidTimeZone, timeZoneOptions, todayIn } from "./domain/time-zones";
 export { profileSchema } from "./domain/schemas";
 export type { ProfileErrorKey } from "./domain/schemas";
 export type { ProfileFormState } from "./domain/types";

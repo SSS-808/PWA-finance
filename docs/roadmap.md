@@ -9,8 +9,8 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 0 | Planning | S | Done |
 | 1 | Foundation | L | Done (first deploy moved to 5.5) |
 | 2 | Authentication | M | Done |
-| 3 | Accounts | M | Next |
-| 4 | Transactions, categories, transfers | L | |
+| 3 | Accounts | M | Done |
+| 4 | Transactions, categories, transfers | L | Next |
 | 5 | Dashboard | M | |
 | **5.5** | **MVP release** | M | |
 | 6 | Budgets | M | |

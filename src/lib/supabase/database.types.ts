@@ -298,6 +298,16 @@ export type Database = {
       };
     };
     Functions: {
+      create_account: {
+        Args: {
+          p_currency: string;
+          p_name: string;
+          p_opened_on: string;
+          p_opening_balance_minor: number;
+          p_type: string;
+        };
+        Returns: string;
+      };
       create_transfer: {
         Args: {
           p_date: string;
@@ -308,6 +318,16 @@ export type Database = {
           p_to_amount_minor: number;
         };
         Returns: string;
+      };
+      update_account: {
+        Args: {
+          p_account_id: string;
+          p_name: string;
+          p_opened_on: string;
+          p_opening_balance_minor: number;
+          p_type: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: {
