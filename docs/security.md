@@ -39,8 +39,11 @@ Each layer assumes the one above it might fail.
 - **Email confirmation** is on. Minimum password length is 10 (a Supabase project setting).
 - **Sessions:** cookies managed by `@supabase/ssr` and refreshed in `proxy.ts`.
 - **Trusting the user on the server:** use `supabase.auth.getClaims()` (or `getUser()`). **Never** use `getSession()` on the server, because it reads the cookie without verifying it.
-- **Password reset:** email link → `/auth/callback` (swaps the link's code for a session) → `/reset-password` form → `updateUser({ password })`.
-- **Redirect allow-list:** only `localhost` and the production domain are allowed as redirect URLs in Supabase settings, which stops attackers bouncing users to fake sites.
+- **Email links** (confirm sign-up, reset password) point to `/auth/confirm?token_hash=…&type=…`. The route checks the token with `verifyOtp()`, which starts a session. Unlike the older "code" links, these work on any device, not only the one that signed up. The templates are in `supabase/templates/`.
+- **Password reset:** email link → `/auth/confirm` (type `recovery`) → `/reset-password` form → `updateUser({ password })` → home with "Your password was changed."
+- **No open redirects:** "send me back to the page I wanted" (`?next=`) goes through `safeNextPath()`, which only allows paths on our own site (`/accounts`), never `//evil.com` or `https://…`. Supabase's redirect allow-list holds only `localhost` and the production address.
+- **No account fishing:** "Forgot password" shows the same message whether or not an account exists. Sign-up with an existing email also looks like a normal sign-up (Supabase's own protection).
+- **No personal data in URLs:** the "check your email" view appears in place on the page, instead of a `?email=` address that would end up in logs and browser history.
 - **Later (Phase 12):** two-factor login (TOTP), which Supabase supports. Worth having for a finance app.
 
 ## 5. Server Actions are public endpoints

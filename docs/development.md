@@ -24,7 +24,9 @@ pnpm dev
 - `db:start` runs local Supabase in Docker. The first run downloads the images, which takes a few minutes.
 - `db:reset` builds the database from the migrations and loads `supabase/seed.sql`. The demo login is written at the top of that file, and it only exists locally.
 - Local URLs: API `http://127.0.0.1:54321`, **Studio** (browse the database) `http://127.0.0.1:54323`, **Mailpit** (catches auth emails) `http://127.0.0.1:54324`.
-- From Phase 2: copy `.env.example` to `.env.local` and fill in the values `pnpm supabase status` prints.
+- Copy `.env.example` to `.env.local` and fill in the two values from `pnpm supabase status` (API URL and Publishable key). `.env.local` is never committed.
+- **Emails on your laptop** aren't really sent: they land in **Mailpit** (`http://127.0.0.1:54324`), where you click the confirm or reset links.
+- `pnpm test:e2e` needs local Supabase running. Local login rate limits are raised in `supabase/config.toml` so repeated robot runs don't hit "Too many tries".
 
 ## 3. Scripts
 

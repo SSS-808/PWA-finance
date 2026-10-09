@@ -29,14 +29,23 @@ GitHub (your code) ──► Vercel (runs the website) ──► Supabase "prod"
 - [ ] Staging first, then prod. The exact commands (`supabase link`, `supabase db push`) are added at Phase 5.5. You run them.
 - [ ] The seed (fake demo data) never goes to prod. `db push` doesn't send it.
 
-### 4. Login settings in Supabase (added in Phase 2)
-- [ ] Site URL and redirect URLs (the web addresses login emails may send people back to)
-- [ ] Email confirmation on, minimum password length 10, the same as `supabase/config.toml`
+### 4. Login settings in Supabase (do this for staging and for prod)
+- [ ] **Authentication → URL Configuration:** Site URL = the site's address (prod: your Vercel address; staging: leave it as the Supabase default). Redirect URLs: add `https://<your-site>/auth/confirm`.
+- [ ] **Authentication → Providers → Email:** email confirmation **on**, minimum password length **10**. These match `supabase/config.toml`.
+- [ ] **Authentication → Email Templates:**
+  - "Confirm signup": subject `Confirm your Personal Wallet account`, body = the contents of `supabase/templates/confirmation.html`
+  - "Reset password": subject `Reset your Personal Wallet password`, body = `supabase/templates/recovery.html`
+  - Why: our links use `/auth/confirm?token_hash=…`, so they work even when the email is opened on a different device from the one used to sign up.
+- [ ] Rate limits: keep Supabase's defaults online. The high limits in `config.toml` are only for the robot tests on your laptop.
+- [ ] Built-in email only reaches your own team's addresses, a few per hour. Fine while you're the only user. Before letting others sign up, add an email service (Phase 12).
 
 ### 5. Vercel
 - [ ] Import the GitHub repo
 - [ ] Function region **Singapore (sin1)**, next to the database
-- [ ] Environment variables (added in Phase 2): "Production" gets the prod keys, "Preview" gets the staging keys
+- [ ] **Environment variables** (Settings → Environment Variables). The names are in `.env.example`:
+  - `NEXT_PUBLIC_SUPABASE_URL`: the project URL (Supabase → Project Settings → API)
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the **publishable** key (starts with `sb_publishable_`). Never use the secret key here.
+  - Set the **prod** values for "Production" and the **staging** values for "Preview".
 - [ ] Turn on Deployment Protection for preview links, so only you can open them
 
 ### 6. After the deploy

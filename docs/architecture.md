@@ -81,9 +81,9 @@ modules/transactions/
 │   └── tests/                  pgTAP database tests (RLS and constraints)
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/             login, signup, forgot-password, reset-password
-│   │   ├── auth/callback/      route.ts: handles links from emails
-│   │   ├── (app)/              logged-in area; layout.tsx checks the user and draws the nav
+│   │   ├── (auth)/             login, signup, forgot-password (logged-out pages)
+│   │   ├── auth/confirm/       route.ts: handles links from emails (token_hash)
+│   │   ├── (app)/              logged-in area: home (/), reset-password, and later the rest
 │   │   │   ├── dashboard/
 │   │   │   ├── transactions/
 │   │   │   ├── accounts/

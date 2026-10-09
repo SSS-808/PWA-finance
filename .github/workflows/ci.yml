@@ -20,6 +20,10 @@ jobs:
     name: App checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The build never calls Supabase, so placeholders are enough
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-build-placeholder
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

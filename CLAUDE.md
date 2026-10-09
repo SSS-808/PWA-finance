@@ -9,7 +9,7 @@ This is Next.js 16.4 with Cache Components on. Before writing Next.js code, read
 - Lint: `pnpm lint`
 - Format: `pnpm format:check` (fix with `pnpm format`)
 - Unit tests: `pnpm test` (coverage gate: `pnpm test:coverage`, 100% on `modules/money` and `domain/calculations.ts`)
-- E2E tests: `pnpm test:e2e` (starts the dev server itself)
+- E2E tests: `pnpm test:e2e` (starts the dev server itself; needs `pnpm db:start` and `.env.local`)
 - Build: `pnpm build`
 - Database (Docker must be running): `pnpm db:start`, `pnpm db:reset` (migrations + seed), `pnpm test:db` (pgTAP), `pnpm db:types` (after every migration)
 
