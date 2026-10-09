@@ -81,8 +81,12 @@ Analogy: local is a flight simulator, production is the real plane. Migrations a
 ### Coverage
 All branches covered in `modules/money` and every `domain/calculations.ts`. No target elsewhere: test what the code does, not how many lines it touches.
 
-### CI (GitHub Actions, set up in Phase 1)
-On every PR: install → typecheck → lint → unit tests → DB tests (`supabase start` on the CI machine) → build. End-to-end tests join CI at the MVP release.
+### CI (GitHub Actions: `.github/workflows/ci.yml`)
+Runs on every push to `main` and on every PR into `main`, as two jobs side by side:
+- **App checks:** install → typecheck → lint → format check → unit tests with the coverage gate → build.
+- **Database checks:** `supabase start` (migrations and seed) → pgTAP tests → regenerate the types and fail if they differ from the committed `database.types.ts`, which catches a forgotten `pnpm db:types`.
+
+End-to-end tests join CI at the MVP release.
 
 ## 6. Git workflow
 
