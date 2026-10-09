@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { getProfile } from "@/modules/profile";
+import { SavedNotice } from "@/modules/transactions";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
@@ -22,7 +23,7 @@ async function HomeContent({
   searchParams: PageProps<"/">["searchParams"];
 }) {
   const [profile, accounts] = await Promise.all([getProfile(), listAccounts()]);
-  const { notice } = await searchParams;
+  const { notice, saved, deleted } = await searchParams;
   const hasActiveAccounts = accounts.some((account) => !account.archived);
   const greeting = profile.displayName
     ? en.home.greetingNamed.replace("{name}", profile.displayName)
@@ -37,6 +38,7 @@ async function HomeContent({
           {en.home.passwordUpdated}
         </p>
       ) : null}
+      <SavedNotice saved={saved} deleted={deleted} />
       <div className="space-y-2">
         <p className="text-base break-words">{greeting}</p>
         <p className="text-base text-muted-foreground">{en.home.comingSoon}</p>

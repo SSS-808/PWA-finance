@@ -7,20 +7,24 @@ export function SubmitButton({
   label,
   pendingLabel,
   variant = "default",
+  pending,
 }: {
   label: string;
   pendingLabel: string;
   variant?: "default" | "outline";
+  // For forms that submit by code, where the form status never turns on
+  pending?: boolean;
 }) {
-  const { pending } = useFormStatus();
+  const status = useFormStatus();
+  const isPending = pending ?? status.pending;
   return (
     <Button
       type="submit"
       variant={variant}
-      disabled={pending}
+      disabled={isPending}
       className="h-12 w-full text-base"
     >
-      {pending ? pendingLabel : label}
+      {isPending ? pendingLabel : label}
     </Button>
   );
 }

@@ -8,6 +8,7 @@ import {
   Notice,
   listAccounts,
 } from "@/modules/accounts";
+import { SavedNotice } from "@/modules/transactions";
 
 const toggleClass =
   "inline-flex min-h-12 items-center font-medium underline underline-offset-4";
@@ -35,7 +36,12 @@ async function AccountsContent({
 }: {
   searchParams: PageProps<"/accounts">["searchParams"];
 }) {
-  const { notice, archived: showArchivedParam } = await searchParams;
+  const {
+    notice,
+    archived: showArchivedParam,
+    saved,
+    deleted,
+  } = await searchParams;
   const accounts = await listAccounts();
   const active = accounts.filter((account) => !account.archived);
   const archived = accounts.filter((account) => account.archived);
@@ -44,6 +50,7 @@ async function AccountsContent({
   return (
     <div className="space-y-8">
       <Notice notice={notice} />
+      <SavedNotice saved={saved} deleted={deleted} />
       {active.length === 0 ? (
         <EmptyAccounts />
       ) : (

@@ -11,6 +11,7 @@ import {
   getAccount,
 } from "@/modules/accounts";
 import { formatMoney } from "@/modules/money";
+import { SavedNotice } from "@/modules/transactions";
 
 export default function AccountPage({
   params,
@@ -40,13 +41,14 @@ async function AccountDetail({
   searchParams: PageProps<"/accounts/[id]">["searchParams"];
 }) {
   const { id } = await params;
-  const { notice } = await searchParams;
+  const { notice, saved, deleted } = await searchParams;
   const account = await getAccount(id);
   const { amount, owed } = displayBalance(account.type, account.balance);
 
   return (
     <div className="space-y-6">
       <Notice notice={notice} />
+      <SavedNotice saved={saved} deleted={deleted} />
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight break-words">
           {account.name}
