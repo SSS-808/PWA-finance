@@ -8,7 +8,7 @@ This is Next.js 16.4 with Cache Components on. Before writing Next.js code, read
 - Typecheck: `pnpm typecheck`
 - Lint: `pnpm lint`
 - Format: `pnpm format:check` (fix with `pnpm format`)
-- Unit tests: `pnpm test`
+- Unit tests: `pnpm test` (coverage gate: `pnpm test:coverage`, 100% on `modules/money` and `domain/calculations.ts`)
 - E2E tests: `pnpm test:e2e` (starts the dev server itself)
 - Build: `pnpm build`
 

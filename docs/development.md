@@ -32,6 +32,7 @@ pnpm dev
 | `pnpm lint` | ESLint, including the module-boundary rules |
 | `pnpm format` | Prettier |
 | `pnpm test` | Vitest unit tests |
+| `pnpm test:coverage` | Unit tests plus the 100% coverage gate on money and calculations |
 | `pnpm test:db` | pgTAP tests against local Supabase |
 | `pnpm test:e2e` | Playwright end-to-end tests |
 | `pnpm build` | Production build |
@@ -89,7 +90,7 @@ main  ──●──────────────●──────�
 ```
 
 - `main` is the live site. Vercel deploys it automatically once it's connected.
-- **Exception:** the very first commit (these Phase 0 docs) goes straight onto `main`, because there is nothing to branch from yet.
+- **Exception:** until the first deploy (Phase 1, task 1.5), commits go straight onto `main`, because there's no live site to protect yet. After that, every task gets a branch and a PR.
 - For each task: update `main` → create a branch `feat/<short-name>` or `fix/<short-name>` → open a PR into `main` → wait for CI to pass → squash merge.
 - **Why squash merge:** each PR becomes one clean commit on `main`, so the history reads like a changelog. The branch's work-in-progress commits disappear.
 - **Commit subjects:** a subject line only, starting with `Feat`, `Fix`, `Chore`, `Docs`, `Perf`, `Test` or `Refactor`. Example: `Feat: add quick-add expense sheet`.

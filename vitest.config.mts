@@ -7,5 +7,19 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     environment: "node",
     passWithNoTests: true,
+    coverage: {
+      provider: "v8",
+      include: [
+        "src/modules/money/**/*.ts",
+        "src/modules/*/domain/calculations.ts",
+      ],
+      exclude: ["**/*.test.ts", "**/index.ts"],
+      thresholds: {
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100,
+      },
+    },
   },
 });
