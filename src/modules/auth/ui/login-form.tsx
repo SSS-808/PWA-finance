@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { SubmitButton } from "@/components/shared/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
@@ -11,7 +12,6 @@ import { FieldError } from "./field-error";
 import { FormAlert } from "./form-alert";
 import { PasswordInput } from "./password-input";
 import { ResendForm } from "./resend-form";
-import { SubmitButton } from "./submit-button";
 
 const linkClass = "inline-block py-2 font-medium underline underline-offset-4";
 

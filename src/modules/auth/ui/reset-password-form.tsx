@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { SubmitButton } from "@/components/shared/submit-button";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
 import { PASSWORD_MIN_LENGTH, idleState } from "../domain/types";
@@ -8,7 +9,6 @@ import { updatePassword } from "../server/actions";
 import { FieldError } from "./field-error";
 import { FormAlert } from "./form-alert";
 import { PasswordInput } from "./password-input";
-import { SubmitButton } from "./submit-button";
 
 export function ResetPasswordForm() {
   const [state, formAction] = useActionState(updatePassword, idleState);

@@ -36,7 +36,8 @@ All data access happens on the server. The browser only renders pages and submit
 | Module | Owns | Public API (examples) |
 |---|---|---|
 | `money` | The Money type, parsing, formatting, currency rules | `parseMoney`, `formatMoney`, `addMoney` |
-| `auth` | Session helpers, login/signup/reset actions, profile | `requireUser()`, `getProfile()` |
+| `auth` | Session helpers, login/signup/reset actions | `requireUser()`, `getCurrentUser()`, `logIn` |
+| `profile` | Your preferences: name, main currency, time zone | `getProfile()`, `updateProfile`, `ProfileForm` |
 | `accounts` | Accounts, balances, archiving | `listAccountsWithBalances()`, `createAccount` |
 | `categories` | Default and custom categories | `listCategories(kind)` |
 | `transactions` | Income, expense, transfer, adjustment; history filters | `createTransaction`, `createTransfer`, `listTransactions(filters)` |
@@ -113,7 +114,7 @@ Changes from the brief's suggested structure, and why:
 ## 6. How data moves
 
 - **Reads:** Server Components call `server/queries.ts`. There is no client-side fetching in the MVP.
-- **Cache Components** is on (the Next.js 16.4 default, and it becomes mandatory in the next major version). Data is fresh on every request unless marked `use cache`. Anything that reads the login cookie sits inside `<Suspense>`, while the static shell (layout, nav) appears instantly. Per-user data never goes into a plain `use cache`.
+- **Cache Components** is on (the Next.js 16.4 default, and it becomes mandatory in the next major version). Data is fresh on every request unless marked `use cache`. Anything that reads the login cookie sits inside `<Suspense>`, while the static shell (layout, nav) appears instantly. Per-user data never goes into a plain `use cache`. `getCurrentUser()` calls `await connection()` first, because Supabase's session check reads the clock, and Next.js only allows that at request time. In plain words: your money data is always fresh, never prepared ahead of time.
 - **Writes:** Server Actions in `server/actions.ts`. Each one does: check the user → Zod → database → revalidate → return a typed result.
 - **State:** filters, month and sort order live in the URL (`?month=2026-10&account=…`). Form state lives in React. There is no global store (no Zustand) in the MVP.
 - **Errors:** actions return `{ ok: true, data } | { ok: false, error: { message, fieldErrors? } }`. Raw database errors are logged on the server and never sent to the browser.
@@ -131,7 +132,8 @@ If a TypeScript calculation ever gets slow, it moves to SQL, and the TypeScript 
 
 ## 8. Mobile layout
 
-- On phones, a bottom nav: Dashboard · Transactions · **+** · Accounts · Settings. From 1024 px it becomes a sidebar.
+- On phones, a bottom nav; from 1024 px it becomes a sidebar that stays pinned while you scroll (`src/components/shared/app-nav.tsx`). It only shows pages that exist: today Home · Settings. Later: Home · Transactions · **+** · Accounts · Settings.
+- Dark mode follows the phone's setting (CSS `prefers-color-scheme` in `globals.css`). A manual switch waits until after the MVP.
 - **+** opens a bottom sheet with the amount field already focused and the number keyboard showing (`inputmode="decimal"`). Below it are category chips (most-used first) and Save. Account and date are filled in already; tap them to change. Target: 2 taps plus typing.
 - A switch at the top of the sheet picks Expense, Income or Transfer. Expense is the default.
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,6 @@ import { idleState } from "../domain/types";
 import { sendPasswordReset } from "../server/actions";
 import { FieldError } from "./field-error";
 import { FormAlert } from "./form-alert";
-import { SubmitButton } from "./submit-button";
 
 export function ForgotPasswordForm() {
   const [state, formAction] = useActionState(sendPasswordReset, idleState);

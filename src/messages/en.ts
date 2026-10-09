@@ -72,7 +72,41 @@ export const en = {
   home: {
     title: "Home",
     greeting: "You're logged in as {email}.",
-    comingSoon: "Your accounts and dashboard are coming soon.",
+    greetingNamed: "Hi, {name}!",
+    comingSoon: "Your accounts and transactions will appear here soon.",
     passwordUpdated: "Your password was changed.",
+  },
+  nav: { label: "Main", home: "Home", settings: "Settings" },
+  currencies: {
+    LAK: "Lao kip (₭)",
+    USD: "US dollar ($)",
+    THB: "Thai baht (฿)",
+  },
+  settings: {
+    title: "Settings",
+    profile: {
+      title: "Profile",
+      displayName: "Your name",
+      displayNameHint: "Optional. Shown on your Home page.",
+      baseCurrency: "Main currency",
+      baseCurrencyHint:
+        "Used for combined totals later. Amounts are always shown in their own currency.",
+      timeZone: "Time zone",
+      timeZoneHint: "Decides which day a late-night expense belongs to.",
+      submit: "Save changes",
+      submitting: "Saving…",
+      saved: "Saved.",
+    },
+    account: {
+      title: "Account",
+      email: "Email",
+      changePassword: "Change password",
+    },
+    errors: {
+      name_too_long: "Use 60 characters or fewer.",
+      invalid_currency: "Choose one of the listed currencies.",
+      invalid_time_zone: "Choose a time zone from the list.",
+      unknown: "Something went wrong. Please try again.",
+    },
   },
 } as const;

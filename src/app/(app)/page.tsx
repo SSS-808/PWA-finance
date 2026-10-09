@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { en } from "@/messages/en";
-import { LogoutButton, requireUser } from "@/modules/auth";
+import { getProfile } from "@/modules/profile";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center gap-2 px-4 py-12">
+    <div className="space-y-6">
       <h1 className="text-3xl font-semibold tracking-tight">{en.home.title}</h1>
       <Suspense>
         <HomeContent searchParams={searchParams} />
       </Suspense>
-    </main>
+    </div>
   );
 }
 
@@ -18,8 +18,11 @@ async function HomeContent({
 }: {
   searchParams: PageProps<"/">["searchParams"];
 }) {
-  const user = await requireUser();
+  const profile = await getProfile();
   const { notice } = await searchParams;
+  const greeting = profile.displayName
+    ? en.home.greetingNamed.replace("{name}", profile.displayName)
+    : en.home.greeting.replace("{email}", profile.email);
   return (
     <div className="space-y-6">
       {notice === "password-updated" ? (
@@ -31,12 +34,9 @@ async function HomeContent({
         </p>
       ) : null}
       <div className="space-y-2">
-        <p className="text-base">
-          {en.home.greeting.replace("{email}", user.email)}
-        </p>
+        <p className="text-base break-words">{greeting}</p>
         <p className="text-base text-muted-foreground">{en.home.comingSoon}</p>
       </div>
-      <LogoutButton />
     </div>
   );
 }

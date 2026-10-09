@@ -1,11 +1,11 @@
 "use client";
 
 import { useActionState } from "react";
+import { SubmitButton } from "@/components/shared/submit-button";
 import { en } from "@/messages/en";
 import { idleState } from "../domain/types";
 import { resendConfirmation } from "../server/actions";
 import { FormAlert } from "./form-alert";
-import { SubmitButton } from "./submit-button";
 
 export function ResendForm({ email }: { email: string }) {
   const [state, formAction] = useActionState(resendConfirmation, idleState);

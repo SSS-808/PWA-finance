@@ -33,6 +33,14 @@ New words get added here as they come up.
 - **Studio**: Supabase's website for looking inside your database (`http://127.0.0.1:54323` on your laptop).
 - **Docker**: runs a mini Supabase on your laptop inside "containers", like little sealed boxes.
 
+## Logging in
+- **Session**: proof that you're logged in, kept in a cookie (a small note the browser stores).
+- **Proxy (the doorman)**: `src/proxy.ts` runs before every page and sends logged-out visitors to the login page. It's a convenience; the real locks are the server checks and RLS.
+- **Server action**: a function that runs on the server when you press a form button, like "Log in" or "Save changes".
+- **Mailpit**: the pretend inbox on your laptop that catches the app's emails (`http://127.0.0.1:54324`).
+- **Token hash link**: the kind of email link we use. It works even if you open the email on a different device.
+- **Suspense (loading boundary)**: a part of the page that shows "loading" for a moment while your data arrives; the rest of the page appears instantly.
+
 ## App and going online
 - **Next.js**: the framework (toolkit) our website is built with.
 - **Component**: one reusable piece of the screen, like a button or a form.
