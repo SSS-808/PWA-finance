@@ -6,9 +6,9 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 
 | Phase | Name | Size | Status |
 |---|---|---|---|
-| 0 | Planning | S | In review |
-| 1 | Foundation | L | Next |
-| 2 | Authentication | M | |
+| 0 | Planning | S | Done |
+| 1 | Foundation | L | Done (first deploy moved to 5.5) |
+| 2 | Authentication | M | Next |
 | 3 | Accounts | M | |
 | 4 | Transactions, categories, transfers | L | |
 | 5 | Dashboard | M | |
@@ -28,9 +28,9 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 2. **Database:** Supabase CLI, `supabase init`, the first migrations from [database.md](database.md), seed data, pgTAP tests, and generated types. (`lib/supabase` and `lib/env.ts` move to Phase 2, their first real user.)
 3. **Tests:** Vitest with the `money` module and its full tests, pgTAP tests for RLS and constraints, and a Playwright smoke test.
 4. **CI:** a GitHub Actions workflow.
-5. **First deploy:** you create the Supabase cloud project and the Vercel project, push the migrations, and deploy an empty "Hello" page. Why now: deployment problems are cheapest to fix while the app is tiny.
+5. **First deploy:** moved to Phase 5.5 (your decision, 2026-10-10). Until then, each phase adds its deploy steps to [deploy.md](deploy.md) while they're fresh.
 
-**Done when:** every check passes locally and in CI, the empty app is live on Vercel, and the migrations have run on the staging and production Supabase projects. The app first talks to Supabase in Phase 2.
+**Done when:** every check passes locally and in CI. ✅ Done 2026-10-10.
 
 ### Phase 2: Authentication
 `lib/supabase` clients and `lib/env.ts` (with `.env.example`), sign-up, login, logout, forgot and reset password, `/auth/callback`, `proxy.ts`, the logged-in layout that checks the user, profile settings (name, base currency, time zone), `messages/en.ts`, and an end-to-end auth test.
@@ -55,7 +55,7 @@ Per currency: total balance, this month's income, expenses and savings rate, spe
 **Done when:** the numbers match hand-calculated seed data in tests.
 
 ### Phase 5.5: MVP release
-Error and 404 pages, loading states, an accessibility pass, responsive measurements at all six widths, a clean Supabase Security Advisor report, e2e tests in CI, and closing public sign-up. Then **use it every day for two weeks** before Phase 6. Real use shows what to fix better than any plan does.
+**First deploy**, following [deploy.md](deploy.md): Supabase staging and production projects, Vercel, environment variables, migrations. Then error and 404 pages, loading states, an accessibility pass, responsive measurements at all six widths, a clean Supabase Security Advisor report, e2e tests in CI, and closing public sign-up. Then **use it every day for two weeks** before Phase 6. Real use shows what to fix better than any plan does.
 
 ## After the MVP
 
@@ -74,6 +74,6 @@ Error and 404 pages, loading states, an accessibility pass, responsive measureme
 | Risk | Plan |
 |---|---|
 | Scope creep | The MVP list in [requirements.md](requirements.md) is fixed. New ideas go into a "Later" list. |
-| Free Supabase projects pause when they sit unused | Daily use avoids it. Check the free plan's limits in Phase 1. |
+| Free Supabase projects pause when they sit unused | Daily use avoids it. Check the free plan's limits at the 5.5 deploy. |
 | Losing real financial data | Check what backups the Supabase plan includes; add an export before Phase 6. |
 | Library changes (Next.js, Supabase) | Pin versions, and read the release notes before upgrading. |

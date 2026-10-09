@@ -50,7 +50,7 @@ pnpm dev
 | | Database | App | Data |
 |---|---|---|---|
 | Local | Supabase in Docker | localhost:3000 | Fake seed data, wipe anytime |
-| Preview | Decided in Phase 1 ([requirements §6](requirements.md#6-open-questions-for-later-phases)) | A Vercel preview URL per PR | Fake |
+| Preview | Supabase "staging" project, set up at the 5.5 deploy ([deploy.md](deploy.md)) | A Vercel preview URL per PR | Fake |
 | Production | Supabase cloud | Vercel, deployed from `main` | Your real data |
 
 Analogy: local is a flight simulator, production is the real plane. Migrations are the checklist you run in both, so the two behave the same.
@@ -82,7 +82,7 @@ Analogy: local is a flight simulator, production is the real plane. Migrations a
 All branches covered in `modules/money` and every `domain/calculations.ts`. No target elsewhere: test what the code does, not how many lines it touches.
 
 ### CI (GitHub Actions: `.github/workflows/ci.yml`)
-Runs on every push to `main` and on every PR into `main`, as two jobs side by side:
+Runs on every push to `main` and on every PR into `main`, except when only docs or Markdown files changed. It uses GitHub's machines, not yours, and it's free for public repos. Two jobs run side by side:
 - **App checks:** install → typecheck → lint → format check → unit tests with the coverage gate → build.
 - **Database checks:** `supabase start` (migrations and seed) → pgTAP tests → regenerate the types and fail if they differ from the committed `database.types.ts`, which catches a forgotten `pnpm db:types`.
 
@@ -98,7 +98,7 @@ main  ──●──────────────●──────�
 ```
 
 - `main` is the live site. Vercel deploys it automatically once it's connected.
-- **Exception:** until the first deploy (Phase 1, task 1.5), commits go straight onto `main`, because there's no live site to protect yet. After that, every task gets a branch and a PR.
+- **Exception:** until the MVP is deployed (Phase 5.5), commits go straight onto `main`, because there's no live site to protect yet. After that, every task gets a branch and a PR.
 - For each task: update `main` → create a branch `feat/<short-name>` or `fix/<short-name>` → open a PR into `main` → wait for CI to pass → squash merge.
 - **Why squash merge:** each PR becomes one clean commit on `main`, so the history reads like a changelog. The branch's work-in-progress commits disappear.
 - **Commit subjects:** a subject line only, starting with `Feat`, `Fix`, `Chore`, `Docs`, `Perf`, `Test` or `Refactor`. Example: `Feat: add quick-add expense sheet`.

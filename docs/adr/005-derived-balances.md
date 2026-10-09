@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+We **don't write the balance down; we add up the transactions every time.** It's like counting the coins in your piggy bank instead of trusting a sticky note on it that someone might have forgotten to update. Counting is fast for one person's data, and it's always right. As a bonus, we can work out your balance on *any past day*, which later gives us net-worth history for free.
+
 ## Context
 The brief lists `balance` as an account field but asks whether it should be stored. A stored balance is a second copy of the truth. If one update fails, or a bug slips in, it drifts away from the transactions and stays wrong.
 

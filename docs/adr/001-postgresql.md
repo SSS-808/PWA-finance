@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+Our data lives in **tables that point at each other**, like a spreadsheet where every row in a "transactions" sheet points to a row in an "accounts" sheet. PostgreSQL is a database that **refuses broken links and bad data by itself**. Even if our app has a bug, it won't save a transaction for an account that doesn't exist. MongoDB stores loose "documents" and leaves those checks to our code, which is riskier for money.
+
 ## Context
 Financial data is tightly linked: accounts have transactions, transactions have categories, and transfers link two transactions. We need foreign keys, check constraints, multi-row transactions and grouped totals, and we want the database to enforce the rules even when app code has a bug.
 

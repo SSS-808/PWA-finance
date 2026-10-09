@@ -49,3 +49,4 @@ next-env.d.ts
 # claude working files
 .claude/settings.local.json
 .claude/task.md
+.claude/archive/

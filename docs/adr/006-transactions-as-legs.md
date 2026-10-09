@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+Moving money between **your own** accounts (BCEL → Cash) isn't income or spending. It's written as **two lines glued together**: minus 500,000 from BCEL, plus 500,000 into Cash. Both lines are saved together or not at all, so money can't vanish halfway. Reports skip these lines, so a transfer never looks like you earned or spent money. Changing dollars into kip works the same way, with a different amount on each line.
+
 ## Context
 A transfer must move money between accounts without being counted as income or expense. It must also be saved all-or-nothing, and it must handle currency exchange (two different amounts).
 

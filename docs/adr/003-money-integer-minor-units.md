@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+**Computers are bad at decimals.** Ask JavaScript for `0.1 + 0.2` and you get `0.30000000000000004`. With money, those tiny errors add up. So we **count money in its smallest coin, as whole numbers**: $12.50 is stored as `1250` cents. Kip has no coins in real life, so 100,000 kip is just `100000`. Whole numbers never go wrong, and every amount always carries its currency, so kip and dollars can't get mixed up.
+
 ## Context
 Floats can't represent most decimals exactly (`0.1 + 0.2 = 0.30000000000000004`). Errors pile up in sums and comparisons. We use three currencies with different decimals, and the brief requires every amount to carry its currency.
 

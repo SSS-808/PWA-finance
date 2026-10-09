@@ -2,6 +2,11 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+Two parts:
+1. **Supabase handles logins.** It stores passwords safely and sends the confirmation emails. We never touch a password ourselves.
+2. **A guard on every table** (called RLS, Row Level Security). Before showing any row, the database checks "does this row have *your* name on it?" Even if our app code has a bug and asks for someone else's data, the guard says no. Think of a bank where every drawer only opens for its owner's key.
+
 ## Context
 Financial data must only ever be visible to its owner. The app is single-user today but must support more users without a rewrite. Checks in app code alone fail the first time someone forgets `WHERE user_id = …`.
 

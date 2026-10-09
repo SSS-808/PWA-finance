@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+**One house with labelled rooms**, instead of many separate houses. The whole app is one project that goes online in one piece, so it's simple to run. Inside, the code is sorted into rooms (`money`, `accounts`, `transactions`…), and a rule-checker stops one room from rummaging in another room's drawers. Big companies split apps into many small services ("microservices"); for one person that's a lot of extra work for no gain.
+
 ## Context
 One developer, one user, one database. We want clear separation between business areas (accounts, transactions, budgets…) without the cost of running several services.
 

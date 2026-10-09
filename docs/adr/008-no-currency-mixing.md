@@ -2,6 +2,9 @@
 
 **Status:** Accepted · 2026-10-09
 
+## In plain words
+**We never add kip and dollars together without an exchange rate.** That's like adding apples and oranges. For now, totals are shown **per currency** ("₭12,500,000 · $340.00"), so every number is exactly true. Later (Phase 8) you'll type in exchange rates, and the app will also show one combined total in kip, with the rate it used written next to it.
+
 ## Context
 You hold LAK, USD and THB. A single "Total balance" needs exchange rates, and the official rate can differ from what a money changer actually gives you. A number that quietly uses a wrong or out-of-date rate looks precise but isn't.
 

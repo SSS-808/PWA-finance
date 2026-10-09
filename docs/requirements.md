@@ -81,7 +81,7 @@ Budgets (Phase 6) · Savings goals (7) · Net worth history and exchange rates (
 
 | Phase | Question | Proposed default |
 |---|---|---|
-| 1 | Which database do Vercel preview deployments use? | A second free Supabase project ("staging"), never production. |
+| 5.5 | Which database do Vercel preview deployments use? | A second free Supabase project ("staging"), never production. (Agreed 2026-10-09.) |
 | 2 | Should anyone be able to sign up on the live site? | No, close sign-up once your account exists. Add a demo account with fake data for portfolio visitors. |
 | 6 | Which currency is a budget in, when spending happens in several? | One currency per budget; only spending in that currency counts. |
 | 7 | Is goal progress typed in, or linked to an account? | Contributions are recorded against the goal, optionally linked to a savings account. |
