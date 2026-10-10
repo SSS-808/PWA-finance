@@ -33,3 +33,16 @@ export function formatMoney(
     maximumFractionDigits: minorUnit,
   }).format(toDecimalString(value) as Intl.StringNumericLiteral);
 }
+
+// The symbol shown before an amount box, for example $ or ₭
+export function currencySymbol(currency: string): string {
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+  })
+    .formatToParts(0)
+    .filter((part) => part.type === "currency")
+    .map((part) => part.value)
+    .join("");
+}

@@ -11,7 +11,11 @@ import {
   fieldErrorsFrom,
   parseStartingAmount,
 } from "../domain/schemas";
-import type { AccountFormState, AccountFormValues } from "../domain/types";
+import type {
+  AccountFormState,
+  AccountFormValues,
+  FixBalanceState,
+} from "../domain/types";
 import { getAccount } from "./queries";
 
 function textField(formData: FormData, name: string): string {
@@ -169,4 +173,59 @@ export async function unarchiveAccount(id: string): Promise<void> {
     redirect(`/accounts/${id}?notice=unarchive_name_taken`);
   }
   redirect(`/accounts/${id}`);
+}
+
+// "My bank app says X": the database adds a Balance fix for the difference and returns it
+export async function fixBalance(
+  id: string,
+  _prev: FixBalanceState,
+  formData: FormData,
+): Promise<FixBalanceState> {
+  await requireUser();
+  // The currency comes from the database, never from the browser
+  const account = await getAccount(id);
+  const values = {
+    amount: textField(formData, "amount"),
+    note: textField(formData, "note"),
+  };
+  // An empty box is a slip, not a zero balance
+  if (values.amount.trim() === "") {
+    return {
+      status: "error",
+      fieldErrors: { amount: "amount_invalid" },
+      values,
+    };
+  }
+  const amount = parseStartingAmount(
+    values.amount,
+    account.type,
+    account.currency,
+  );
+  if (!amount.ok) {
+    return { status: "error", fieldErrors: { amount: amount.error }, values };
+  }
+
+  const note = values.note.trim();
+  const profile = await getProfile();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("set_account_balance", {
+    p_account_id: id,
+    p_target_balance_minor: amount.value.minor,
+    p_date: todayIn(profile.timeZone),
+    p_description: note === "" ? undefined : note,
+  });
+  if (error) {
+    // P0002 is raised by set_account_balance when the account isn't there, isn't yours or is archived
+    if (error.code === "P0002") {
+      return { status: "error", error: "not_found", values };
+    }
+    logDatabaseError("Could not fix the balance", error);
+    return { status: "error", error: "unknown", values };
+  }
+
+  redirect(
+    data === 0
+      ? `/accounts/${id}?notice=nothing_to_fix`
+      : `/accounts/${id}?notice=fixed`,
+  );
 }

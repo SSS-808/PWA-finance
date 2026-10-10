@@ -27,6 +27,9 @@ export const TRANSACTION_ERROR_KEYS = [
   "account_required",
   "invalid_date",
   "note_too_long",
+  "same_account",
+  "amounts_must_match",
+  "arrived_required",
   "not_found",
   "unknown",
 ] as const;
@@ -66,6 +69,28 @@ export type Entry = {
   accountId: string;
   categoryId: string;
   amount: Money;
+  date: string;
+  note: string | null;
+};
+
+export type TransferFieldName =
+  "fromAccountId" | "toAccountId" | "amount" | "arrived" | "date" | "note";
+
+export type TransferFormValues = Record<TransferFieldName, string>;
+
+export type TransferFormState = {
+  status: "idle" | "error";
+  error?: TransactionErrorKey;
+  fieldErrors?: Partial<Record<TransferFieldName, TransactionErrorKey>>;
+};
+
+// A transfer as stored: from and to are account ids, both amounts are positive
+export type Transfer = {
+  id: string;
+  from: string;
+  to: string;
+  fromAmount: Money;
+  toAmount: Money;
   date: string;
   note: string | null;
 };

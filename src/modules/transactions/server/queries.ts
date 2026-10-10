@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/modules/auth";
-import { type Money, isCurrencyCode, money } from "@/modules/money";
+import { type Money, isCurrencyCode, money, negate } from "@/modules/money";
 import {
   type DayGroup,
   type HistoryRow,
@@ -16,12 +16,20 @@ import {
   type Entry,
   type EntryKind,
   type TransactionKind,
+  type Transfer,
 } from "../domain/types";
 
 export type SavedSummary = {
   kind: TransactionKind;
   categoryName: string | null;
   amount: Money;
+};
+
+export type SavedTransferSummary = {
+  from: string;
+  to: string;
+  fromAmount: Money;
+  toAmount: Money;
 };
 
 const idSchema = z.uuid();
@@ -174,5 +182,92 @@ export async function getSavedSummary(
     kind: data.kind,
     categoryName: data.categories?.name ?? null,
     amount: money(data.amount_minor, data.currency),
+  };
+}
+
+type LegRecord = {
+  account_id: string;
+  amount_minor: number;
+  currency: string;
+  description: string | null;
+  transaction_date: string;
+  accounts: { name: string } | null;
+};
+
+type Leg = {
+  accountId: string;
+  accountName: string;
+  amount: Money;
+  date: string;
+  note: string | null;
+};
+
+type TransferLegs = { out: Leg; into: Leg };
+
+const LEG_COLUMNS =
+  "account_id, amount_minor, currency, description, transaction_date, accounts(name)";
+
+function toLeg(record: LegRecord): Leg {
+  // The database checks this value, so anything else is a bug
+  if (!isCurrencyCode(record.currency)) {
+    throw new Error(`Unexpected transfer currency: ${record.currency}`);
+  }
+  return {
+    accountId: record.account_id,
+    accountName: record.accounts?.name ?? "",
+    amount: money(record.amount_minor, record.currency),
+    date: record.transaction_date,
+    note: record.description,
+  };
+}
+
+// Both legs of a transfer that is yours and not deleted; anything else gives null
+async function loadLegs(transferId: string): Promise<TransferLegs | null> {
+  if (!idSchema.safeParse(transferId).success) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(LEG_COLUMNS)
+    .eq("transfer_id", transferId)
+    .eq("kind", "transfer")
+    .is("deleted_at", null);
+  if (error) {
+    throw new Error("Could not load the transfer", { cause: error });
+  }
+  // The money leaves with the negative leg and arrives with the positive one
+  const [out] = data.filter((leg) => leg.amount_minor < 0);
+  const [into] = data.filter((leg) => leg.amount_minor > 0);
+  if (data.length !== 2 || !out || !into) return null;
+  return { out: toLeg(out), into: toLeg(into) };
+}
+
+// A transfer that is yours and not deleted, as the edit form needs it; anything else is a 404
+export async function getTransfer(transferId: string): Promise<Transfer> {
+  await requireUser();
+  const legs = await loadLegs(transferId);
+  if (!legs) notFound();
+  return {
+    id: transferId,
+    from: legs.out.accountId,
+    to: legs.into.accountId,
+    fromAmount: negate(legs.out.amount),
+    toAmount: legs.into.amount,
+    date: legs.out.date,
+    note: legs.out.note,
+  };
+}
+
+// What the "Saved" note needs for a transfer; an unknown or foreign id gives null
+export async function getSavedTransferSummary(
+  transferId: string,
+): Promise<SavedTransferSummary | null> {
+  await requireUser();
+  const legs = await loadLegs(transferId);
+  if (!legs) return null;
+  return {
+    from: legs.out.accountName,
+    to: legs.into.accountName,
+    fromAmount: negate(legs.out.amount),
+    toAmount: legs.into.amount,
   };
 }

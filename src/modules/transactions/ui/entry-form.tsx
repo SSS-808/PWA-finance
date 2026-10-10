@@ -4,10 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useId } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
+import { currencySymbol } from "@/modules/money";
 import {
   type EntryInput,
   type EntryOutput,
@@ -27,6 +27,7 @@ import {
   type TransactionErrorKey,
 } from "../domain/types";
 import { createEntry, updateEntry } from "../server/actions";
+import { ADD_KINDS, KindSwitch } from "./kind-switch";
 
 type EntryFormProps = {
   accounts: readonly AccountOption[];
@@ -38,6 +39,9 @@ type EntryFormProps = {
       returnTo: string;
       defaultAccountId: string;
       today: string;
+      initialKind: EntryKind;
+      // The Add page offers Transfer as a third choice, shown by its own form
+      onTransfer: () => void;
     }
   | { mode: "edit"; id: string; initial: EntryFormValues }
 );
@@ -61,20 +65,10 @@ function FieldMessage({ id, error }: { id: string; error?: string }) {
   );
 }
 
-// The symbol shown before the amount, for example $ or ₭
-function currencySymbol(currency: string): string {
-  const parts = new Intl.NumberFormat("en", {
-    style: "currency",
-    currency,
-    currencyDisplay: "narrowSymbol",
-  }).formatToParts(0);
-  return parts.find((part) => part.type === "currency")?.value ?? currency;
-}
-
 function startValues(props: EntryFormProps): EntryFormValues {
   if (props.mode === "edit") return props.initial;
   return {
-    kind: "expense",
+    kind: props.initialKind,
     amount: "",
     accountId: props.defaultAccountId,
     categoryId: "",
@@ -149,24 +143,17 @@ export function EntryForm(props: EntryFormProps) {
         </p>
       ) : null}
       <input type="hidden" name="kind" value={kind} />
-      <div
-        role="group"
-        aria-label={en.transactions.form.kind}
-        className="grid grid-cols-2 gap-2"
-      >
-        {ENTRY_KINDS.map((value) => (
-          <Button
-            key={value}
-            type="button"
-            variant={kind === value ? "default" : "outline"}
-            aria-pressed={kind === value}
-            className="h-12 text-base"
-            onClick={() => chooseKind(value)}
-          >
-            {en.transactions.kinds[value]}
-          </Button>
-        ))}
-      </div>
+      <KindSwitch
+        kinds={props.mode === "create" ? ADD_KINDS : ENTRY_KINDS}
+        value={kind}
+        onChange={(next) => {
+          if (next === "transfer") {
+            if (props.mode === "create") props.onTransfer();
+          } else {
+            chooseKind(next);
+          }
+        }}
+      />
       <div className="space-y-2">
         <Label htmlFor={`${uid}-amount`} className="text-base">
           {en.transactions.form.amount}

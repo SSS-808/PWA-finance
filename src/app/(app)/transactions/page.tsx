@@ -29,7 +29,7 @@ async function HistoryContent({
 }: {
   searchParams: PageProps<"/transactions">["searchParams"];
 }) {
-  const { saved, deleted } = await searchParams;
+  const { saved, saved_transfer: savedTransfer, deleted } = await searchParams;
   const [profile, days] = await Promise.all([
     getProfile(),
     listRecentTransactions(),
@@ -37,7 +37,11 @@ async function HistoryContent({
 
   return (
     <div className="space-y-6">
-      <SavedNotice saved={saved} deleted={deleted} />
+      <SavedNotice
+        saved={saved}
+        savedTransfer={savedTransfer}
+        deleted={deleted}
+      />
       {days.length === 0 ? (
         <div className="space-y-4 rounded-lg border border-border px-4 py-6">
           <h2 className="text-xl font-semibold">{en.transactions.empty}</h2>

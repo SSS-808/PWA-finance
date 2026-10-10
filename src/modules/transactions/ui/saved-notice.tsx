@@ -1,16 +1,18 @@
 import { en } from "@/messages/en";
 import { formatMoney, isNegative, negate } from "@/modules/money";
-import { getSavedSummary } from "../server/queries";
+import { getSavedSummary, getSavedTransferSummary } from "../server/queries";
 
 const noticeClass =
   "rounded-lg bg-muted px-3 py-2 text-sm text-foreground break-words";
 
-// Shows "Saved: Food ₭45,000" for ?saved=<id> and "Deleted." for ?deleted=1; only an id is in the URL
+// Shows "Saved: Food ₭45,000" for ?saved=<id>, the transfer version for ?saved_transfer=<id> and "Deleted." for ?deleted=1; only an id is in the URL
 export async function SavedNotice({
   saved,
+  savedTransfer,
   deleted,
 }: {
   saved?: string | string[];
+  savedTransfer?: string | string[];
   deleted?: string | string[];
 }) {
   if (deleted === "1") {
@@ -19,6 +21,9 @@ export async function SavedNotice({
         {en.transactions.deleted}
       </p>
     );
+  }
+  if (typeof savedTransfer === "string") {
+    return <SavedTransfer transferId={savedTransfer} />;
   }
   if (typeof saved !== "string") return null;
   const summary = await getSavedSummary(saved);
@@ -34,6 +39,30 @@ export async function SavedNotice({
       {en.transactions.saved
         .replace("{label}", () => label)
         .replace("{amount}", () => amount)}
+    </p>
+  );
+}
+
+// "Saved: BCEL → Cash ₭500,000", or both amounts when the currencies differ
+async function SavedTransfer({ transferId }: { transferId: string }) {
+  const summary = await getSavedTransferSummary(transferId);
+  if (!summary) return null;
+
+  const { from, to, fromAmount, toAmount } = summary;
+  const exchange = fromAmount.currency !== toAmount.currency;
+  const text = exchange
+    ? en.transactions.transfer.savedExchange
+        .replace("{from}", () => from)
+        .replace("{to}", () => to)
+        .replace("{fromAmount}", () => formatMoney(fromAmount))
+        .replace("{toAmount}", () => formatMoney(toAmount))
+    : en.transactions.transfer.savedTransfer
+        .replace("{from}", () => from)
+        .replace("{to}", () => to)
+        .replace("{amount}", () => formatMoney(toAmount));
+  return (
+    <p role="status" className={noticeClass}>
+      {text}
     </p>
   );
 }

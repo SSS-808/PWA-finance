@@ -21,5 +21,5 @@ export type {
   ParseMoneyOptions,
   ParseMoneyResult,
 } from "./domain/parse";
-export { formatMoney, toDecimalString } from "./domain/format";
+export { currencySymbol, formatMoney, toDecimalString } from "./domain/format";
 export type { FormatMoneyOptions } from "./domain/format";

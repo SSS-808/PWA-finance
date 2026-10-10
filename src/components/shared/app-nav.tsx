@@ -2,7 +2,7 @@
 
 import { House, Plus, ReceiptText, Settings, Wallet } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 
@@ -37,6 +37,7 @@ export function AppNav() {
 
 // The bar itself; with pathname null nothing is highlighted (used while the address is still unknown)
 export function AppNavFrame({ pathname }: { pathname: string | null }) {
+  const router = useRouter();
   return (
     <nav
       aria-label={en.nav.label}
@@ -54,8 +55,15 @@ export function AppNavFrame({ pathname }: { pathname: string | null }) {
                 className="flex flex-1 items-center justify-center lg:flex-none lg:justify-start lg:px-4 lg:py-2"
               >
                 <Link
-                  href={addHref(pathname)}
+                  href={ADD_HREF}
                   aria-label={label}
+                  onClick={(event) => {
+                    // The return address is read at the tap, so it is always the page you are on
+                    if (event.button !== 0 || event.metaKey || event.ctrlKey)
+                      return;
+                    event.preventDefault();
+                    router.push(addHref(window.location.pathname));
+                  }}
                   className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
                 >
                   <Icon className="size-6" aria-hidden="true" />

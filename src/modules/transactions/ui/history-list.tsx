@@ -62,7 +62,7 @@ function EntryRow({ item }: { item: EntryItem }) {
       </span>
     </>
   );
-  // Only income and expense can be opened; the others come with their own screens later
+  // Only income and expense open here; transfers have their own page
   if (item.kind === "income" || item.kind === "expense") {
     return (
       <li>
@@ -87,34 +87,50 @@ function TransferRow({ item }: { item: TransferItem }) {
   const exchange =
     fromAmount && toAmount && fromAmount.currency !== toAmount.currency;
   const single = toAmount ?? (fromAmount ? negate(fromAmount) : null);
+  const content = (
+    <>
+      <span className="min-w-0">
+        <span className="block text-base font-medium break-words">
+          {item.from ?? en.transactions.unknownAccount}
+          {" → "}
+          {item.to ?? en.transactions.unknownAccount}
+        </span>
+        {item.note ? (
+          <span className="block text-sm break-words text-muted-foreground">
+            {item.note}
+          </span>
+        ) : null}
+      </span>
+      <span className="shrink-0 text-right text-base tabular-nums">
+        {exchange ? (
+          <>
+            <span className="block">{formatMoney(fromAmount)}</span>
+            <span className="block">
+              {formatMoney(toAmount, { signDisplay: "always" })}
+            </span>
+          </>
+        ) : single ? (
+          formatMoney(single)
+        ) : null}
+      </span>
+    </>
+  );
+  // A transfer with a missing leg can't be edited, so only whole transfers are links
+  if (fromAmount && toAmount) {
+    return (
+      <li>
+        <Link
+          href={`/transactions/transfer/${item.id}`}
+          className={`${rowClass} hover:bg-muted`}
+        >
+          {content}
+        </Link>
+      </li>
+    );
+  }
   return (
     <li>
-      <div className={rowClass}>
-        <span className="min-w-0">
-          <span className="block text-base font-medium break-words">
-            {item.from ?? en.transactions.unknownAccount}
-            {" → "}
-            {item.to ?? en.transactions.unknownAccount}
-          </span>
-          {item.note ? (
-            <span className="block text-sm break-words text-muted-foreground">
-              {item.note}
-            </span>
-          ) : null}
-        </span>
-        <span className="shrink-0 text-right text-base tabular-nums">
-          {exchange ? (
-            <>
-              <span className="block">{formatMoney(fromAmount)}</span>
-              <span className="block">
-                {formatMoney(toAmount, { signDisplay: "always" })}
-              </span>
-            </>
-          ) : single ? (
-            formatMoney(single)
-          ) : null}
-        </span>
-      </div>
+      <div className={rowClass}>{content}</div>
     </li>
   );
 }

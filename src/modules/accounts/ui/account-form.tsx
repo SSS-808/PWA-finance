@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
-import { CURRENCY_CODES, type CurrencyCode } from "@/modules/money";
+import {
+  CURRENCY_CODES,
+  type CurrencyCode,
+  currencySymbol,
+} from "@/modules/money";
 import {
   ACCOUNT_TYPES,
   type AccountType,
@@ -45,16 +49,6 @@ function FieldMessage({ id, error }: { id: string; error?: AccountErrorKey }) {
       {en.accounts.errors[error]}
     </p>
   );
-}
-
-// The symbol shown before the amount, for example $ or ₭
-function currencySymbol(currency: string): string {
-  const parts = new Intl.NumberFormat("en", {
-    style: "currency",
-    currency,
-    currencyDisplay: "narrowSymbol",
-  }).formatToParts(0);
-  return parts.find((part) => part.type === "currency")?.value ?? currency;
 }
 
 function startValues(props: AccountFormProps): AccountFormValues {

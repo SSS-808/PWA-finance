@@ -41,14 +41,23 @@ async function AccountDetail({
   searchParams: PageProps<"/accounts/[id]">["searchParams"];
 }) {
   const { id } = await params;
-  const { notice, saved, deleted } = await searchParams;
+  const {
+    notice,
+    saved,
+    saved_transfer: savedTransfer,
+    deleted,
+  } = await searchParams;
   const account = await getAccount(id);
   const { amount, owed } = displayBalance(account.type, account.balance);
 
   return (
     <div className="space-y-6">
       <Notice notice={notice} />
-      <SavedNotice saved={saved} deleted={deleted} />
+      <SavedNotice
+        saved={saved}
+        savedTransfer={savedTransfer}
+        deleted={deleted}
+      />
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight break-words">
           {account.name}
@@ -79,6 +88,13 @@ async function AccountDetail({
             {en.accounts.detail.edit}
           </Link>
         </Button>
+        {account.archived ? null : (
+          <Button asChild variant="outline" className="h-12 w-full text-base">
+            <Link href={`/accounts/${account.id}/fix-balance`}>
+              {en.accounts.fix.title}
+            </Link>
+          </Button>
+        )}
         {account.archived ? (
           <UnarchiveButton id={account.id} />
         ) : (

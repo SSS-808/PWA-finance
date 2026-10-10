@@ -28,6 +28,17 @@ export type AccountFormState = {
   values?: AccountFormValues;
 };
 
+export type FixBalanceFieldName = "amount" | "note";
+
+export type FixBalanceValues = Record<FixBalanceFieldName, string>;
+
+export type FixBalanceState = {
+  status: "idle" | "error";
+  error?: AccountErrorKey;
+  fieldErrors?: Partial<Record<FixBalanceFieldName, AccountErrorKey>>;
+  values?: FixBalanceValues;
+};
+
 export type Account = {
   id: string;
   name: string;

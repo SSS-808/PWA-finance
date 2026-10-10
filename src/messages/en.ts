@@ -136,6 +136,8 @@ export const en = {
       archived: "Account archived. You can bring it back from Show archived.",
       unarchive_name_taken:
         "There's already an active account with this name. Rename one of them, then bring this one back.",
+      fixed: "Balance fixed. The difference was added as a Balance fix.",
+      nothing_to_fix: "Nothing to fix: the balance already matches.",
     },
     types: {
       cash: "Cash",
@@ -176,6 +178,16 @@ export const en = {
       transactionsSoon: "This account's transactions will appear here soon.",
       back: "All accounts",
     },
+    fix: {
+      title: "Fix balance",
+      current: "Balance in the app now",
+      assetLabel: "What does your bank app or wallet say right now?",
+      debtLabel: "How much do you owe right now?",
+      note: "Note (optional)",
+      noteHint: "Balance fix",
+      submit: "Save",
+      submitting: "Saving…",
+    },
     errors: {
       name_required: "Give the account a name.",
       name_too_long: "Use 60 characters or fewer.",
@@ -211,6 +223,20 @@ export const en = {
       submit: "Save",
       submitting: "Saving…",
     },
+    transfer: {
+      from: "From",
+      to: "To",
+      amount: "Amount",
+      arrived: "How much arrived?",
+      choose: "Choose an account",
+      editTitle: "Edit transfer",
+      needTwo: "You need two accounts to move money.",
+      addAccount: "Add account",
+      savedTransfer: "Saved: {from} → {to} {amount}",
+      savedExchange: "Saved: {from} → {to} {fromAmount} → {toAmount}",
+      deleteConfirm:
+        "Delete this transfer? Both accounts go back to how they were.",
+    },
     today: "Today",
     yesterday: "Yesterday",
     unknownAccount: "?",
@@ -233,6 +259,10 @@ export const en = {
       account_required: "Pick an account.",
       invalid_date: "Pick a date.",
       note_too_long: "Use 200 characters or fewer.",
+      same_account: "Pick two different accounts.",
+      amounts_must_match:
+        "Both amounts must be the same when the currency is the same.",
+      arrived_required: "Enter how much arrived.",
       not_found: "This transaction doesn't exist or isn't yours.",
       unknown: "Something went wrong. Please try again.",
     },

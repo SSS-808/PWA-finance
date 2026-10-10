@@ -40,6 +40,7 @@ async function AccountsContent({
     notice,
     archived: showArchivedParam,
     saved,
+    saved_transfer: savedTransfer,
     deleted,
   } = await searchParams;
   const accounts = await listAccounts();
@@ -50,7 +51,11 @@ async function AccountsContent({
   return (
     <div className="space-y-8">
       <Notice notice={notice} />
-      <SavedNotice saved={saved} deleted={deleted} />
+      <SavedNotice
+        saved={saved}
+        savedTransfer={savedTransfer}
+        deleted={deleted}
+      />
       {active.length === 0 ? (
         <EmptyAccounts />
       ) : (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { CurrencyCode } from "./currency";
-import { formatMoney, toDecimalString } from "./format";
+import { currencySymbol, formatMoney, toDecimalString } from "./format";
 import { type Money, money } from "./money";
 import { parseMoney } from "./parse";
 
@@ -73,5 +73,15 @@ describe("round trip: toDecimalString then parseMoney", () => {
         allowNegative: true,
       }),
     ).toEqual({ ok: true, value: sample });
+  });
+});
+
+describe("currencySymbol", () => {
+  it.each<[CurrencyCode, string]>([
+    ["LAK", "₭"],
+    ["USD", "$"],
+    ["THB", "฿"],
+  ])("%s is shown as %s", (currency, expected) => {
+    expect(currencySymbol(currency)).toBe(expected);
   });
 });

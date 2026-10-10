@@ -4,7 +4,7 @@ import { EmptyAccounts, listAccounts } from "@/modules/accounts";
 import { safeNextPath } from "@/modules/auth";
 import { listCategories } from "@/modules/categories";
 import { getProfile, todayIn } from "@/modules/profile";
-import { EntryForm, readLastAccountId } from "@/modules/transactions";
+import { AddForm, readLastAccountId } from "@/modules/transactions";
 
 export default function NewTransactionPage({
   searchParams,
@@ -45,10 +45,9 @@ async function NewEntry({
     : first.id;
 
   return (
-    <EntryForm
+    <AddForm
       // A new key per visit: Next keeps the old form of an earlier visit, with stale values
       key={crypto.randomUUID()}
-      mode="create"
       returnTo={safeNextPath(typeof from === "string" ? from : null)}
       accounts={active.map(({ id, name, currency }) => ({
         id,

@@ -58,7 +58,7 @@ export function parseEntryAmount(
 }
 
 // The checks that need no account, so the form can answer at once; decimals and size wait for the currency
-function amountShapeError(input: string): AmountErrorKey | null {
+export function amountShapeError(input: string): AmountErrorKey | null {
   const result = parseEntryAmount(input, "USD", "income");
   if (result.ok) return null;
   if (
@@ -104,12 +104,12 @@ export type EntryInput = z.input<typeof entrySchema>;
 export type EntryOutput = z.output<typeof entrySchema>;
 
 // Turns schema issues into error keys, one per field
-export function fieldErrorsFrom(
+export function fieldErrorsFrom<Field extends string = EntryFieldName>(
   error: z.ZodError,
-): Partial<Record<EntryFieldName, TransactionErrorKey>> {
-  const result: Partial<Record<EntryFieldName, TransactionErrorKey>> = {};
+): Partial<Record<Field, TransactionErrorKey>> {
+  const result: Partial<Record<Field, TransactionErrorKey>> = {};
   for (const issue of error.issues) {
-    const field = issue.path[0] as EntryFieldName;
+    const field = issue.path[0] as Field;
     result[field] = (TRANSACTION_ERROR_KEYS as readonly string[]).includes(
       issue.message,
     )
