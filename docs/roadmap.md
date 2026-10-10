@@ -12,7 +12,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 3 | Accounts | M | Done |
 | 4 | Transactions, categories, transfers | L | Done |
 | 5 | Dashboard | M | Done |
-| **5.5** | **MVP release** | M | Waiting for your launch check ([launch-check.md](launch-check.md)) |
+| **5.5** | **MVP release** | M | In progress: launch check passed, going online with [deploy.md](deploy.md) |
 | 6 | Budgets | M | |
 | 7 | Savings goals | M | |
 | 8 | Net worth and exchange rates | M | |
