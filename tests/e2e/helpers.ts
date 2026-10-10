@@ -93,8 +93,6 @@ export function greeting(email: string): string {
 // The dev server compiles each page the first time it is opened
 const patient = expect.configure({ timeout: 15_000 });
 
-const UUID = "[0-9a-f-]{36}";
-
 export type NewAccount = {
   name: string;
   type?: string;
@@ -189,7 +187,7 @@ export async function addAccount(page: Page, account: NewAccount) {
     await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
   }
   await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
-  await patient(page).toHaveURL(/\/accounts\?notice=added$/);
+  await patient(page).toHaveURL(/\/accounts$/);
 }
 
 // Fills the Add form that is already open and saves it
@@ -227,10 +225,20 @@ export async function openAddForm(page: Page, url = "/transactions/new") {
   await patient(expense).toHaveAttribute("aria-pressed", "true");
 }
 
+// Waits until the save redirect has left the Add form and the toast param is gone from the URL
+export async function waitForSaved(page: Page) {
+  await patient(page).toHaveURL(
+    (url) =>
+      !url.pathname.startsWith("/transactions/new") &&
+      !url.searchParams.has("saved") &&
+      !url.searchParams.has("saved_transfer"),
+  );
+}
+
 export async function addEntry(page: Page, entry: Entry) {
   await openAddForm(page);
   await fillEntry(page, entry);
-  await patient(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
+  await waitForSaved(page);
 }
 
 // The form's code loads after the page; clicking Transfer before that does nothing, so retry until it switches
@@ -262,7 +270,5 @@ export async function fillTransfer(page: Page, transfer: NewTransfer) {
 export async function addTransfer(page: Page, transfer: NewTransfer) {
   await openTransferForm(page);
   await fillTransfer(page, transfer);
-  await patient(page).toHaveURL(
-    new RegExp(`/accounts\\?saved_transfer=${UUID}$`),
-  );
+  await waitForSaved(page);
 }

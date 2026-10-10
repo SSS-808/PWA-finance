@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
@@ -36,6 +37,9 @@ export function ProfileForm({
   timeZones: readonly string[];
 }) {
   const [state, formAction] = useActionState(updateProfile, idleState);
+  useEffect(() => {
+    if (state.status === "saved") toast(en.settings.profile.saved);
+  }, [state]);
   const fieldErrors = state.fieldErrors ?? {};
   // Values from the last submit win over the props, so the form reset keeps what was typed or saved
   const current = state.values ?? {
@@ -132,15 +136,10 @@ export function ProfileForm({
           error={fieldErrors.timeZone}
         />
       </div>
-      <div className="space-y-3">
-        <SubmitButton
-          label={en.settings.profile.submit}
-          pendingLabel={en.settings.profile.submitting}
-        />
-        <p role="status" className="min-h-5 text-sm text-muted-foreground">
-          {state.status === "saved" ? en.settings.profile.saved : null}
-        </p>
-      </div>
+      <SubmitButton
+        label={en.settings.profile.submit}
+        pendingLabel={en.settings.profile.submitting}
+      />
     </form>
   );
 }

@@ -16,6 +16,7 @@ import {
   saveButton,
   signUpAndConfirm,
   toBox,
+  waitForSaved,
 } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
@@ -37,7 +38,7 @@ function shown(locator: Locator) {
 }
 
 function notice(page: Page, message: string) {
-  return page.getByRole("status").filter({ hasText: message });
+  return page.locator("[data-sonner-toast]").filter({ hasText: message });
 }
 
 function accountLink(page: Page, name: RegExp) {
@@ -115,9 +116,7 @@ test("a transfer shows as one row in History and moves both balances", async ({
   await amountBox(page).fill("500,000");
   await saveButton(page).click();
 
-  await expect(page).toHaveURL(
-    new RegExp(`/accounts\\?saved_transfer=${UUID}$`),
-  );
+  await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, "Saved: BCEL → Cash ₭500,000")).toBeVisible();
   await expect(accountLink(page, /^BCEL\b.*₭500,000/)).toBeVisible();
   await expect(accountLink(page, /^Cash\b.*₭500,000/)).toBeVisible();
@@ -160,9 +159,7 @@ test("an exchange asks how much arrived and keeps both amounts", async ({
 
   await arrivedBox(page).fill("2,150,000");
   await saveButton(page).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/accounts\\?saved_transfer=${UUID}$`),
-  );
+  await expect(page).toHaveURL(/\/accounts$/);
   await expect(
     notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,150,000"),
   ).toBeVisible();
@@ -206,9 +203,7 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
 
   await amountBox(page).fill("300,000");
   await saveButton(page).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/transactions\\?saved_transfer=${UUID}$`),
-  );
+  await expect(page).toHaveURL(/\/transactions$/);
   await expect(notice(page, "Saved: BCEL → Cash ₭300,000")).toBeVisible();
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(1);
 
@@ -230,7 +225,7 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
 
   await page.getByRole("button", { name: en.transactions.delete }).click();
   await page.getByRole("button", { name: en.transactions.deleteYes }).click();
-  await expect(page).toHaveURL(/\/transactions\?deleted=1$/);
+  await expect(page).toHaveURL(/\/transactions$/);
   await expect(notice(page, en.transactions.deleted)).toBeVisible();
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(0);
 
@@ -295,7 +290,7 @@ test("choosing the same account twice is refused before the server is asked", as
   // Picking another account clears the way
   await toBox(page).selectOption({ label: "BCEL" });
   await saveButton(page).click();
-  await expect(page).toHaveURL(new RegExp(`\\?saved_transfer=${UUID}$`));
+  await waitForSaved(page);
 });
 
 test("a user with one account is told they need two", async ({ page }) => {
@@ -356,7 +351,7 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
 
   await fixBox(page).fill("950,000");
   await fixSave(page).click();
-  await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}\\?notice=fixed$`));
+  await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   await expect(notice(page, en.accounts.notices.fixed)).toBeVisible();
   await expect(shown(page.getByText("₭950,000"))).toBeVisible();
 
@@ -370,9 +365,7 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
   await openFixBalance(page, /^Cash\b/);
   await fixBox(page).fill("950,000");
   await fixSave(page).click();
-  await expect(page).toHaveURL(
-    new RegExp(`/accounts/${UUID}\\?notice=nothing_to_fix$`),
-  );
+  await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   await expect(notice(page, en.accounts.notices.nothing_to_fix)).toBeVisible();
   await page.goto("/transactions");
   await expect(

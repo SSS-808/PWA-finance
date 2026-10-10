@@ -17,6 +17,7 @@ import {
   openAddForm,
   saveButton,
   signUpAndConfirm,
+  waitForSaved,
 } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
@@ -37,7 +38,7 @@ function shown(locator: Locator) {
 }
 
 function notice(page: Page, message: string) {
-  return page.getByRole("status").filter({ hasText: message });
+  return page.locator("[data-sonner-toast]").filter({ hasText: message });
 }
 
 function today(): string {
@@ -75,7 +76,7 @@ test("adding an expense from Accounts comes back with a note and moves the balan
   await chip(page, "Food").check();
   await saveButton(page).click();
 
-  await expect(page).toHaveURL(new RegExp(`/accounts\\?saved=${UUID}$`));
+  await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, "Saved: Food ₭45,000")).toBeVisible();
   await expect(
     page.getByRole("link", { name: /Cash.*₭1,455,000/ }),
@@ -89,7 +90,7 @@ test("saving after opening Add from Settings lands on History, where the note sh
   await addAccount(page, { name: "Cash", amount: "1,000" });
   await openAddForm(page, "/transactions/new?from=%2Fsettings");
   await fillEntry(page, { amount: "100", category: "Food" });
-  await expect(page).toHaveURL(new RegExp(`/transactions\\?saved=${UUID}$`));
+  await expect(page).toHaveURL(/\/transactions$/);
   await expect(notice(page, "Saved: Food ₭100")).toBeVisible();
 });
 
@@ -140,7 +141,7 @@ test("an entry can be edited and then deleted in two steps", async ({
 
   await amountBox(page).fill("50,000");
   await saveButton(page).click();
-  await expect(page).toHaveURL(new RegExp(`/transactions\\?saved=${UUID}$`));
+  await expect(page).toHaveURL(/\/transactions$/);
   await expect(notice(page, "Saved: Food ₭50,000")).toBeVisible();
   // Opening the same entry again from the list shows what was saved
   await page.getByRole("link", { name: /Food.*-₭50,000/ }).click();
@@ -167,7 +168,7 @@ test("an entry can be edited and then deleted in two steps", async ({
 
   await page.getByRole("button", { name: en.transactions.delete }).click();
   await page.getByRole("button", { name: en.transactions.deleteYes }).click();
-  await expect(page).toHaveURL(/\/transactions\?deleted=1$/);
+  await expect(page).toHaveURL(/\/transactions$/);
   await expect(notice(page, en.transactions.deleted)).toBeVisible();
   await expect(page.getByRole("link", { name: /Food/ })).toHaveCount(0);
 
@@ -198,7 +199,6 @@ test("income shows a plus sign, and switching the kind swaps the categories", as
   await amountBox(page).fill("8,000,000");
   await chip(page, "Salary").check();
   await saveButton(page).click();
-  await expect(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
   await expect(notice(page, "Saved: Salary ₭8,000,000")).toBeVisible();
 
   await page.goto("/transactions");
@@ -245,7 +245,7 @@ test("the account used last is preselected next time", async ({ page }) => {
   await amountBox(page).fill("1,000");
   await chip(page, "Food").check();
   await saveButton(page).click();
-  await expect(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
+  await waitForSaved(page);
 
   await openAddForm(page);
   await expect(accountBox(page).locator("option:checked")).toHaveText("Cash");
@@ -253,7 +253,7 @@ test("the account used last is preselected next time", async ({ page }) => {
   await amountBox(page).fill("2,000");
   await chip(page, "Food").check();
   await saveButton(page).click();
-  await expect(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
+  await waitForSaved(page);
 
   // A client-side visit gets a fresh form, not the one left over from the last save
   await mainNav(page).getByRole("link", { name: en.nav.add }).click();
@@ -382,7 +382,7 @@ test("a deleted entry can no longer be opened", async ({ page }) => {
   const id = page.url().split("/").pop() ?? "";
   await page.getByRole("button", { name: en.transactions.delete }).click();
   await page.getByRole("button", { name: en.transactions.deleteYes }).click();
-  await expect(page).toHaveURL(/\/transactions\?deleted=1$/);
+  await expect(page).toHaveURL(/\/transactions$/);
 
   await page.goto(`/transactions/${id}`);
   await expect(
@@ -446,5 +446,43 @@ test("History and Add fit every width and the nav never covers the last element"
         expect(lastBottom, `${path} at ${width}px`).toBeLessThanOrEqual(800);
       }
     }
+  }
+});
+
+test("the saved toast shows and goes away by itself", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "100,000" });
+  await openAddForm(page);
+  await fillEntry(page, { amount: "45,000", category: "Food" });
+
+  const toast = notice(page, "Saved: Food ₭45,000");
+  await expect(toast).toBeVisible();
+  await expect(toast).toHaveCount(0, { timeout: 6000 });
+});
+
+test("the toast fits inside the screen at every width", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "100,000" });
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 800 });
+    await openAddForm(page);
+    await fillEntry(page, { amount: "1,000", category: "Food" });
+    const toast = notice(page, "Saved: Food ₭1,000");
+    await expect(toast).toBeVisible();
+    // The toast slides in, so wait until it has settled inside the screen
+    await expect
+      .poll(async () => {
+        const box = await toast.boundingBox();
+        return box !== null && box.x >= 0 && box.x + box.width <= width;
+      })
+      .toBe(true);
+    const box = await toast.boundingBox();
+    console.log(
+      `toast at ${width}px: left ${box?.x}, right ${(box?.x ?? 0) + (box?.width ?? 0)}, width ${box?.width}`,
+    );
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    expect(overflow, `page at ${width}px`).toBeLessThanOrEqual(0);
   }
 });

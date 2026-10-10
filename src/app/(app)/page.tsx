@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { ToastOnce } from "@/components/shared/toast-once";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import {
@@ -42,12 +43,7 @@ async function HomeContent({
   return (
     <div className="space-y-6">
       {notice === "password-updated" ? (
-        <p
-          role="status"
-          className="rounded-lg bg-muted px-3 py-2 text-sm text-foreground"
-        >
-          {en.home.passwordUpdated}
-        </p>
+        <ToastOnce message={en.home.passwordUpdated} param="notice" />
       ) : null}
       <SavedNotice
         saved={saved}

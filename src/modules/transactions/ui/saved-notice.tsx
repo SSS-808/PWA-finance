@@ -1,9 +1,7 @@
+import { ToastOnce } from "@/components/shared/toast-once";
 import { en } from "@/messages/en";
 import { formatMoney, isNegative, negate } from "@/modules/money";
 import { getSavedSummary, getSavedTransferSummary } from "../server/queries";
-
-const noticeClass =
-  "rounded-lg bg-muted px-3 py-2 text-sm text-foreground break-words";
 
 // Shows "Saved: Food ₭45,000" for ?saved=<id>, the transfer version for ?saved_transfer=<id> and "Deleted." for ?deleted=1; only an id is in the URL
 export async function SavedNotice({
@@ -16,11 +14,7 @@ export async function SavedNotice({
   deleted?: string | string[];
 }) {
   if (deleted === "1") {
-    return (
-      <p role="status" className={noticeClass}>
-        {en.transactions.deleted}
-      </p>
-    );
+    return <ToastOnce message={en.transactions.deleted} param="deleted" />;
   }
   if (typeof savedTransfer === "string") {
     return <SavedTransfer transferId={savedTransfer} />;
@@ -35,11 +29,12 @@ export async function SavedNotice({
     isNegative(summary.amount) ? negate(summary.amount) : summary.amount,
   );
   return (
-    <p role="status" className={noticeClass}>
-      {en.transactions.saved
+    <ToastOnce
+      message={en.transactions.saved
         .replace("{label}", () => label)
         .replace("{amount}", () => amount)}
-    </p>
+      param="saved"
+    />
   );
 }
 
@@ -60,9 +55,5 @@ async function SavedTransfer({ transferId }: { transferId: string }) {
         .replace("{from}", () => from)
         .replace("{to}", () => to)
         .replace("{amount}", () => formatMoney(toAmount));
-  return (
-    <p role="status" className={noticeClass}>
-      {text}
-    </p>
-  );
+  return <ToastOnce message={text} param="saved_transfer" />;
 }

@@ -60,13 +60,20 @@ test("settings saves the name, currency and time zone, and Home greets by name",
   await timeZoneBox(page).selectOption("Asia/Bangkok");
   await saveProfile(page);
   await expect(
-    page.getByRole("status").filter({ hasText: en.settings.profile.saved }),
+    page
+      .locator("[data-sonner-toast]")
+      .filter({ hasText: en.settings.profile.saved }),
   ).toBeVisible();
 
   // The form must keep showing what was saved, not snap back to the old values
   await expect(nameBox(page)).toHaveValue("Sai");
   await expect(currencyBox(page)).toHaveValue("USD");
   await expect(timeZoneBox(page)).toHaveValue("Asia/Bangkok");
+
+  const savedToast = page
+    .locator("[data-sonner-toast]")
+    .filter({ hasText: en.settings.profile.saved });
+  await expect(savedToast).toBeHidden({ timeout: 6000 });
 
   // The client-side trip to Home must already show the new name
   await navLink(page, en.nav.home).click();
@@ -76,6 +83,10 @@ test("settings saves the name, currency and time zone, and Home greets by name",
 
   await navLink(page, en.nav.settings).click();
   await expect(page).toHaveURL(/\/settings$/);
+  // Coming back to Settings must not announce the old save again
+  await expect(nameBox(page)).toBeVisible();
+  await page.waitForTimeout(1000);
+  await expect(savedToast).toHaveCount(0);
   await page.reload();
   await expect(nameBox(page)).toHaveValue("Sai");
   await expect(currencyBox(page)).toHaveValue("USD");

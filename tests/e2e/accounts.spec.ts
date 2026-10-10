@@ -49,7 +49,7 @@ function amountBox(page: Page) {
 }
 
 function notice(page: Page, message: string) {
-  return page.getByRole("status").filter({ hasText: message });
+  return page.locator("[data-sonner-toast]").filter({ hasText: message });
 }
 
 function submitNew(page: Page) {
@@ -63,7 +63,8 @@ async function addAccount(page: Page, account: NewAccount) {
   await currencyBox(page).selectOption(account.currency ?? "LAK");
   if (account.amount) await amountBox(page).fill(account.amount);
   await submitNew(page).click();
-  await expect(page).toHaveURL(/\/accounts\?notice=added$/);
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+  await expect(page).toHaveURL(/\/accounts$/);
 }
 
 function accountLink(scope: Page | Locator, name: string | RegExp) {
@@ -146,7 +147,8 @@ test("accounts are grouped by currency with a total, and a debt shows as owed", 
   await expect(page.getByLabel(en.accounts.form.startingAmount)).toHaveCount(0);
   await amountBox(page).fill("30");
   await submitNew(page).click();
-  await expect(page).toHaveURL(/\/accounts\?notice=added$/);
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+  await expect(page).toHaveURL(/\/accounts$/);
 
   const dollars = page.getByRole("region", { name: en.currencies.USD });
   await expect(accountLink(dollars, /Visa.*\$30\.00 owed/)).toBeVisible();
@@ -187,7 +189,7 @@ test("editing changes the name and starting amount, and a taken name is refused"
   await nameBox(page).fill("Wallet cash");
   await amountBox(page).fill("2,000,000");
   await page.getByRole("button", { name: en.accounts.form.submitEdit }).click();
-  await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}\?notice=saved$/);
+  await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
   await expect(notice(page, en.accounts.notices.saved)).toBeVisible();
   await expect(
     page.getByRole("heading", { level: 1, name: "Wallet cash" }),
@@ -264,7 +266,7 @@ test("an account can be archived in two steps and brought back", async ({
   await page
     .getByRole("button", { name: en.accounts.detail.archiveYes })
     .click();
-  await expect(page).toHaveURL(/\/accounts\?notice=archived$/);
+  await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, en.accounts.notices.archived)).toBeVisible();
   await expect(accountLink(page, /Cash/)).toHaveCount(0);
   await expect(
@@ -310,7 +312,7 @@ test("bringing back an account whose name is now taken explains what to do", asy
   await page
     .getByRole("button", { name: en.accounts.detail.archiveYes })
     .click();
-  await expect(page).toHaveURL(/\/accounts\?notice=archived$/);
+  await expect(page).toHaveURL(/\/accounts$/);
 
   await addAccount(page, { name: "Cash", amount: "200" });
   await page.goto(`/accounts/${oldId}`);
@@ -319,7 +321,9 @@ test("bringing back an account whose name is now taken explains what to do", asy
     .click();
   await expect(page).toHaveURL(/notice=unarchive_name_taken$/);
   await expect(
-    notice(page, en.accounts.notices.unarchive_name_taken),
+    page
+      .getByRole("status")
+      .filter({ hasText: en.accounts.notices.unarchive_name_taken }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: en.accounts.detail.unarchive }),

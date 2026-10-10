@@ -108,8 +108,12 @@ test("forgot password: reset link, new password, log in with it", async ({
   await newPassword.fill(NEW_PASSWORD);
   await confirmPassword.fill(NEW_PASSWORD);
   await page.getByRole("button", { name: en.auth.reset.submit }).click();
-  await expect(page).toHaveURL(/\/\?notice=password-updated$/);
-  await expect(page.getByText(en.home.passwordUpdated)).toBeVisible();
+  await expect(page).toHaveURL("/");
+  await expect(
+    page
+      .locator("[data-sonner-toast]")
+      .filter({ hasText: en.home.passwordUpdated }),
+  ).toBeVisible();
 
   await logOutFromSettings(page);
   await logIn(page, email, NEW_PASSWORD);

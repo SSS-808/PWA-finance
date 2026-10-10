@@ -150,8 +150,7 @@ export const en = {
     notices: {
       added: "Category added.",
       saved: "Changes saved.",
-      hidden:
-        "Category hidden. Old transactions keep it. You can bring it back from Hidden.",
+      hidden: "Category hidden.",
       shown: "Category is back.",
       show_name_taken:
         "There's already an active category with this name. Rename the active one, then show this one again.",
@@ -198,11 +197,11 @@ export const en = {
     notices: {
       added: "Account added.",
       saved: "Changes saved.",
-      archived: "Account archived. You can bring it back from Show archived.",
+      archived: "Account archived.",
       unarchive_name_taken:
         "There's already an active account with this name. Rename one of them, then bring this one back.",
-      fixed: "Balance fixed. The difference was added as a Balance fix.",
-      nothing_to_fix: "Nothing to fix: the balance already matches.",
+      fixed: "Balance fixed.",
+      nothing_to_fix: "Balance already matches.",
     },
     types: {
       cash: "Cash",

@@ -26,7 +26,7 @@ function shown(locator: Locator) {
 }
 
 function notice(page: Page, message: string) {
-  return page.getByRole("status").filter({ hasText: message });
+  return page.locator("[data-sonner-toast]").filter({ hasText: message });
 }
 
 async function addCategory(
@@ -66,7 +66,7 @@ async function renameFromList(page: Page, from: string, to: string) {
   await page
     .getByRole("button", { name: en.categories.form.submitEdit })
     .click();
-  await expect(page).toHaveURL(`${LIST_URL}?notice=saved`);
+  await expect(page).toHaveURL(LIST_URL);
 }
 
 test("a new category shows up as a chip on the Add form", async ({ page }) => {
@@ -74,7 +74,6 @@ test("a new category shows up as a chip on the Add form", async ({ page }) => {
   await addAccount(page, { name: "Cash" });
 
   await addCategory(page, "Coffee");
-  await expect(page).toHaveURL(`${LIST_URL}?notice=added`);
   await expect(notice(page, en.categories.notices.added)).toBeVisible();
   await expect(row(page, "Coffee")).toHaveCount(1);
 
@@ -91,7 +90,7 @@ test("renaming a category renames it in History", async ({ page }) => {
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "100,000" });
   await addCategory(page, "Coffee");
-  await expect(page).toHaveURL(`${LIST_URL}?notice=added`);
+  await expect(notice(page, en.categories.notices.added)).toBeVisible();
   await addEntry(page, { amount: "20,000", category: "Coffee" });
 
   await renameFromList(page, "Coffee", "Café");
@@ -111,7 +110,7 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "100,000" });
   await addCategory(page, "Café");
-  await expect(page).toHaveURL(`${LIST_URL}?notice=added`);
+  await expect(notice(page, en.categories.notices.added)).toBeVisible();
   await addEntry(page, { amount: "20,000", category: "Café" });
 
   await page.goto(LIST_URL);
@@ -135,7 +134,7 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
   await page
     .getByRole("button", { name: en.categories.detail.hideYes })
     .click();
-  await expect(page).toHaveURL(`${LIST_URL}?notice=hidden`);
+  await expect(page).toHaveURL(LIST_URL);
   await expect(notice(page, en.categories.notices.hidden)).toBeVisible();
 
   // It moves to the Hidden section, which has Show again instead of Rename
@@ -162,7 +161,6 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
 
   await page.goto(LIST_URL);
   await hidden.getByRole("button", { name: en.categories.showAgain }).click();
-  await expect(page).toHaveURL(`${LIST_URL}?notice=shown`);
   await expect(notice(page, en.categories.notices.shown)).toBeVisible();
   await expect(hidden).toHaveCount(0);
 
@@ -195,10 +193,29 @@ test("the category pages fit every width", async ({ page }) => {
 test("a duplicate name is refused, whatever the capitals", async ({ page }) => {
   await signUpAndConfirm(page);
   await addCategory(page, "Coffee");
-  await expect(page).toHaveURL(`${LIST_URL}?notice=added`);
+  await expect(notice(page, en.categories.notices.added)).toBeVisible();
 
   await addCategory(page, "cOFFEE");
   await expect(page.getByText(en.categories.errors.name_taken)).toBeVisible();
   await expect(page).toHaveURL(LIST_URL);
   await expect(row(page, "Coffee")).toHaveCount(1);
+});
+
+test("adding two categories in a row shows the toast both times", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await page.goto(LIST_URL);
+  for (const name of ["Coffee", "Books"]) {
+    await page
+      .getByRole("textbox", { name: en.categories.form.name, exact: true })
+      .fill(name);
+    await page
+      .getByRole("button", { name: en.categories.form.submitNew })
+      .click();
+    const toast = notice(page, en.categories.notices.added);
+    await expect(toast).toBeVisible();
+    await expect(row(page, name)).toHaveCount(1);
+    await expect(toast).toHaveCount(0, { timeout: 6000 });
+  }
 });
