@@ -38,6 +38,13 @@ function historyHref(filters: HistoryFilters): string {
   return `/transactions?${filtersToQuery(filters)}`;
 }
 
+// Hidden categories stay in the filter, because old entries still use them
+function optionLabel(category: CategoryOption): string {
+  return category.hidden
+    ? `${category.name} ${en.categories.hiddenSuffix}`
+    : category.name;
+}
+
 function typeLabel(type: (typeof TYPE_FILTERS)[number]): string {
   return type === "other"
     ? en.transactions.filters.typeOther
@@ -163,14 +170,14 @@ export function HistoryFilterBar({
             <optgroup label={en.transactions.kinds.expense}>
               {expenseCategories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {optionLabel(category)}
                 </option>
               ))}
             </optgroup>
             <optgroup label={en.transactions.kinds.income}>
               {incomeCategories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {optionLabel(category)}
                 </option>
               ))}
             </optgroup>

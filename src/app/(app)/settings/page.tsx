@@ -19,6 +19,19 @@ export default function SettingsPage() {
           <ProfileSection />
         </Suspense>
       </section>
+      <section aria-labelledby="settings-categories" className="space-y-4">
+        <h2 id="settings-categories" className="text-xl font-semibold">
+          {en.settings.categories.title}
+        </h2>
+        <p className="text-base text-muted-foreground">
+          {en.settings.categories.body}
+        </p>
+        <Button asChild variant="outline" className="h-12 w-full text-base">
+          <Link href="/settings/categories">
+            {en.settings.categories.manage}
+          </Link>
+        </Button>
+      </section>
       <section aria-labelledby="settings-account" className="space-y-4">
         <h2 id="settings-account" className="text-xl font-semibold">
           {en.settings.account.title}

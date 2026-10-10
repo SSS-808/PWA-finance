@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
-import { listCategories } from "@/modules/categories";
+import { listAllCategories } from "@/modules/categories";
 import { getProfile, todayIn } from "@/modules/profile";
 import {
   HistoryFilterBar,
@@ -40,13 +40,11 @@ async function HistoryContent({
   const profile = await getProfile();
   const today = todayIn(profile.timeZone);
   const filters = parseFilters(params, today);
-  const [days, accounts, expenseCategories, incomeCategories] =
-    await Promise.all([
-      listTransactions(filters),
-      listAccounts(),
-      listCategories("expense"),
-      listCategories("income"),
-    ]);
+  const [days, accounts, categories] = await Promise.all([
+    listTransactions(filters),
+    listAccounts(),
+    listAllCategories(),
+  ]);
   const count = days.reduce((total, day) => total + day.items.length, 0);
   const narrowed =
     filters.accountId || filters.categoryId || filters.type || filters.q;
@@ -62,8 +60,12 @@ async function HistoryContent({
         filters={filters}
         today={today}
         accounts={accounts}
-        expenseCategories={expenseCategories}
-        incomeCategories={incomeCategories}
+        expenseCategories={categories.filter(
+          (category) => category.kind === "expense",
+        )}
+        incomeCategories={categories.filter(
+          (category) => category.kind === "income",
+        )}
       />
       {days.length > 0 ? (
         <div className="space-y-4">

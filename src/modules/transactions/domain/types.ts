@@ -60,7 +60,7 @@ export type AccountOption = {
   currency: CurrencyCode;
 };
 
-export type CategoryOption = { id: string; name: string };
+export type CategoryOption = { id: string; name: string; hidden?: boolean };
 
 // An income or expense as stored; the amount keeps its sign
 export type Entry = {

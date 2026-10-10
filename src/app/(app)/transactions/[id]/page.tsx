@@ -29,8 +29,8 @@ async function EditEntry({
   const entry = await getEntry(id);
   const [accounts, expenseCategories, incomeCategories] = await Promise.all([
     listAccounts(),
-    listCategories("expense"),
-    listCategories("income"),
+    listCategories("expense", entry.categoryId),
+    listCategories("income", entry.categoryId),
   ]);
   // The entry's own account stays in the list even if it was archived since
   const options = accounts
