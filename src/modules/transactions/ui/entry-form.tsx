@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useId } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { AmountInput } from "@/components/shared/amount-input";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
-import { currencySymbol } from "@/modules/money";
+import { currencySymbol, groupAmountInput } from "@/modules/money";
 import {
   type EntryInput,
   type EntryOutput,
@@ -66,7 +67,9 @@ function FieldMessage({ id, error }: { id: string; error?: string }) {
 }
 
 function startValues(props: EntryFormProps): EntryFormValues {
-  if (props.mode === "edit") return props.initial;
+  if (props.mode === "edit") {
+    return { ...props.initial, amount: groupAmountInput(props.initial.amount) };
+  }
   return {
     kind: props.initialKind,
     amount: "",
@@ -162,10 +165,8 @@ export function EntryForm(props: EntryFormProps) {
           <span aria-hidden="true" className="text-3xl text-muted-foreground">
             {currency ? currencySymbol(currency) : null}
           </span>
-          <Input
+          <AmountInput
             id={`${uid}-amount`}
-            inputMode="decimal"
-            autoComplete="off"
             autoFocus
             aria-invalid={Boolean(amountError)}
             aria-describedby={amountError ? `${uid}-amount-error` : undefined}

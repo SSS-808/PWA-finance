@@ -195,7 +195,7 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
     }),
   ).toBeVisible();
   // The form is prefilled with the amount that left, without a sign
-  await expect(amountBox(page)).toHaveValue("500000");
+  await expect(amountBox(page)).toHaveValue("500,000");
   await expect(fromBox(page).locator("option:checked")).toHaveText("BCEL");
   await expect(toBox(page).locator("option:checked")).toHaveText("Cash");
   await expect(noteBox(page)).toHaveValue("Cash out");
@@ -250,7 +250,7 @@ test("an exchange can be edited and its arrived amount is prefilled", async ({
   await page.goto("/transactions");
   await page.getByRole("link", { name: /USD Cash → Cash/ }).click();
   await expect(amountBox(page)).toHaveValue("100.00");
-  await expect(arrivedBox(page)).toHaveValue("2150000");
+  await expect(arrivedBox(page)).toHaveValue("2,150,000");
   await arrivedBox(page).fill("2,200,000");
   await saveButton(page).click();
   await expect(

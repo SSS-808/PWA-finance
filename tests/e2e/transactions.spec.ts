@@ -133,7 +133,7 @@ test("an entry can be edited and then deleted in two steps", async ({
     page.getByRole("heading", { level: 1, name: en.transactions.editTitle }),
   ).toBeVisible();
   // The form is prefilled, with the amount written without a sign
-  await expect(amountBox(page)).toHaveValue("45000");
+  await expect(amountBox(page)).toHaveValue("45,000");
   await expect(chip(page, "Food")).toBeChecked();
   await expect(
     page.getByRole("button", { name: en.transactions.kinds.expense }),
@@ -146,7 +146,7 @@ test("an entry can be edited and then deleted in two steps", async ({
   // Opening the same entry again from the list shows what was saved
   await page.getByRole("link", { name: /Food.*-₭50,000/ }).click();
   await expect(page).toHaveURL(new RegExp(`/transactions/${UUID}$`));
-  await expect(amountBox(page)).toHaveValue("50000");
+  await expect(amountBox(page)).toHaveValue("50,000");
   await expect(chip(page, "Food")).toBeChecked();
 
   await page.goto("/accounts");
@@ -328,7 +328,7 @@ test("the form answers before it calls the server, and the server still checks",
   await expect(
     shown(page.getByText(en.transactions.errors.amount_too_many_decimals)),
   ).toBeVisible();
-  await expect(amountBox(page)).toHaveValue("1000.5");
+  await expect(amountBox(page)).toHaveValue("1,000.5");
   await expect(chip(page, "Food")).toBeChecked();
   await expect(page).toHaveURL(/\/transactions\/new/);
 });
@@ -370,7 +370,7 @@ test("another person's entry, and an id that is not a uuid, give not found", asy
 
   // The owner still sees it
   await page.goto(`/transactions/${id}`);
-  await expect(amountBox(page)).toHaveValue("1000");
+  await expect(amountBox(page)).toHaveValue("1,000");
 });
 
 test("a deleted entry can no longer be opened", async ({ page }) => {
@@ -485,4 +485,57 @@ test("the toast fits inside the screen at every width", async ({ page }) => {
     );
     expect(overflow, `page at ${width}px`).toBeLessThanOrEqual(0);
   }
+});
+
+test("typing an amount one key at a time adds commas and saves the right value", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000" });
+  await openAddForm(page);
+
+  await amountBox(page).pressSequentially("1234567");
+  await expect(amountBox(page)).toHaveValue("1,234,567");
+  await chip(page, "Food").check();
+  await saveButton(page).click();
+  await waitForSaved(page);
+
+  await page.goto("/transactions");
+  await expect(
+    page.getByRole("link", { name: /Food.*-₭1,234,567/ }),
+  ).toBeVisible();
+});
+
+test("a dollar amount keeps its decimals while commas are added", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Wallet", currency: "USD", amount: "10" });
+  await openAddForm(page);
+
+  await amountBox(page).pressSequentially("1234.5");
+  await expect(amountBox(page)).toHaveValue("1,234.5");
+  await chip(page, "Food").check();
+  await saveButton(page).click();
+  await waitForSaved(page);
+
+  await page.goto("/transactions");
+  await expect(
+    page.getByRole("link", { name: /Food.*-\$1,234\.50/ }),
+  ).toBeVisible();
+});
+
+test("the cursor stays in place when commas move", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000" });
+  await openAddForm(page);
+
+  const box = amountBox(page);
+  await box.pressSequentially("1234567");
+  await expect(box).toHaveValue("1,234,567");
+  for (let i = 0; i < 4; i++) await box.press("ArrowLeft");
+  await box.press("Backspace");
+  await expect(box).toHaveValue("123,567");
+  await box.pressSequentially("9");
+  await expect(box).toHaveValue("1,239,567");
 });

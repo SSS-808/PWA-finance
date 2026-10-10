@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useId } from "react";
+import { AmountInput } from "@/components/shared/amount-input";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,11 +62,9 @@ export function FixBalanceForm({
           <span aria-hidden="true" className="text-3xl text-muted-foreground">
             {currencySymbol(currency)}
           </span>
-          <Input
+          <AmountInput
             id={`${uid}-amount`}
             name="amount"
-            inputMode="decimal"
-            autoComplete="off"
             autoFocus
             defaultValue={values.amount}
             aria-invalid={Boolean(fieldErrors.amount)}

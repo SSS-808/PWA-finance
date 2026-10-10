@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useId, useState } from "react";
+import { AmountInput } from "@/components/shared/amount-input";
 import { HelpHint } from "@/components/shared/help-hint";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
@@ -191,11 +192,9 @@ export function AccountForm(props: AccountFormProps) {
           <span aria-hidden="true" className="text-base text-muted-foreground">
             {currencySymbol(currency)}
           </span>
-          <Input
+          <AmountInput
             id={`${uid}-amount`}
             name="startingAmount"
-            inputMode="decimal"
-            autoComplete="off"
             defaultValue={current.startingAmount}
             aria-invalid={Boolean(fieldErrors.startingAmount)}
             placeholder={en.accounts.form.startingPlaceholder}

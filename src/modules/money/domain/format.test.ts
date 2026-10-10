@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { CurrencyCode } from "./currency";
-import { currencySymbol, formatMoney, toDecimalString } from "./format";
+import {
+  currencySymbol,
+  formatMoney,
+  groupAmountInput,
+  toDecimalString,
+} from "./format";
 import { type Money, money } from "./money";
 import { parseMoney } from "./parse";
 
@@ -83,5 +88,27 @@ describe("currencySymbol", () => {
     ["THB", "฿"],
   ])("%s is shown as %s", (currency, expected) => {
     expect(currencySymbol(currency)).toBe(expected);
+  });
+});
+
+describe("groupAmountInput", () => {
+  it.each<[string, string]>([
+    ["", ""],
+    ["1", "1"],
+    ["999", "999"],
+    ["1000", "1,000"],
+    ["1000000", "1,000,000"],
+    ["1,000000", "1,000,000"],
+    ["10,00", "1,000"],
+    ["1234.5", "1,234.5"],
+    ["1234.", "1,234."],
+    [".5", ".5"],
+    ["0012345", "0,012,345"],
+    ["100.00", "100.00"],
+    ["-1000", "-1000"],
+    ["12a4", "12a4"],
+    ["1.2.3", "1.2.3"],
+  ])("%j becomes %j", (input, expected) => {
+    expect(groupAmountInput(input)).toBe(expected);
   });
 });

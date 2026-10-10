@@ -46,3 +46,15 @@ export function currencySymbol(currency: string): string {
     .map((part) => part.value)
     .join("");
 }
+
+const TYPED_AMOUNT = /^(\d*)(\.\d*)?$/;
+
+// Adds thousands commas to an amount while it is typed; text that is not a plain amount comes back unchanged
+export function groupAmountInput(input: string): string {
+  const plain = input.replaceAll(",", "");
+  if (!TYPED_AMOUNT.test(plain)) return input;
+  const dot = plain.indexOf(".");
+  const whole = dot === -1 ? plain : plain.slice(0, dot);
+  const decimals = dot === -1 ? "" : plain.slice(dot);
+  return whole.replace(/\B(?=(\d{3})+$)/g, ",") + decimals;
+}

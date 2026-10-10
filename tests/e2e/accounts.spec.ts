@@ -179,7 +179,7 @@ test("editing changes the name and starting amount, and a taken name is refused"
 
   // The edit form is prefilled, and the currency can only be read
   await expect(nameBox(page)).toHaveValue("Cash");
-  await expect(amountBox(page)).toHaveValue("1500000");
+  await expect(amountBox(page)).toHaveValue("1,500,000");
   await expect(currencyBox(page)).toHaveCount(0);
   await page
     .getByRole("button", {
