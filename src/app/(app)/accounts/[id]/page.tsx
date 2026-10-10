@@ -11,7 +11,15 @@ import {
   getAccount,
 } from "@/modules/accounts";
 import { formatMoney } from "@/modules/money";
-import { SavedNotice } from "@/modules/transactions";
+import { getProfile, todayIn } from "@/modules/profile";
+import {
+  HistoryList,
+  SavedNotice,
+  baseFilters,
+  listTransactions,
+} from "@/modules/transactions";
+
+const RECENT_COUNT = 20;
 
 export default function AccountPage({
   params,
@@ -48,6 +56,13 @@ async function AccountDetail({
     deleted,
   } = await searchParams;
   const account = await getAccount(id);
+  const [profile, days] = await Promise.all([
+    getProfile(),
+    listTransactions(
+      { ...baseFilters(null), accountId: account.id },
+      RECENT_COUNT,
+    ),
+  ]);
   const { amount, owed } = displayBalance(account.type, account.balance);
 
   return (
@@ -101,9 +116,21 @@ async function AccountDetail({
           <ArchiveButton id={account.id} />
         )}
       </div>
-      <p className="text-base text-muted-foreground">
-        {en.accounts.detail.transactionsSoon}
-      </p>
+      {days.length === 0 ? (
+        <p className="text-base text-muted-foreground">
+          {en.accounts.detail.noTransactions}
+        </p>
+      ) : (
+        <div className="space-y-3">
+          <HistoryList days={days} today={todayIn(profile.timeZone)} />
+          <Link
+            href={`/transactions?account=${account.id}&month=all`}
+            className="inline-flex min-h-12 items-center text-base underline underline-offset-4"
+          >
+            {en.accounts.detail.seeAll}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

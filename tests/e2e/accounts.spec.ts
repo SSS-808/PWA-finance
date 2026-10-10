@@ -170,7 +170,9 @@ test("editing changes the name and starting amount, and a taken name is refused"
   await expect(
     page.getByRole("heading", { level: 1, name: "Cash" }),
   ).toBeVisible();
-  await expect(shown(page.getByText("₭1,500,000"))).toBeVisible();
+  await expect(
+    shown(page.getByText("₭1,500,000", { exact: true })),
+  ).toBeVisible();
   await page.getByRole("link", { name: en.accounts.detail.edit }).click();
   await expect(page).toHaveURL(/\/edit$/);
 
@@ -190,7 +192,9 @@ test("editing changes the name and starting amount, and a taken name is refused"
   await expect(
     page.getByRole("heading", { level: 1, name: "Wallet cash" }),
   ).toBeVisible();
-  await expect(shown(page.getByText("₭2,000,000"))).toBeVisible();
+  await expect(
+    shown(page.getByText("₭2,000,000", { exact: true })),
+  ).toBeVisible();
 
   // The same name in other letters is still taken, and what was typed stays
   await page.goto("/accounts/new");

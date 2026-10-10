@@ -5,7 +5,19 @@ import {
   type Page,
 } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { signUpAndConfirm } from "./helpers";
+import {
+  accountBox,
+  addAccount,
+  addEntry,
+  amountBox,
+  chip,
+  dateBox,
+  fillEntry,
+  noteBox,
+  openAddForm,
+  saveButton,
+  signUpAndConfirm,
+} from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -14,17 +26,6 @@ const expect = baseExpect.configure({ timeout: 15_000 });
 
 const widths = [320, 390, 768, 1024, 1280, 1440];
 const UUID = "[0-9a-f-]{36}";
-
-type NewAccount = { name: string; currency?: string; amount?: string };
-
-type Entry = {
-  amount: string;
-  category: string;
-  kind?: "income";
-  account?: string;
-  date?: string;
-  note?: string;
-};
 
 function mainNav(page: Page) {
   return page.getByRole("navigation", { name: en.nav.label });
@@ -37,92 +38,6 @@ function shown(locator: Locator) {
 
 function notice(page: Page, message: string) {
   return page.getByRole("status").filter({ hasText: message });
-}
-
-function amountBox(page: Page) {
-  return page.getByRole("textbox", {
-    name: en.transactions.form.amount,
-    exact: true,
-  });
-}
-
-function accountBox(page: Page) {
-  return page.getByRole("combobox", {
-    name: en.transactions.form.account,
-    exact: true,
-  });
-}
-
-function dateBox(page: Page) {
-  return page.getByLabel(en.transactions.form.date, { exact: true });
-}
-
-function noteBox(page: Page) {
-  return page.getByRole("textbox", { name: en.transactions.form.note });
-}
-
-function chip(page: Page, name: string) {
-  return page.getByRole("radio", { name, exact: true });
-}
-
-function saveButton(page: Page) {
-  return page.getByRole("button", { name: en.transactions.form.submit });
-}
-
-async function addAccount(page: Page, account: NewAccount) {
-  await page.goto("/accounts/new");
-  await page
-    .getByRole("textbox", { name: en.accounts.form.name, exact: true })
-    .fill(account.name);
-  await page
-    .getByRole("combobox", { name: en.accounts.form.currency, exact: true })
-    .selectOption(account.currency ?? "LAK");
-  if (account.amount) {
-    await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
-  }
-  await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
-  await expect(page).toHaveURL(/\/accounts\?notice=added$/);
-}
-
-// Fills the Add form that is already open and saves it
-async function fillEntry(page: Page, entry: Entry) {
-  if (entry.kind === "income") {
-    await page
-      .getByRole("button", { name: en.transactions.kinds.income })
-      .click();
-  }
-  if (entry.account)
-    await accountBox(page).selectOption({ label: entry.account });
-  await amountBox(page).fill(entry.amount);
-  await chip(page, entry.category).check();
-  if (entry.date) await dateBox(page).fill(entry.date);
-  if (entry.note) await noteBox(page).fill(entry.note);
-  await saveButton(page).click();
-}
-
-// The form's code loads after the page; typing before that would be wiped, so wait until the kind buttons work
-async function openAddForm(page: Page, url = "/transactions/new") {
-  await page.goto(url);
-  const income = page.getByRole("button", {
-    name: en.transactions.kinds.income,
-  });
-  const expense = page.getByRole("button", {
-    name: en.transactions.kinds.expense,
-  });
-  await expect(async () => {
-    await income.click();
-    await expect(income).toHaveAttribute("aria-pressed", "true", {
-      timeout: 1000,
-    });
-  }).toPass();
-  await expense.click();
-  await expect(expense).toHaveAttribute("aria-pressed", "true");
-}
-
-async function addEntry(page: Page, entry: Entry) {
-  await openAddForm(page);
-  await fillEntry(page, entry);
-  await expect(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
 }
 
 function today(): string {

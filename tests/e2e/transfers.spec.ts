@@ -5,7 +5,18 @@ import {
   type Page,
 } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { signUpAndConfirm } from "./helpers";
+import {
+  addAccount,
+  addTransfer,
+  amountBox,
+  arrivedBox,
+  fromBox,
+  noteBox,
+  openTransferForm,
+  saveButton,
+  signUpAndConfirm,
+  toBox,
+} from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -15,21 +26,6 @@ const expect = baseExpect.configure({ timeout: 15_000 });
 const widths = [320, 390, 768, 1024, 1280, 1440];
 const UUID = "[0-9a-f-]{36}";
 const NOT_FOUND = "This page could not be found.";
-
-type NewAccount = {
-  name: string;
-  type?: string;
-  currency?: string;
-  amount?: string;
-};
-
-type NewTransfer = {
-  from: string;
-  to: string;
-  amount: string;
-  arrived?: string;
-  note?: string;
-};
 
 function mainNav(page: Page) {
   return page.getByRole("navigation", { name: en.nav.label });
@@ -42,96 +38,6 @@ function shown(locator: Locator) {
 
 function notice(page: Page, message: string) {
   return page.getByRole("status").filter({ hasText: message });
-}
-
-function fromBox(page: Page) {
-  return page.getByRole("combobox", {
-    name: en.transactions.transfer.from,
-    exact: true,
-  });
-}
-
-function toBox(page: Page) {
-  return page.getByRole("combobox", {
-    name: en.transactions.transfer.to,
-    exact: true,
-  });
-}
-
-function amountBox(page: Page) {
-  return page.getByRole("textbox", {
-    name: en.transactions.transfer.amount,
-    exact: true,
-  });
-}
-
-function arrivedBox(page: Page) {
-  return page.getByRole("textbox", {
-    name: en.transactions.transfer.arrived,
-    exact: true,
-  });
-}
-
-function noteBox(page: Page) {
-  return page.getByRole("textbox", { name: en.transactions.form.note });
-}
-
-function saveButton(page: Page) {
-  return page.getByRole("button", { name: en.transactions.form.submit });
-}
-
-function transferButton(page: Page) {
-  return page.getByRole("button", { name: en.transactions.kinds.transfer });
-}
-
-async function addAccount(page: Page, account: NewAccount) {
-  await page.goto("/accounts/new");
-  await page
-    .getByRole("textbox", { name: en.accounts.form.name, exact: true })
-    .fill(account.name);
-  await page
-    .getByRole("combobox", { name: en.accounts.form.type, exact: true })
-    .selectOption(account.type ?? "cash");
-  await page
-    .getByRole("combobox", { name: en.accounts.form.currency, exact: true })
-    .selectOption(account.currency ?? "LAK");
-  if (account.amount) {
-    await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
-  }
-  await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
-  await expect(page).toHaveURL(/\/accounts\?notice=added$/);
-}
-
-// The form's code loads after the page; clicking Transfer before that does nothing, so retry until it switches
-async function openTransferForm(
-  page: Page,
-  url = "/transactions/new?from=%2Faccounts",
-) {
-  await page.goto(url);
-  await expect(async () => {
-    await transferButton(page).click();
-    await expect(transferButton(page)).toHaveAttribute("aria-pressed", "true", {
-      timeout: 1000,
-    });
-  }).toPass();
-}
-
-async function fillTransfer(page: Page, transfer: NewTransfer) {
-  await fromBox(page).selectOption({ label: transfer.from });
-  await toBox(page).selectOption({ label: transfer.to });
-  await amountBox(page).fill(transfer.amount);
-  if (transfer.arrived) await arrivedBox(page).fill(transfer.arrived);
-  if (transfer.note) await noteBox(page).fill(transfer.note);
-  await saveButton(page).click();
-}
-
-// Opens Add from Accounts, makes the transfer and lands back on Accounts
-async function addTransfer(page: Page, transfer: NewTransfer) {
-  await openTransferForm(page);
-  await fillTransfer(page, transfer);
-  await expect(page).toHaveURL(
-    new RegExp(`/accounts\\?saved_transfer=${UUID}$`),
-  );
 }
 
 function accountLink(page: Page, name: RegExp) {

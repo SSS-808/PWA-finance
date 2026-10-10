@@ -89,3 +89,180 @@ export async function logOutFromSettings(page: Page) {
 export function greeting(email: string): string {
   return en.home.greeting.replace("{email}", email);
 }
+
+// The dev server compiles each page the first time it is opened
+const patient = expect.configure({ timeout: 15_000 });
+
+const UUID = "[0-9a-f-]{36}";
+
+export type NewAccount = {
+  name: string;
+  type?: string;
+  currency?: string;
+  amount?: string;
+};
+
+export type Entry = {
+  amount: string;
+  category: string;
+  kind?: "income";
+  account?: string;
+  date?: string;
+  note?: string;
+};
+
+export type NewTransfer = {
+  from: string;
+  to: string;
+  amount: string;
+  arrived?: string;
+  note?: string;
+};
+
+export function amountBox(page: Page) {
+  return page.getByRole("textbox", {
+    name: en.transactions.form.amount,
+    exact: true,
+  });
+}
+
+export function accountBox(page: Page) {
+  return page.getByRole("combobox", {
+    name: en.transactions.form.account,
+    exact: true,
+  });
+}
+
+export function dateBox(page: Page) {
+  return page.getByLabel(en.transactions.form.date, { exact: true });
+}
+
+export function noteBox(page: Page) {
+  return page.getByRole("textbox", { name: en.transactions.form.note });
+}
+
+export function chip(page: Page, name: string) {
+  return page.getByRole("radio", { name, exact: true });
+}
+
+export function saveButton(page: Page) {
+  return page.getByRole("button", { name: en.transactions.form.submit });
+}
+
+export function fromBox(page: Page) {
+  return page.getByRole("combobox", {
+    name: en.transactions.transfer.from,
+    exact: true,
+  });
+}
+
+export function toBox(page: Page) {
+  return page.getByRole("combobox", {
+    name: en.transactions.transfer.to,
+    exact: true,
+  });
+}
+
+export function arrivedBox(page: Page) {
+  return page.getByRole("textbox", {
+    name: en.transactions.transfer.arrived,
+    exact: true,
+  });
+}
+
+export function transferButton(page: Page) {
+  return page.getByRole("button", { name: en.transactions.kinds.transfer });
+}
+
+export async function addAccount(page: Page, account: NewAccount) {
+  await page.goto("/accounts/new");
+  await page
+    .getByRole("textbox", { name: en.accounts.form.name, exact: true })
+    .fill(account.name);
+  await page
+    .getByRole("combobox", { name: en.accounts.form.type, exact: true })
+    .selectOption(account.type ?? "cash");
+  await page
+    .getByRole("combobox", { name: en.accounts.form.currency, exact: true })
+    .selectOption(account.currency ?? "LAK");
+  if (account.amount) {
+    await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
+  }
+  await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
+  await patient(page).toHaveURL(/\/accounts\?notice=added$/);
+}
+
+// Fills the Add form that is already open and saves it
+export async function fillEntry(page: Page, entry: Entry) {
+  if (entry.kind === "income") {
+    await page
+      .getByRole("button", { name: en.transactions.kinds.income })
+      .click();
+  }
+  if (entry.account)
+    await accountBox(page).selectOption({ label: entry.account });
+  await amountBox(page).fill(entry.amount);
+  await chip(page, entry.category).check();
+  if (entry.date) await dateBox(page).fill(entry.date);
+  if (entry.note) await noteBox(page).fill(entry.note);
+  await saveButton(page).click();
+}
+
+// The form's code loads after the page; typing before that would be wiped, so wait until the kind buttons work
+export async function openAddForm(page: Page, url = "/transactions/new") {
+  await page.goto(url);
+  const income = page.getByRole("button", {
+    name: en.transactions.kinds.income,
+  });
+  const expense = page.getByRole("button", {
+    name: en.transactions.kinds.expense,
+  });
+  await patient(async () => {
+    await income.click();
+    await patient(income).toHaveAttribute("aria-pressed", "true", {
+      timeout: 1000,
+    });
+  }).toPass();
+  await expense.click();
+  await patient(expense).toHaveAttribute("aria-pressed", "true");
+}
+
+export async function addEntry(page: Page, entry: Entry) {
+  await openAddForm(page);
+  await fillEntry(page, entry);
+  await patient(page).toHaveURL(new RegExp(`\\?saved=${UUID}$`));
+}
+
+// The form's code loads after the page; clicking Transfer before that does nothing, so retry until it switches
+export async function openTransferForm(
+  page: Page,
+  url = "/transactions/new?from=%2Faccounts",
+) {
+  await page.goto(url);
+  await patient(async () => {
+    await transferButton(page).click();
+    await patient(transferButton(page)).toHaveAttribute(
+      "aria-pressed",
+      "true",
+      { timeout: 1000 },
+    );
+  }).toPass();
+}
+
+export async function fillTransfer(page: Page, transfer: NewTransfer) {
+  await fromBox(page).selectOption({ label: transfer.from });
+  await toBox(page).selectOption({ label: transfer.to });
+  await amountBox(page).fill(transfer.amount);
+  if (transfer.arrived) await arrivedBox(page).fill(transfer.arrived);
+  if (transfer.note) await noteBox(page).fill(transfer.note);
+  await saveButton(page).click();
+}
+
+// Opens Add from Accounts, makes the transfer and lands back on Accounts
+export async function addTransfer(page: Page, transfer: NewTransfer) {
+  await openTransferForm(page);
+  await fillTransfer(page, transfer);
+  await patient(page).toHaveURL(
+    new RegExp(`/accounts\\?saved_transfer=${UUID}$`),
+  );
+}

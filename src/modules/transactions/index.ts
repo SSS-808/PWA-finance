@@ -1,6 +1,8 @@
 export { entrySchema, parseEntryAmount } from "./domain/schemas";
 export { groupByDay, toHistoryItems } from "./domain/history";
 export type { DayGroup, HistoryItem } from "./domain/history";
+export { baseFilters, filtersToQuery, parseFilters } from "./domain/filters";
+export type { HistoryFilters } from "./domain/filters";
 export type {
   AccountOption,
   CategoryOption,
@@ -17,7 +19,7 @@ export {
   getSavedSummary,
   getSavedTransferSummary,
   getTransfer,
-  listRecentTransactions,
+  listTransactions,
 } from "./server/queries";
 export { readLastAccountId } from "./server/last-account";
 export { createEntry, deleteEntry, updateEntry } from "./server/actions";
@@ -30,6 +32,7 @@ export { AddForm } from "./ui/add-form";
 export { DeleteEntryButton } from "./ui/delete-entry-button";
 export { DeleteTransferButton } from "./ui/delete-transfer-button";
 export { EntryForm } from "./ui/entry-form";
+export { HistoryFilterBar } from "./ui/history-filters";
 export { HistoryList } from "./ui/history-list";
 export { SavedNotice } from "./ui/saved-notice";
 export { TransferForm } from "./ui/transfer-form";

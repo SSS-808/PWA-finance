@@ -5,6 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/modules/auth";
 import { type Money, isCurrencyCode, money, negate } from "@/modules/money";
 import {
+  KINDS_BY_TYPE,
+  type HistoryFilters,
+  escapeLike,
+  monthRange,
+} from "../domain/filters";
+import {
   type DayGroup,
   type HistoryRow,
   groupByDay,
@@ -33,6 +39,8 @@ export type SavedTransferSummary = {
 };
 
 const idSchema = z.uuid();
+
+const MAX_ROWS = 500;
 
 const HISTORY_COLUMNS =
   "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name)";
@@ -79,14 +87,28 @@ function toHistoryRow(record: HistoryRecord): HistoryRow {
   };
 }
 
-// The latest transactions grouped by day; a transfer always comes with both of its legs
-export async function listRecentTransactions(limit = 50): Promise<DayGroup[]> {
+// The transactions that match the filters, newest first and grouped by day; a transfer always comes with both of its legs
+export async function listTransactions(
+  filters: HistoryFilters,
+  limit = MAX_ROWS,
+): Promise<DayGroup[]> {
   await requireUser();
   const supabase = await createClient();
-  const recent = await supabase
+  let query = supabase
     .from("transactions")
     .select(HISTORY_COLUMNS)
-    .is("deleted_at", null)
+    .is("deleted_at", null);
+  if (filters.month) {
+    const { from, to } = monthRange(filters.month);
+    query = query.gte("transaction_date", from).lt("transaction_date", to);
+  }
+  if (filters.accountId) query = query.eq("account_id", filters.accountId);
+  if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
+  if (filters.type) query = query.in("kind", [...KINDS_BY_TYPE[filters.type]]);
+  if (filters.q) {
+    query = query.ilike("description", `%${escapeLike(filters.q)}%`);
+  }
+  const recent = await query
     .order("transaction_date", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
