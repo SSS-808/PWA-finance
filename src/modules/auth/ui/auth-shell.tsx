@@ -7,7 +7,7 @@ export function AuthShell({
   embedded = false,
 }: {
   title: string;
-  description: string;
+  description?: string;
   children: ReactNode;
   embedded?: boolean;
 }) {
@@ -19,7 +19,9 @@ export function AuthShell({
   return (
     <Wrapper className={wrapperClass}>
       <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-      <p className="mt-2 text-base text-muted-foreground">{description}</p>
+      {description ? (
+        <p className="mt-2 text-base text-muted-foreground">{description}</p>
+      ) : null}
       <div className="mt-8">{children}</div>
     </Wrapper>
   );

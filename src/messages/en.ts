@@ -1,4 +1,7 @@
 export const en = {
+  help: {
+    about: "About {field}",
+  },
   app: {
     name: "Personal Wallet",
     tagline: "Track every kip, dollar and baht.",
@@ -7,7 +10,6 @@ export const en = {
   auth: {
     login: {
       title: "Welcome back",
-      description: "Log in to see your money.",
       submit: "Log in",
       submitting: "Logging in…",
       forgot: "Forgot password?",
@@ -16,7 +18,6 @@ export const en = {
     },
     signup: {
       title: "Create your account",
-      description: "Just an email and a password. You can add your name later.",
       submit: "Create account",
       submitting: "Creating account…",
       haveAccount: "Already have an account?",
@@ -74,7 +75,6 @@ export const en = {
     greetingNamed: "Hi, {name}!",
     passwordUpdated: "Your password was changed.",
     startTitle: "Start by adding your accounts",
-    startBody: "Cash, bank accounts, cards: wherever your money is.",
   },
   dashboard: {
     title: "Overview",
@@ -107,7 +107,6 @@ export const en = {
     profile: {
       title: "Profile",
       displayName: "Your name",
-      displayNameHint: "Optional. Shown on your Home page.",
       baseCurrency: "Main currency",
       baseCurrencyHint:
         "Used for combined totals later. Amounts are always shown in their own currency.",
@@ -119,7 +118,6 @@ export const en = {
     },
     categories: {
       title: "Categories",
-      body: "Add your own categories, rename them, or hide the ones you don't use.",
       manage: "Manage categories",
     },
     account: {
@@ -142,6 +140,8 @@ export const en = {
     expenseTitle: "Expense",
     incomeTitle: "Income",
     hiddenTitle: "Hidden",
+    showHidden: "Show hidden ({count})",
+    hideHidden: "Hide hidden",
     hiddenSuffix: "(hidden)",
     empty: "No categories here.",
     rename: "Rename",
@@ -157,7 +157,7 @@ export const en = {
     },
     form: {
       name: "Name",
-      nameHint: "For example: Coffee, Rent, Side job.",
+      namePlaceholder: "e.g. Coffee, Rent, Side job",
       kind: "Type",
       submitNew: "Add category",
       submittingNew: "Adding…",
@@ -167,8 +167,6 @@ export const en = {
     },
     detail: {
       title: "Rename category",
-      hiddenNote:
-        "This category is hidden, so it isn't offered when you add a transaction.",
       hide: "Hide",
       hideConfirm: "Hide this category? Old transactions keep it.",
       hideYes: "Yes, hide",
@@ -187,8 +185,6 @@ export const en = {
     add: "Add account",
     addFirst: "Add your first account",
     emptyTitle: "No accounts yet",
-    emptyBody:
-      "Add the places your money lives: cash, bank, cards. You can add as many as you like.",
     total: "Total",
     owed: "owed",
     archivedTitle: "Archived",
@@ -216,7 +212,7 @@ export const en = {
       newTitle: "Add an account",
       editTitle: "Edit account",
       name: "Name",
-      nameHint: "For example: BCEL, Cash, Visa.",
+      namePlaceholder: "e.g. BCEL, Cash, Visa",
       type: "Type",
       currency: "Currency",
       currencyHint: "Can't be changed later.",
@@ -224,7 +220,7 @@ export const en = {
         "The currency can't be changed after the account is created.",
       startingAmount: "How much is in it now?",
       startingOwed: "How much do you owe on it now?",
-      startingHint: "Leave empty for 0.",
+      startingPlaceholder: "0",
       submitNew: "Add account",
       submittingNew: "Adding…",
       submitEdit: "Save changes",

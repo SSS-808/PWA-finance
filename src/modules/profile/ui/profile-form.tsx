@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
+import { HelpHint } from "@/components/shared/help-hint";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { CURRENCY_CODES } from "@/modules/money";
 import { MAX_NAME_LENGTH } from "../domain/schemas";
@@ -69,18 +70,22 @@ export function ProfileForm({
           maxLength={MAX_NAME_LENGTH}
           defaultValue={current.displayName}
           aria-invalid={Boolean(fieldErrors.displayName)}
-          aria-describedby={`profile-name-hint${fieldErrors.displayName ? " profile-name-error" : ""}`}
+          aria-describedby={
+            fieldErrors.displayName ? "profile-name-error" : undefined
+          }
           className="h-12 text-base"
         />
-        <p id="profile-name-hint" className="text-sm text-muted-foreground">
-          {en.settings.profile.displayNameHint}
-        </p>
         <FieldMessage id="profile-name-error" error={fieldErrors.displayName} />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="profile-currency" className="text-base">
-          {en.settings.profile.baseCurrency}
-        </Label>
+        <div className="flex items-center gap-1">
+          <Label htmlFor="profile-currency" className="text-base">
+            {en.settings.profile.baseCurrency}
+          </Label>
+          <HelpHint label={en.settings.profile.baseCurrency}>
+            {en.settings.profile.baseCurrencyHint}
+          </HelpHint>
+        </div>
         <select
           // A new key remounts the select, because React keeps the old default after a form reset
           key={current.baseCurrency}
@@ -88,7 +93,9 @@ export function ProfileForm({
           name="baseCurrency"
           defaultValue={current.baseCurrency}
           aria-invalid={Boolean(fieldErrors.baseCurrency)}
-          aria-describedby={`profile-currency-hint${fieldErrors.baseCurrency ? " profile-currency-error" : ""}`}
+          aria-describedby={
+            fieldErrors.baseCurrency ? "profile-currency-error" : undefined
+          }
           className={selectClass}
         >
           {CURRENCY_CODES.map((code) => (
@@ -97,18 +104,20 @@ export function ProfileForm({
             </option>
           ))}
         </select>
-        <p id="profile-currency-hint" className="text-sm text-muted-foreground">
-          {en.settings.profile.baseCurrencyHint}
-        </p>
         <FieldMessage
           id="profile-currency-error"
           error={fieldErrors.baseCurrency}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="profile-time-zone" className="text-base">
-          {en.settings.profile.timeZone}
-        </Label>
+        <div className="flex items-center gap-1">
+          <Label htmlFor="profile-time-zone" className="text-base">
+            {en.settings.profile.timeZone}
+          </Label>
+          <HelpHint label={en.settings.profile.timeZone}>
+            {en.settings.profile.timeZoneHint}
+          </HelpHint>
+        </div>
         <select
           // A new key remounts the select, because React keeps the old default after a form reset
           key={current.timeZone}
@@ -116,7 +125,9 @@ export function ProfileForm({
           name="timeZone"
           defaultValue={current.timeZone}
           aria-invalid={Boolean(fieldErrors.timeZone)}
-          aria-describedby={`profile-time-zone-hint${fieldErrors.timeZone ? " profile-time-zone-error" : ""}`}
+          aria-describedby={
+            fieldErrors.timeZone ? "profile-time-zone-error" : undefined
+          }
           className={selectClass}
         >
           {timeZones.map((zone) => (
@@ -125,12 +136,6 @@ export function ProfileForm({
             </option>
           ))}
         </select>
-        <p
-          id="profile-time-zone-hint"
-          className="text-sm text-muted-foreground"
-        >
-          {en.settings.profile.timeZoneHint}
-        </p>
         <FieldMessage
           id="profile-time-zone-error"
           error={fieldErrors.timeZone}

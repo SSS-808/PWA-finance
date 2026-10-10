@@ -23,9 +23,6 @@ export default function SettingsPage() {
         <h2 id="settings-categories" className="text-xl font-semibold">
           {en.settings.categories.title}
         </h2>
-        <p className="text-base text-muted-foreground">
-          {en.settings.categories.body}
-        </p>
         <Button asChild variant="outline" className="h-12 w-full text-base">
           <Link href="/settings/categories">
             {en.settings.categories.manage}

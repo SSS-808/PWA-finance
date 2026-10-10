@@ -137,12 +137,21 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
   await expect(page).toHaveURL(LIST_URL);
   await expect(notice(page, en.categories.notices.hidden)).toBeVisible();
 
-  // It moves to the Hidden section, which has Show again instead of Rename
+  // It moves to the Hidden section, which stays folded away until the link is tapped
   const hidden = page.getByRole("region", {
     name: en.categories.hiddenTitle,
     exact: true,
   });
+  const showHidden = page.getByRole("link", {
+    name: en.categories.showHidden.replace("{count}", "1"),
+  });
+  await expect(hidden).toHaveCount(0);
+  await showHidden.click();
+  await expect(page).toHaveURL(`${LIST_URL}?hidden=1`);
   await expect(hidden.getByText("Café")).toBeVisible();
+  await page.getByRole("link", { name: en.categories.hideHidden }).click();
+  await expect(page).toHaveURL(LIST_URL);
+  await expect(hidden).toHaveCount(0);
 
   await openAddForm(page);
   await expect(chip(page, "Food")).toBeVisible();
@@ -160,9 +169,12 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
   await expect(chip(page, "Café")).toBeChecked();
 
   await page.goto(LIST_URL);
+  await showHidden.click();
   await hidden.getByRole("button", { name: en.categories.showAgain }).click();
   await expect(notice(page, en.categories.notices.shown)).toBeVisible();
+  // Nothing is hidden any more, so both the list and its link are gone
   await expect(hidden).toHaveCount(0);
+  await expect(showHidden).toHaveCount(0);
 
   await openAddForm(page);
   await expect(chip(page, "Café")).toBeVisible();

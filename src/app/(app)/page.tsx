@@ -54,7 +54,6 @@ async function HomeContent({
       {cards.length === 0 ? (
         <div className="space-y-4 rounded-lg border border-border px-4 py-6">
           <h2 className="text-xl font-semibold">{en.home.startTitle}</h2>
-          <p className="text-base text-muted-foreground">{en.home.startBody}</p>
           <Button asChild className="h-12 w-full text-base">
             <Link href="/accounts/new">{en.accounts.addFirst}</Link>
           </Button>

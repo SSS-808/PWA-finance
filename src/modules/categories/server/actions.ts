@@ -127,7 +127,8 @@ export async function hideCategory(id: string): Promise<void> {
 
 export async function showCategory(id: string): Promise<void> {
   const result = await setArchivedAt(id, null);
+  // hidden=1 keeps the Hidden list open, so several can be shown again in a row
   redirect(
-    `${LIST_PATH}?notice=${result === "name_taken" ? "show_name_taken" : "shown"}`,
+    `${LIST_PATH}?hidden=1&notice=${result === "name_taken" ? "show_name_taken" : "shown"}`,
   );
 }

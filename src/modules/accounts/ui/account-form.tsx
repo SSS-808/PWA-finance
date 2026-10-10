@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useId, useState } from "react";
+import { HelpHint } from "@/components/shared/help-hint";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,12 +103,10 @@ export function AccountForm(props: AccountFormProps) {
           maxLength={MAX_NAME_LENGTH}
           defaultValue={current.name}
           aria-invalid={Boolean(fieldErrors.name)}
-          aria-describedby={`${uid}-name-hint${fieldErrors.name ? ` ${uid}-name-error` : ""}`}
+          placeholder={en.accounts.form.namePlaceholder}
+          aria-describedby={fieldErrors.name ? `${uid}-name-error` : undefined}
           className="h-12 text-base"
         />
-        <p id={`${uid}-name-hint`} className="text-sm text-muted-foreground">
-          {en.accounts.form.nameHint}
-        </p>
         <FieldMessage id={`${uid}-name-error`} error={fieldErrors.name} />
       </div>
       <div className="space-y-2">
@@ -136,17 +135,26 @@ export function AccountForm(props: AccountFormProps) {
       <div className="space-y-2">
         {props.mode === "edit" ? (
           <>
-            <p className="text-base font-medium">{en.accounts.form.currency}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-base font-medium">
+                {en.accounts.form.currency}
+              </p>
+              <HelpHint label={en.accounts.form.currency}>
+                {en.accounts.form.currencyLocked}
+              </HelpHint>
+            </div>
             <p className="text-base">{en.currencies[props.currency]}</p>
-            <p className="text-sm text-muted-foreground">
-              {en.accounts.form.currencyLocked}
-            </p>
           </>
         ) : (
           <>
-            <Label htmlFor={`${uid}-currency`} className="text-base">
-              {en.accounts.form.currency}
-            </Label>
+            <div className="flex items-center gap-1">
+              <Label htmlFor={`${uid}-currency`} className="text-base">
+                {en.accounts.form.currency}
+              </Label>
+              <HelpHint label={en.accounts.form.currency}>
+                {en.accounts.form.currencyHint}
+              </HelpHint>
+            </div>
             <select
               // A new key remounts the select, because React keeps the old default after a form reset
               key={current.currency}
@@ -155,7 +163,9 @@ export function AccountForm(props: AccountFormProps) {
               defaultValue={current.currency}
               onChange={(event) => setCurrency(event.target.value)}
               aria-invalid={Boolean(fieldErrors.currency)}
-              aria-describedby={`${uid}-currency-hint${fieldErrors.currency ? ` ${uid}-currency-error` : ""}`}
+              aria-describedby={
+                fieldErrors.currency ? `${uid}-currency-error` : undefined
+              }
               className={selectClass}
             >
               {CURRENCY_CODES.map((code) => (
@@ -164,12 +174,6 @@ export function AccountForm(props: AccountFormProps) {
                 </option>
               ))}
             </select>
-            <p
-              id={`${uid}-currency-hint`}
-              className="text-sm text-muted-foreground"
-            >
-              {en.accounts.form.currencyHint}
-            </p>
             <FieldMessage
               id={`${uid}-currency-error`}
               error={fieldErrors.currency}
@@ -194,13 +198,13 @@ export function AccountForm(props: AccountFormProps) {
             autoComplete="off"
             defaultValue={current.startingAmount}
             aria-invalid={Boolean(fieldErrors.startingAmount)}
-            aria-describedby={`${uid}-amount-hint${fieldErrors.startingAmount ? ` ${uid}-amount-error` : ""}`}
+            placeholder={en.accounts.form.startingPlaceholder}
+            aria-describedby={
+              fieldErrors.startingAmount ? `${uid}-amount-error` : undefined
+            }
             className="h-12 text-base"
           />
         </div>
-        <p id={`${uid}-amount-hint`} className="text-sm text-muted-foreground">
-          {en.accounts.form.startingHint}
-        </p>
         <FieldMessage
           id={`${uid}-amount-error`}
           error={fieldErrors.startingAmount}

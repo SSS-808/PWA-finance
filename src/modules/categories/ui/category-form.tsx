@@ -73,12 +73,10 @@ export function CategoryForm(props: CategoryFormProps) {
           maxLength={MAX_NAME_LENGTH}
           defaultValue={current.name}
           aria-invalid={Boolean(fieldErrors.name)}
-          aria-describedby={`${uid}-name-hint${fieldErrors.name ? ` ${uid}-name-error` : ""}`}
+          placeholder={en.categories.form.namePlaceholder}
+          aria-describedby={fieldErrors.name ? `${uid}-name-error` : undefined}
           className="h-12 text-base"
         />
-        <p id={`${uid}-name-hint`} className="text-sm text-muted-foreground">
-          {en.categories.form.nameHint}
-        </p>
         <FieldMessage id={`${uid}-name-error`} error={fieldErrors.name} />
       </div>
       {renaming ? null : (

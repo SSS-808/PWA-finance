@@ -41,12 +41,14 @@ async function CategoryDetail({
 
   return (
     <div className="space-y-6">
-      <p className="text-base text-muted-foreground">
+      <p className="flex items-center gap-2 text-base text-muted-foreground">
         {en.categories.kinds[category.kind]}
+        {category.hidden ? (
+          <span className="rounded-full bg-muted px-2 py-0.5 text-sm text-foreground">
+            {en.categories.hiddenTitle}
+          </span>
+        ) : null}
       </p>
-      {category.hidden ? (
-        <p className="text-base">{en.categories.detail.hiddenNote}</p>
-      ) : null}
       <CategoryForm mode="rename" id={category.id} name={category.name} />
       {category.hidden ? (
         <ShowButton id={category.id} />

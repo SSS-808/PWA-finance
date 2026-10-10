@@ -4,10 +4,7 @@ import { AuthShell, LoginForm } from "@/modules/auth";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
-    <AuthShell
-      title={en.auth.login.title}
-      description={en.auth.login.description}
-    >
+    <AuthShell title={en.auth.login.title}>
       <Suspense>
         <LoginFormLoader searchParams={searchParams} />
       </Suspense>

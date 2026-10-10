@@ -9,6 +9,9 @@ import {
   listAllCategories,
 } from "@/modules/categories";
 
+const toggleClass =
+  "inline-flex min-h-12 items-center font-medium underline underline-offset-4";
+
 export default function CategoriesPage({
   searchParams,
 }: PageProps<"/settings/categories">) {
@@ -36,9 +39,11 @@ async function CategoriesContent({
 }: {
   searchParams: PageProps<"/settings/categories">["searchParams"];
 }) {
-  const { notice } = await searchParams;
+  const { notice, hidden: showHiddenParam } = await searchParams;
   const categories = await listAllCategories();
   const active = categories.filter((category) => !category.hidden);
+  const hidden = categories.filter((category) => category.hidden);
+  const showHidden = showHiddenParam === "1";
 
   return (
     <div className="space-y-8">
@@ -59,12 +64,31 @@ async function CategoriesContent({
         title={en.categories.incomeTitle}
         categories={active.filter((category) => category.kind === "income")}
       />
-      {active.length < categories.length ? (
-        <CategoryList
-          id="categories-hidden"
-          title={en.categories.hiddenTitle}
-          categories={categories.filter((category) => category.hidden)}
-        />
+      {hidden.length > 0 ? (
+        <div className="space-y-4">
+          <Link
+            href={
+              showHidden
+                ? "/settings/categories"
+                : "/settings/categories?hidden=1"
+            }
+            className={toggleClass}
+          >
+            {showHidden
+              ? en.categories.hideHidden
+              : en.categories.showHidden.replace(
+                  "{count}",
+                  String(hidden.length),
+                )}
+          </Link>
+          {showHidden ? (
+            <CategoryList
+              id="categories-hidden"
+              title={en.categories.hiddenTitle}
+              categories={hidden}
+            />
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

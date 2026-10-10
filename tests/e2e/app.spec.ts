@@ -218,3 +218,68 @@ test("home and settings fit every width and the nav never covers the last elemen
     }
   }
 });
+
+function timeZoneHintButton(page: Page) {
+  return page.getByRole("button", {
+    name: en.help.about.replace("{field}", en.settings.profile.timeZone),
+  });
+}
+
+test("a help hint opens from its question mark button and closes with Escape", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await navLink(page, en.nav.settings).click();
+  const hint = page.getByText(en.settings.profile.timeZoneHint);
+  await expect(hint).toHaveCount(0);
+
+  await timeZoneHintButton(page).click();
+  await expect(hint).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(hint).toHaveCount(0);
+});
+
+test("an open help hint does not follow the user to Home", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await navLink(page, en.nav.settings).click();
+  await timeZoneHintButton(page).click();
+  await expect(page.getByText(en.settings.profile.timeZoneHint)).toBeVisible();
+
+  await navLink(page, en.nav.home).click();
+  await expect(
+    page.getByRole("heading", { name: en.home.startTitle }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(en.settings.profile.timeZoneHint).filter({ visible: true }),
+  ).toHaveCount(0);
+});
+
+test("the help bubble stays inside the screen at every width", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await signUpAndConfirm(page);
+
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/settings");
+    await timeZoneHintButton(page).click();
+    const bubble = page.getByText(en.settings.profile.timeZoneHint);
+    await expect(bubble).toBeVisible();
+
+    const box = await bubble.boundingBox();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
+    console.log(
+      `bubble ${width}px: left=${box?.x}, right=${(box?.x ?? 0) + (box?.width ?? 0)}, width=${box?.width}`,
+    );
+    expect(box?.x, `left at ${width}px`).toBeGreaterThanOrEqual(0);
+    expect(
+      (box?.x ?? 0) + (box?.width ?? 0),
+      `right at ${width}px`,
+    ).toBeLessThanOrEqual(width);
+    expect(overflow, `overflow at ${width}px`).toBeLessThanOrEqual(0);
+  }
+});

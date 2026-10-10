@@ -85,7 +85,6 @@ test("a new user sees the empty state on Home and on Accounts", async ({
   await expect(
     page.getByRole("heading", { name: en.home.startTitle }),
   ).toBeVisible();
-  await expect(shown(page.getByText(en.home.startBody))).toBeVisible();
 
   await mainNav(page).getByRole("link", { name: en.nav.accounts }).click();
   await expect(page).toHaveURL(/\/accounts$/);
@@ -182,6 +181,11 @@ test("editing changes the name and starting amount, and a taken name is refused"
   await expect(nameBox(page)).toHaveValue("Cash");
   await expect(amountBox(page)).toHaveValue("1500000");
   await expect(currencyBox(page)).toHaveCount(0);
+  await page
+    .getByRole("button", {
+      name: en.help.about.replace("{field}", en.accounts.form.currency),
+    })
+    .click();
   await expect(
     shown(page.getByText(en.accounts.form.currencyLocked)),
   ).toBeVisible();
