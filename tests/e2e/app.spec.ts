@@ -166,7 +166,10 @@ test("home and settings fit every width and the nav never covers the last elemen
   await signUpAndConfirm(page);
 
   const paths = [
-    { path: "/", ready: () => page.getByText(en.home.comingSoon) },
+    {
+      path: "/",
+      ready: () => page.getByRole("heading", { name: en.home.startTitle }),
+    },
     {
       path: "/settings",
       ready: () =>

@@ -26,7 +26,7 @@ const arrowClass =
   "inline-flex size-12 items-center justify-center rounded-lg hover:bg-muted";
 
 // A label like "October 2026"; the month is a plain calendar month, so no time zone shift
-function monthLabel(month: string): string {
+export function monthLabel(month: string): string {
   return new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric",
