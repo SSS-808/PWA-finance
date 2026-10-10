@@ -19,30 +19,30 @@ The robots have checked that everything **works** (577 automatic tests). This li
 ## The check (tick as you go)
 
 ### A. Getting in (5 min)
-- [ ] Sign up with any made-up email → open the pretend inbox → click the link → you land on Home.
-- [ ] Settings → **Log out** → log in again. Try one **wrong password**: is the message clear?
-- [ ] **Forgot password?** → inbox → choose a new password → log in with it.
+- [x] Sign up with any made-up email → open the pretend inbox → click the link → you land on Home.
+- [x] Settings → **Log out** → log in again. Try one **wrong password**: is the message clear?
+- [x] **Forgot password?** → inbox → choose a new password → log in with it.
 
 ### B. Setting up (5 min)
-- [ ] Settings: your **name**, main currency and time zone → Save → Home says "Hi, …".
-- [ ] Add your **real accounts** (Cash, BCEL, USD, a card…) with roughly real amounts. Do the totals on Accounts look right?
+- [x] Settings: your **name**, main currency and time zone → Save → Home says "Hi, …".
+- [x] Add your **real accounts** (Cash, BCEL, USD, a card…) with roughly real amounts. Do the totals on Accounts look right?
 
 ### C. Daily use (10 min): the most important part
-- [ ] Add **5 expenses** with the round ＋, as fast as you can. Is each one **about 5 seconds**? Is anything annoying?
-- [ ] Add an **income** (salary).
-- [ ] **Move money** BCEL → Cash. **Change dollars into kip** (the second box "How much arrived?").
-- [ ] **Fix a balance** on one account to match a real number.
-- [ ] **Edit** one expense and **delete** one.
+- [x] Add **5 expenses** with the round ＋, as fast as you can. Is each one **about 5 seconds**? Is anything annoying?
+- [x] Add an **income** (salary).
+- [x] **Move money** BCEL → Cash. **Change dollars into kip** (the second box "How much arrived?").
+- [x] **Fix a balance** on one account to match a real number.
+- [x] **Edit** one expense and **delete** one.
 
 ### D. Looking back (5 min)
-- [ ] **Home:** do this month's numbers make sense (income, spending, saved, savings rate)?
-- [ ] Tap a bar under "Where your money went": does it show the right transactions?
-- [ ] **History:** filter by one account, **search** a note, go back one month.
-- [ ] **Settings → Manage categories:** add one, use it, then hide it.
+- [x] **Home:** do this month's numbers make sense (income, spending, saved, savings rate)?
+- [x] Tap a bar under "Where your money went": does it show the right transactions?
+- [x] **History:** filter by one account, **search** a note, go back one month.
+- [x] **Settings → Manage categories:** add one, use it, then hide it.
 
 ### E. Look and feel (2 min)
-- [ ] In phone size: is everything readable, and is anything hard to tap?
-- [ ] Switch your computer to **dark mode**: does the app follow?
+- [x] In phone size: is everything readable, and is anything hard to tap?
+- [x] Switch your computer to **dark mode**: does the app follow?
 
 ## Not in this first version (on purpose, so not bugs)
 
