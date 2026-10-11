@@ -174,3 +174,79 @@ test("the budget pages fit every width", async ({ page }) => {
   }
   console.log(report.join("\n"));
 });
+
+// The Budgets section of Home
+function homeBudgets(page: Page) {
+  return shown(page.getByRole("region", { name: en.budgets.title }));
+}
+
+test("Home shows the most used budgets and links to all of them", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "5,000,000" });
+  await addBudget(page, "Food", "2,000,000");
+  await addEntry(page, { amount: "45,000", category: "Food" });
+
+  await page.goto("/");
+  const section = homeBudgets(page);
+  await expect(section).toBeVisible();
+  await expect(
+    section.getByText("₭45,000 of ₭2,000,000", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    section.getByText("₭1,955,000 left", { exact: true }),
+  ).toBeVisible();
+
+  await section.getByRole("link", { name: en.budgets.seeAll }).click();
+  await expect(page).toHaveURL(/\/budgets$/);
+});
+
+test("Home says how much a budget is over", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "5,000,000" });
+  await addBudget(page, "Food", "10,000");
+  await addEntry(page, { amount: "45,000", category: "Food" });
+
+  await page.goto("/");
+  await expect(
+    homeBudgets(page).getByText("₭35,000 over", { exact: true }),
+  ).toBeVisible();
+});
+
+test("Home without budgets has a plain link; with one it fits every width", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "5,000,000" });
+
+  await page.goto("/");
+  await expect(
+    shown(page.getByRole("link", { name: en.budgets.title, exact: true })),
+  ).toBeVisible();
+  await expect(
+    shown(page.getByRole("heading", { name: en.budgets.title })),
+  ).toHaveCount(0);
+
+  await addBudget(page, "Food", "2,000,000");
+
+  const report: string[] = [];
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto("/");
+    const bar = homeBudgets(page).getByRole("progressbar", { name: "Food" });
+    await expect(bar).toBeVisible();
+    const box = await bar.boundingBox();
+    const overflow = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      inner: window.innerWidth,
+    }));
+    expect(overflow.scroll, `Home at ${width}px`).toBeLessThanOrEqual(
+      overflow.inner,
+    );
+    report.push(
+      `Home ${width}px: page ${overflow.scroll}, bar ${Math.round(box?.x ?? 0)} to ${Math.round((box?.x ?? 0) + (box?.width ?? 0))}`,
+    );
+  }
+  console.log(report.join("\n"));
+});

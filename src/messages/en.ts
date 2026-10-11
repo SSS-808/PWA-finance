@@ -105,6 +105,7 @@ export const en = {
     of: "{spent} of {budget}",
     left: "{amount} left",
     over: "{amount} over",
+    seeAll: "See all",
     form: {
       category: "Category",
       currency: "Currency",
