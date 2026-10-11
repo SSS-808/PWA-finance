@@ -421,6 +421,8 @@ create policy "read own history" on public.transaction_audit
 | transactions | own | own | own | — (soft delete instead) |
 | transaction_audit | own | trigger only | — | — |
 | budgets | own | own | own | — (end it with amount 0 instead) |
+| goals | own | own | own | — (archive instead) |
+| goal_contributions | own | own | — | — (take money out with a negative row instead) |
 
 Because there are no delete policies, the app can't hard-delete financial data even if it has a bug. `(select auth.uid())` is wrapped in `select` so Postgres works it out once per query instead of once per row (Supabase's recommended pattern).
 
@@ -441,11 +443,21 @@ Decision: [ADR-010](adr/010-budgets-repeat-until-changed.md). Migration: `supaba
 
 Example for Food in kip: rows `(2026-10-01, 2,000,000)` and `(2027-01-01, 2,500,000)` give 2,000,000 for October to December 2026, and 2,500,000 from January 2027 on.
 
+### Savings goals (built in Phase 7.1)
+
+Decision: [ADR-011](adr/011-goals-are-earmarks.md). Migration: `supabase/migrations/20261011212617_goals.sql`.
+
+- `goals (user_id, name, currency, target_minor, deadline, archived_at)`: what you're saving for. The deadline is optional. A goal is archived, never deleted, and two active goals can't share a name.
+- `goal_contributions (user_id, goal_id, currency, amount_minor, contributed_on, note)`: money set aside for a goal. A positive row adds, a negative row takes money back out. Rows are never changed or deleted.
+- The foreign key `(goal_id, user_id, currency)` makes sure a contribution belongs to the same user and uses the goal's currency.
+- A trigger refuses any contribution that would bring a goal's saved total below 0.
+- The view `goal_totals (goal_id, user_id, currency, saved_minor)` adds up the contributions. It runs with the reader's own access (`security_invoker`), so RLS still applies.
+- A contribution does **not** move money between accounts. It's a label on money you already have.
+
 ### Still a sketch
 
 | Phase | Tables | Note |
 |---|---|---|
-| 7 Goals | `goals (name, target_minor, currency, deadline, account_id?)`, `goal_contributions` | |
 | 8 Net worth | `exchange_rates (user_id, base, quote, rate numeric(20,10), on_date)` | History comes for free: the balance on any date = the sum of rows up to that date |
 | 9 Investments | `instruments`, `trades (side, quantity numeric, price_minor, fees_minor, trade_date)`, `prices (instrument_id, on_date, price_minor)` | Quantity is `numeric`, not an integer, because of fractional shares and crypto |
 

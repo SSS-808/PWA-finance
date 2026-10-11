@@ -99,7 +99,9 @@ reset role;
 select is(
   (select amount_minor from public.budgets where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and currency = 'LAK' and start_month = '2026-10-01'),
   2500000::bigint, 'the budget of A still has the amount A set');
-select is((select count(*) from public.budgets), 4::bigint, 'four budgets exist: three of A and one of B');
+select is(
+  (select count(*) from public.budgets where user_id in ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb')),
+  4::bigint, 'four budgets exist for the two test users: three of A and one of B');
 
 select * from finish();
 rollback;
