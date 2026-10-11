@@ -52,7 +52,7 @@ pnpm dev
 | | Database | App | Data |
 |---|---|---|---|
 | Local | Supabase in Docker | localhost:3000 | Fake seed data, wipe anytime |
-| Preview | Supabase "staging" project, set up at the 5.5 deploy ([deploy.md](deploy.md)) | A Vercel preview URL per PR | Fake |
+| Preview | Supabase "staging" project, set up at the 5.5 deploy ([deploy.md](deploy.md)) | A Vercel preview URL per PR, and one for the `dev` branch (the practice site) | Fake |
 | Production | Supabase cloud | Vercel, deployed from `main` | Your real data |
 
 Analogy: local is a flight simulator, production is the real plane. Migrations are the checklist you run in both, so the two behave the same.
@@ -93,16 +93,21 @@ End-to-end tests join CI at the MVP release.
 ## 6. Git workflow
 
 ```
-main  ──●──────────────●──────────────●──   (= the live site)
-         \            /                \
-          feat/auth ─●─●─●              fix/…
-                 squash merge: one clean commit on main per task
+main  ──●───────────────────────────────●──   (= the live site, real data)
+         \                             /   one release per phase (merge commit)
+dev   ────●──────●──────────●─────────●──   (= the practice site, staging data)
+           \    / \        /
+            task   task …     one branch per task, squash merged into dev
 ```
 
-- `main` is the live site. Vercel deploys it automatically once it's connected.
-- The site went live on 2026-10-12. Before that, commits went straight onto `main`. Since then every task gets a branch and a PR, because a push to `main` changes the live site.
-- For each task: update `main` → create a branch `feat/<short-name>` or `fix/<short-name>` → open a PR into `main` → wait for CI to pass → squash merge.
-- **Why squash merge:** each PR becomes one clean commit on `main`, so the history reads like a changelog. The branch's work-in-progress commits disappear.
+- `main` is the live site. Vercel deploys it automatically. It only changes at a release or for an urgent fix.
+- `dev` is the waiting room (since Phase 7, 2026-10-12). Vercel builds a preview of it that uses the **staging** database, so a whole phase can be tried on fake data first.
+- For each task: update `dev` → create a branch `feat/<short-name>` or `fix/<short-name>` → open a PR into `dev` → wait for CI to pass → squash merge → delete the branch.
+- **Why squash merge for tasks:** each PR becomes one clean commit on `dev`, so the history reads like a changelog. The branch's work-in-progress commits disappear.
+- **Database changes:** a task's migration goes to staging when the task lands in `dev`, and to production only at the release.
+- **Release (end of a phase):** try the phase on the practice site, then merge `dev` into `main` with a **merge commit, never a squash**. A squash would give `main` a commit `dev` doesn't have, and the two branches would drift apart. Push the phase's migrations to production in the same step.
+- **Urgent fix:** branch from `main`, PR into `main`, then merge `main` back into `dev`.
+- History: the site went live on 2026-10-12. Before that, commits went straight onto `main`. From then until the end of Phase 6, each task was merged straight into `main`.
 - **Commit subjects:** a subject line only, starting with `Feat`, `Fix`, `Chore`, `Docs`, `Perf`, `Test` or `Refactor`. Example: `Feat: add quick-add expense sheet`.
 - Never commit `.env.local` or any real financial data.
 

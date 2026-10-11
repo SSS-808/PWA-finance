@@ -175,6 +175,114 @@ export type Database = {
         };
         Relationships: [];
       };
+      goal_contributions: {
+        Row: {
+          amount_minor: number;
+          contributed_on: string;
+          created_at: string;
+          currency: string;
+          goal_id: string;
+          id: string;
+          note: string | null;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_minor: number;
+          contributed_on: string;
+          created_at?: string;
+          currency: string;
+          goal_id: string;
+          id?: string;
+          note?: string | null;
+          user_id?: string;
+        };
+        Update: {
+          amount_minor?: number;
+          contributed_on?: string;
+          created_at?: string;
+          currency?: string;
+          goal_id?: string;
+          id?: string;
+          note?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "goal_contributions_goal_id_user_id_currency_fkey";
+            columns: ["goal_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "goal_totals";
+            referencedColumns: ["goal_id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "goal_contributions_goal_id_user_id_currency_fkey";
+            columns: ["goal_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "goals";
+            referencedColumns: ["id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "goal_contributions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      goals: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          currency: string;
+          deadline: string | null;
+          id: string;
+          name: string;
+          target_minor: number;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          currency: string;
+          deadline?: string | null;
+          id?: string;
+          name: string;
+          target_minor: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          currency?: string;
+          deadline?: string | null;
+          id?: string;
+          name?: string;
+          target_minor?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "goals_currency_fkey";
+            columns: ["currency"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "goals_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           base_currency: string;
@@ -348,6 +456,31 @@ export type Database = {
           },
           {
             foreignKeyName: "accounts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      goal_totals: {
+        Row: {
+          currency: string | null;
+          goal_id: string | null;
+          saved_minor: number | null;
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "goals_currency_fkey";
+            columns: ["currency"];
+            isOneToOne: false;
+            referencedRelation: "currencies";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "goals_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";

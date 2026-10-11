@@ -1,3 +1,4 @@
+import { ProgressBar } from "@/components/shared/progress-bar";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { type Money, formatMoney, negate } from "@/modules/money";
@@ -22,7 +23,6 @@ export function Progress({
 }) {
   const { budget, spent, left, percent } = numbers;
   const over = left.minor < 0;
-  const width = Math.min(percent, 100);
   const remaining: Money = over ? negate(left) : left;
   return (
     <>
@@ -32,22 +32,11 @@ export function Progress({
           budget: formatMoney(budget),
         })}
       </p>
-      <span
-        role="progressbar"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={width}
-        className="block h-2 overflow-hidden rounded-full bg-muted"
-      >
-        <span
-          className={cn(
-            "block h-full rounded-full",
-            over ? "bg-destructive" : "bg-primary",
-          )}
-          style={{ width: `${width}%` }}
-        />
-      </span>
+      <ProgressBar
+        label={label}
+        percent={percent}
+        tone={over ? "over" : "default"}
+      />
       <p
         className={cn(
           "text-base tabular-nums",
