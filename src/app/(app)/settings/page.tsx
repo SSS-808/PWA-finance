@@ -29,6 +29,16 @@ export default function SettingsPage() {
           </Link>
         </Button>
       </section>
+      <section aria-labelledby="settings-data" className="space-y-4">
+        <h2 id="settings-data" className="text-xl font-semibold">
+          {en.settings.data.title}
+        </h2>
+        <Button asChild variant="outline" className="h-12 w-full text-base">
+          <a href="/settings/export" download>
+            {en.settings.data.download}
+          </a>
+        </Button>
+      </section>
       <section aria-labelledby="settings-account" className="space-y-4">
         <h2 id="settings-account" className="text-xl font-semibold">
           {en.settings.account.title}

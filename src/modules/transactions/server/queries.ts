@@ -42,6 +42,9 @@ const idSchema = z.uuid();
 
 const MAX_ROWS = 500;
 
+// The API returns at most this many rows per call
+const EXPORT_PAGE_SIZE = 1000;
+
 const HISTORY_COLUMNS =
   "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name)";
 
@@ -141,6 +144,28 @@ export async function listTransactions(
     ];
   }
   return groupByDay(toHistoryItems(records.map(toHistoryRow)));
+}
+
+// Every transaction that is not deleted, oldest first, for the export file
+export async function listAllTransactionsForExport(): Promise<HistoryRow[]> {
+  await requireUser();
+  const supabase = await createClient();
+  const rows: HistoryRow[] = [];
+  for (let from = 0; ; from += EXPORT_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select(HISTORY_COLUMNS)
+      .is("deleted_at", null)
+      .order("transaction_date", { ascending: true })
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
+      .range(from, from + EXPORT_PAGE_SIZE - 1);
+    if (error) {
+      throw new Error("Could not load the export", { cause: error });
+    }
+    rows.push(...data.map(toHistoryRow));
+    if (data.length < EXPORT_PAGE_SIZE) return rows;
+  }
 }
 
 // An income or expense that is yours and not deleted; anything else is a 404
