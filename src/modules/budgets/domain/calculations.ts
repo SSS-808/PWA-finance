@@ -79,6 +79,16 @@ function byName(a: BudgetLine, b: BudgetLine): number {
   );
 }
 
+// The budgets closest to (or furthest over) their limit come first; ties go by name
+export function mostUsedLines(
+  lines: readonly BudgetLine[],
+  limit: number,
+): BudgetLine[] {
+  return [...lines]
+    .sort((a, b) => b.percent - a.percent || byName(a, b))
+    .slice(0, limit);
+}
+
 // One group per currency (in the order of CURRENCY_CODES), lines sorted by name
 export function budgetGroups(
   changes: readonly BudgetChange[],

@@ -12,8 +12,8 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 3 | Accounts | M | Done |
 | 4 | Transactions, categories, transfers | L | Done |
 | 5 | Dashboard | M | Done |
-| **5.5** | **MVP release** | M | In progress: the first deploy is live (2026-10-12; in Laos it opens only with a VPN until it has its own domain). Left: closing sign-up in the app, error and 404 pages, loading states, accessibility pass, E2E tests in CI |
-| 6 | Budgets | M | |
+| **5.5** | **MVP release** | M | Done: live since 2026-10-12 (in Laos it opens only with a VPN until it has its own domain). Sign-up closed, error and 404 pages, browser tests in CI and a data export are in. Loading states and the accessibility pass moved to the design phase |
+| 6 | Budgets | M | Done (2026-10-12) |
 | 7 | Savings goals | M | |
 | 8 | Net worth and exchange rates | M | |
 | 9 | Investments | L | |

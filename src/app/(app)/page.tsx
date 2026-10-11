@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ToastOnce } from "@/components/shared/toast-once";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
+import { BudgetSummary, getBudgetMonth } from "@/modules/budgets";
 import {
   CurrencyCard,
   DashboardMonthBar,
@@ -36,7 +37,10 @@ async function HomeContent({
   const currentMonth = today.slice(0, 7);
   // "all" and bad values fall back to this month
   const month = parseFilters(params, today).month ?? currentMonth;
-  const { cards, recent } = await getDashboard(month);
+  const [{ cards, recent }, budgets] = await Promise.all([
+    getDashboard(month),
+    getBudgetMonth(month),
+  ]);
   const greeting = profile.displayName
     ? en.home.greetingNamed.replace("{name}", profile.displayName)
     : en.home.greeting.replace("{email}", profile.email);
@@ -64,9 +68,11 @@ async function HomeContent({
           {cards.map((card) => (
             <CurrencyCard key={card.currency} card={card} month={month} />
           ))}
-          <Button asChild variant="outline" className="h-12 w-full text-base">
-            <Link href="/budgets">{en.budgets.title}</Link>
-          </Button>
+          <BudgetSummary
+            groups={budgets.groups}
+            month={month}
+            isCurrentMonth={month === currentMonth}
+          />
           <section aria-labelledby="dashboard-recent" className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dashboard-recent" className="text-xl font-semibold">

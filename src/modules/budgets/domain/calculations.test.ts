@@ -3,9 +3,11 @@ import { money } from "@/modules/money";
 import {
   type BudgetCategory,
   type BudgetChange,
+  type BudgetLine,
   type ExpenseRow,
   activeBudgets,
   budgetGroups,
+  mostUsedLines,
   usedPercent,
 } from "./calculations";
 
@@ -293,5 +295,54 @@ describe("budgetGroups", () => {
     expect(group?.spent).toEqual(money(2_000, "LAK"));
     expect(group?.left).toEqual(money(2_000, "LAK"));
     expect(group?.percent).toBe(50);
+  });
+});
+
+describe("mostUsedLines", () => {
+  function budgetLine(
+    categoryId: string,
+    name: string,
+    percent: number,
+  ): BudgetLine {
+    return {
+      categoryId,
+      name,
+      hidden: false,
+      budget: money(100, "LAK"),
+      spent: money(percent, "LAK"),
+      left: money(100 - percent, "LAK"),
+      percent,
+    };
+  }
+
+  const food = budgetLine(FOOD, "Food", 40);
+  const bills = budgetLine(BILLS, "Bills", 80);
+  const games = budgetLine(GAMES, "Games", 120);
+
+  it("returns every line when there are fewer than the limit", () => {
+    expect(mostUsedLines([food, bills], 3)).toEqual([bills, food]);
+  });
+
+  it("returns only the first lines when there are more than the limit", () => {
+    expect(mostUsedLines([food, bills, games], 2)).toEqual([games, bills]);
+  });
+
+  it("puts an over-budget line first", () => {
+    expect(mostUsedLines([bills, games, food], 3)[0]).toBe(games);
+  });
+
+  it("breaks a tie by name, then by id", () => {
+    const apples = budgetLine(FOOD, "Apples", 50);
+    const zebra = budgetLine(BILLS, "Zebra", 50);
+    const twinA = budgetLine(FOOD, "Twin", 50);
+    const twinB = budgetLine(BILLS, "Twin", 50);
+    expect(mostUsedLines([zebra, apples], 2)).toEqual([apples, zebra]);
+    expect(mostUsedLines([twinB, twinA], 2)).toEqual([twinA, twinB]);
+  });
+
+  it("does not change the input array", () => {
+    const input = [food, bills, games];
+    mostUsedLines(input, 2);
+    expect(input).toEqual([food, bills, games]);
   });
 });
