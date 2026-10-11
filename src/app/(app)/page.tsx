@@ -73,6 +73,9 @@ async function HomeContent({
             month={month}
             isCurrentMonth={month === currentMonth}
           />
+          <Button asChild variant="outline" className="h-12 w-full text-base">
+            <Link href="/goals">{en.goals.title}</Link>
+          </Button>
           <section aria-labelledby="dashboard-recent" className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dashboard-recent" className="text-xl font-semibold">

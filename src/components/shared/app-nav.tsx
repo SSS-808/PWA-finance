@@ -17,7 +17,7 @@ const items = [
 
 const ADD_HREF = "/transactions/new";
 
-// Home matches itself and the Budgets pages; the other pages also match their sub-pages
+// Home matches itself, the Budgets pages and the Goals pages; the other pages also match their sub-pages
 function isActive(pathname: string | null, href: string): boolean {
   // The Add page has its own button, so it doesn't light up History
   if (pathname === null || pathname === ADD_HREF) return false;
@@ -25,7 +25,9 @@ function isActive(pathname: string | null, href: string): boolean {
     return (
       pathname === "/" ||
       pathname === "/budgets" ||
-      pathname.startsWith("/budgets/")
+      pathname.startsWith("/budgets/") ||
+      pathname === "/goals" ||
+      pathname.startsWith("/goals/")
     );
   }
   return pathname === href || pathname.startsWith(`${href}/`);
