@@ -99,6 +99,13 @@ export const en = {
     accounts: "Accounts",
     settings: "Settings",
   },
+  problem: {
+    notFoundTitle: "Page not found",
+    crashTitle: "Something went wrong",
+    retry: "Try again",
+    goHome: "Go to Home",
+    code: "Error code: {code}",
+  },
   currencies: {
     LAK: "Lao kip (₭)",
     USD: "US dollar ($)",

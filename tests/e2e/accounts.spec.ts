@@ -348,7 +348,7 @@ test("another person's account, and an id that is not a uuid, give not found", a
   const stranger = await other.newPage();
   await signUpAndConfirm(stranger);
 
-  const notFound = "This page could not be found.";
+  const notFound = en.problem.notFoundTitle;
   for (const path of [
     `/accounts/${id}`,
     `/accounts/${id}/edit`,
