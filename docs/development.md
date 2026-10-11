@@ -100,7 +100,7 @@ main  ──●──────────────●──────�
 ```
 
 - `main` is the live site. Vercel deploys it automatically once it's connected.
-- **Exception:** until the MVP is deployed (Phase 5.5), commits go straight onto `main`, because there's no live site to protect yet. After that, every task gets a branch and a PR.
+- The site went live on 2026-10-12. Before that, commits went straight onto `main`. Since then every task gets a branch and a PR, because a push to `main` changes the live site.
 - For each task: update `main` → create a branch `feat/<short-name>` or `fix/<short-name>` → open a PR into `main` → wait for CI to pass → squash merge.
 - **Why squash merge:** each PR becomes one clean commit on `main`, so the history reads like a changelog. The branch's work-in-progress commits disappear.
 - **Commit subjects:** a subject line only, starting with `Feat`, `Fix`, `Chore`, `Docs`, `Perf`, `Test` or `Refactor`. Example: `Feat: add quick-add expense sheet`.

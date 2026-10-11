@@ -90,6 +90,12 @@ Good to know:
 Good to know: internet providers in Laos block every address ending in `.vercel.app` (found 2026-10-12; it only opens with a VPN). The block is on the name, so the site needs its own domain to open normally.
 
 ### 6. After the deploy
-- [ ] On your phone: sign up → confirm the email → log in → add an expense
-- [ ] Supabase **Security Advisor** shows no warnings
+- [ ] On your phone: sign up → confirm the email → log in → add an expense → log out → forgot password → log in with the new password
+- [ ] **Close sign-up** once your own account exists: Supabase prod → Authentication → Sign In / Providers → "Allow new users to sign up" **off**. The site is public, and every sign-up sends an email from your Gmail.
+- [ ] Supabase **Security Advisor** shows no errors
 - [ ] From now on: a branch and a PR for every change ([development.md §6](development.md#6-git-workflow))
+
+### 7. When you buy a domain
+- [ ] Vercel → project → Domains: buy or add the domain. Bought inside Vercel, it connects itself.
+- [ ] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://<your-domain>` and add `https://<your-domain>/auth/confirm` to the Redirect URLs.
+- [ ] Open the site without a VPN, then test "Forgot password" once, because its email link uses the Site URL.
