@@ -10,6 +10,7 @@ export type { AuthErrorKey } from "./domain/schemas";
 export type { FormState } from "./domain/types";
 export { getCurrentUser, requireUser } from "./server/session";
 export type { CurrentUser } from "./server/session";
+export { isSignupOpen } from "./server/signup-status";
 export {
   logIn,
   signUp,
