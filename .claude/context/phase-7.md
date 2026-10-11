@@ -29,11 +29,13 @@ A goal is a **label on money you already have**. Adding money to a goal never ch
 ## Checks (phase end)
 545 unit tests (100% on all rule code), 177 database tests, 96 browser tests on GitHub. Security review: every query and action calls `requireUser()` first and checks its input with Zod; no user id, currency or date comes from the browser for a write; the database refuses other users' goals, a wrong currency, going below zero, and any change or delete of a contribution.
 
-## Release checklist (waiting for the owner's "release")
-1. Push `supabase/migrations/20261011212617_goals.sql` to production (rehearse first; exactly one file).
-2. Merge `dev` into `main` with a merge commit, never a squash.
-3. Read the rules back on production and unlink the laptop.
-4. Try on the live site: add a goal, add money, take some out.
+## Release (done 2026-10-12, PR #15)
+1. `supabase/migrations/20261011212617_goals.sql` pushed to production. The rehearsal listed exactly that one file.
+2. The rules were read back on production: 9 tables, all with RLS; the goals policies, grants, view and triggers are in place; the advisor shows no errors.
+3. `dev` merged into `main` with a merge commit, then `dev` was brought level with `main`.
+4. Still for the owner: try it on the live site (add a goal, add money, take some out).
+
+The same four steps are the checklist for every later release.
 
 ## Next
 The design phase ([design-brief.md](design-brief.md)), when the owner says so.
