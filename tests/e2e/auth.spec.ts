@@ -32,6 +32,20 @@ test("a logged-out visit to the home page ends on the login page", async ({
   ).toBeVisible();
 });
 
+test("with sign-up open, the login page links to the sign-up form", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("link", { name: en.auth.login.signupLink }).click();
+  await expect(page).toHaveURL(/\/signup$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: en.auth.signup.title }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: en.auth.signup.submit }),
+  ).toBeVisible();
+});
+
 test("sign up, confirm by email, see the home page, then log out", async ({
   page,
 }) => {

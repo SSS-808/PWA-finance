@@ -9,6 +9,7 @@ export const AUTH_ERROR_KEYS = [
   "email_not_confirmed",
   "rate_limited",
   "same_password",
+  "signup_closed",
   "unknown",
 ] as const;
 

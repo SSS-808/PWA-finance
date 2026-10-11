@@ -22,6 +22,7 @@ function mapAuthError(error: AuthFailure): AuthErrorKey {
   if (error.code === "invalid_credentials") return "invalid_credentials";
   if (error.code === "email_not_confirmed") return "email_not_confirmed";
   if (error.code === "same_password") return "same_password";
+  if (error.code === "signup_disabled") return "signup_closed";
   console.error("Unexpected auth error", {
     status: error.status,
     code: error.code,

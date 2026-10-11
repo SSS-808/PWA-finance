@@ -18,6 +18,7 @@ export const en = {
     },
     signup: {
       title: "Create your account",
+      closedTitle: "Sign-up is closed",
       submit: "Create account",
       submitting: "Creating account…",
       haveAccount: "Already have an account?",
@@ -66,6 +67,7 @@ export const en = {
       link: "That link has expired or was already used. Log in, or ask for a new link.",
       rate_limited: "Too many tries. Wait a minute and try again.",
       same_password: "Choose a password that's different from your old one.",
+      signup_closed: "Sign-up is closed.",
       unknown: "Something went wrong. Please try again.",
     },
     logout: "Log out",

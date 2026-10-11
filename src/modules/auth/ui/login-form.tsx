@@ -18,9 +18,11 @@ const linkClass = "inline-block py-2 font-medium underline underline-offset-4";
 export function LoginForm({
   next,
   linkError = false,
+  signupOpen,
 }: {
   next?: string;
   linkError?: boolean;
+  signupOpen: boolean;
 }) {
   const [state, formAction] = useActionState(logIn, idleState);
   const fieldErrors = state.fieldErrors ?? {};
@@ -81,12 +83,14 @@ export function LoginForm({
         <Link href="/forgot-password" className={linkClass}>
           {en.auth.login.forgot}
         </Link>
-        <p className="py-2 text-base text-muted-foreground">
-          {en.auth.login.noAccount}{" "}
-          <Link href="/signup" className={`${linkClass} text-foreground`}>
-            {en.auth.login.signupLink}
-          </Link>
-        </p>
+        {signupOpen ? (
+          <p className="py-2 text-base text-muted-foreground">
+            {en.auth.login.noAccount}{" "}
+            <Link href="/signup" className={`${linkClass} text-foreground`}>
+              {en.auth.login.signupLink}
+            </Link>
+          </p>
+        ) : null}
       </div>
     </div>
   );

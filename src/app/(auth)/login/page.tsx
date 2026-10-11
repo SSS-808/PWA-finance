@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { en } from "@/messages/en";
-import { AuthShell, LoginForm } from "@/modules/auth";
+import { AuthShell, LoginForm, isSignupOpen } from "@/modules/auth";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
@@ -18,10 +18,12 @@ async function LoginFormLoader({
   searchParams: PageProps<"/login">["searchParams"];
 }) {
   const { next, error } = await searchParams;
+  const signupOpen = await isSignupOpen();
   return (
     <LoginForm
       next={typeof next === "string" ? next : undefined}
       linkError={error === "link"}
+      signupOpen={signupOpen}
     />
   );
 }
