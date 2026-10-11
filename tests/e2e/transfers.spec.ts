@@ -26,7 +26,7 @@ const expect = baseExpect.configure({ timeout: 15_000 });
 
 const widths = [320, 390, 768, 1024, 1280, 1440];
 const UUID = "[0-9a-f-]{36}";
-const NOT_FOUND = "This page could not be found.";
+const NOT_FOUND = en.problem.notFoundTitle;
 
 function mainNav(page: Page) {
   return page.getByRole("navigation", { name: en.nav.label });

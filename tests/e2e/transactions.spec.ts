@@ -360,7 +360,7 @@ test("another person's entry, and an id that is not a uuid, give not found", asy
   const stranger = await other.newPage();
   await signUpAndConfirm(stranger);
 
-  const notFound = "This page could not be found.";
+  const notFound = en.problem.notFoundTitle;
   for (const path of [`/transactions/${id}`, "/transactions/not-a-uuid"]) {
     await stranger.goto(path);
     await expect(shown(stranger.getByText(notFound))).toBeVisible();
@@ -385,9 +385,7 @@ test("a deleted entry can no longer be opened", async ({ page }) => {
   await expect(page).toHaveURL(/\/transactions$/);
 
   await page.goto(`/transactions/${id}`);
-  await expect(
-    shown(page.getByText("This page could not be found.")),
-  ).toBeVisible();
+  await expect(shown(page.getByText(en.problem.notFoundTitle))).toBeVisible();
 });
 
 test("History and Add fit every width and the nav never covers the last element", async ({
