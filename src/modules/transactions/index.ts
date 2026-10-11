@@ -1,6 +1,8 @@
 export { entrySchema, parseEntryAmount } from "./domain/schemas";
 export { groupByDay, toHistoryItems } from "./domain/history";
 export type { DayGroup, HistoryItem } from "./domain/history";
+export { transactionsToCsv } from "./domain/export";
+export type { ExportLabels } from "./domain/export";
 export {
   baseFilters,
   filtersToQuery,
@@ -26,6 +28,7 @@ export {
   getSavedSummary,
   getSavedTransferSummary,
   getTransfer,
+  listAllTransactionsForExport,
   listTransactions,
 } from "./server/queries";
 export { readLastAccountId } from "./server/last-account";

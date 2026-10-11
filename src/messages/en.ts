@@ -129,6 +129,10 @@ export const en = {
       title: "Categories",
       manage: "Manage categories",
     },
+    data: {
+      title: "Your data",
+      download: "Download my data",
+    },
     account: {
       title: "Account",
       email: "Email",
@@ -139,6 +143,17 @@ export const en = {
       invalid_currency: "Choose one of the listed currencies.",
       invalid_time_zone: "Choose a time zone from the list.",
       unknown: "Something went wrong. Please try again.",
+    },
+  },
+  export: {
+    columns: {
+      date: "Date",
+      account: "Account",
+      currency: "Currency",
+      type: "Type",
+      category: "Category",
+      amount: "Amount",
+      note: "Note",
     },
   },
   categories: {
