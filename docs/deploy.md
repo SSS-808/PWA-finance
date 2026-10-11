@@ -81,7 +81,13 @@ Good to know:
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the **publishable** key (starts with `sb_publishable_`). Never use the secret key here.
   - `ENABLE_EXPERIMENTAL_COREPACK` = `1`: makes Vercel use the pnpm version named in `package.json` (pnpm 11; Vercel's own list stopped at pnpm 10 when this was written).
   - Set the **prod** values for "Production" and the **staging** values for "Preview".
+  - The two `NEXT_PUBLIC_` entries must have Type **Config**, chosen before saving. Vercel refuses type "Secret" for a `NEXT_PUBLIC_` name, and a saved Secret can't be viewed or switched: delete it and add it again.
+  - `Invalid API key` in the logs means the URL and the key come from different projects, or the key was cut off.
+- [ ] After changing a `NEXT_PUBLIC_` value: **Deployments → ⋯ → Redeploy**. These values are baked in when the site is built.
+- [ ] Don't add Vercel's Supabase integration. It copies the secret key into the project; we only want the two public values.
 - [ ] Turn on Deployment Protection for preview links, so only you can open them
+
+Good to know: internet providers in Laos block every address ending in `.vercel.app` (found 2026-10-12; it only opens with a VPN). The block is on the name, so the site needs its own domain to open normally.
 
 ### 6. After the deploy
 - [ ] On your phone: sign up → confirm the email → log in → add an expense
