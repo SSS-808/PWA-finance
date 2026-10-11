@@ -136,6 +136,7 @@ export const en = {
   goals: {
     title: "Goals",
     back: "Goals",
+    seeAll: "See all",
     add: "Add a goal",
     edit: "Edit",
     newTitle: "Add a goal",

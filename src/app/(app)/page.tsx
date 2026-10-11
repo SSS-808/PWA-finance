@@ -9,6 +9,7 @@ import {
   DashboardMonthBar,
   getDashboard,
 } from "@/modules/dashboard";
+import { GoalSummary, listGoals } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
 import { HistoryList, SavedNotice, parseFilters } from "@/modules/transactions";
 
@@ -37,9 +38,10 @@ async function HomeContent({
   const currentMonth = today.slice(0, 7);
   // "all" and bad values fall back to this month
   const month = parseFilters(params, today).month ?? currentMonth;
-  const [{ cards, recent }, budgets] = await Promise.all([
+  const [{ cards, recent }, budgets, goals] = await Promise.all([
     getDashboard(month),
     getBudgetMonth(month),
+    listGoals(),
   ]);
   const greeting = profile.displayName
     ? en.home.greetingNamed.replace("{name}", profile.displayName)
@@ -73,9 +75,7 @@ async function HomeContent({
             month={month}
             isCurrentMonth={month === currentMonth}
           />
-          <Button asChild variant="outline" className="h-12 w-full text-base">
-            <Link href="/goals">{en.goals.title}</Link>
-          </Button>
+          <GoalSummary goals={goals.active} today={today} />
           <section aria-labelledby="dashboard-recent" className="space-y-4">
             <div className="flex items-center justify-between gap-3">
               <h2 id="dashboard-recent" className="text-xl font-semibold">

@@ -15,5 +15,6 @@ export { ContributionHistory } from "./ui/contribution-history";
 export { GoalForm } from "./ui/goal-form";
 export { GoalList } from "./ui/goal-list";
 export { GoalProgress } from "./ui/goal-progress";
+export { GoalSummary } from "./ui/goal-summary";
 export { GoalNotice } from "./ui/notice";
 export { UnarchiveButton } from "./ui/unarchive-button";
