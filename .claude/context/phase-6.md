@@ -27,8 +27,8 @@ A budget **repeats every month until you change it**. A change applies from the 
 469 unit tests (100% on all rule code), 148 database tests, 87 browser tests on GitHub. Security review: every query and action calls `requireUser()` first and checks its input with Zod; no user id or month comes from the browser for a write; the database refuses other users' categories, income categories and deletes on its own; prod shows 7 tables, all with RLS, and no advisor errors.
 
 ## Changed during this phase (how we work)
-- Claude commits, opens and merges PRs, and pushes migrations to staging then prod, with no Claude attribution.
-- From Phase 7: task branches go into a `dev` branch (staging), and `dev` is released into `main` once per phase when the user says "release".
+- Finished branches are deleted right after merging.
+- From Phase 7: task branches go into a `dev` branch (staging), and `dev` is released into `main` once per phase, on the owner's "release".
 
 ## Next
 Set up the `dev` branch (CI for `dev`, docs), then Phase 7: Savings goals.
