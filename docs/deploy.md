@@ -74,11 +74,12 @@ Good to know:
 - [ ] Gmail is fine for personal use. Before letting others sign up, move to an email service with your own domain (Phase 12).
 
 ### 5. Vercel
-- [ ] Import the GitHub repo
-- [ ] Function region **Singapore (sin1)**, next to the database
-- [ ] **Environment variables** (Settings → Environment Variables). The names are in `.env.example`:
+- [ ] Import the GitHub repo. Add the environment variables below on the import screen, before the first deploy: the build stops without them.
+- [ ] Function region **Singapore (sin1)**, next to the database. `vercel.json` in the repo sets it, so there's nothing to click.
+- [ ] **Environment variables** (later under Settings → Environment Variables). The names are in `.env.example`:
   - `NEXT_PUBLIC_SUPABASE_URL`: the project URL (Supabase → Project Settings → API)
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the **publishable** key (starts with `sb_publishable_`). Never use the secret key here.
+  - `ENABLE_EXPERIMENTAL_COREPACK` = `1`: makes Vercel use the pnpm version named in `package.json` (pnpm 11; Vercel's own list stopped at pnpm 10 when this was written).
   - Set the **prod** values for "Production" and the **staging** values for "Preview".
 - [ ] Turn on Deployment Protection for preview links, so only you can open them
 
