@@ -420,14 +420,31 @@ create policy "read own history" on public.transaction_audit
 | categories | own | own | own | — (archive instead) |
 | transactions | own | own | own | — (soft delete instead) |
 | transaction_audit | own | trigger only | — | — |
+| budgets | own | own | own | — (end it with amount 0 instead) |
 
 Because there are no delete policies, the app can't hard-delete financial data even if it has a bug. `(select auth.uid())` is wrapped in `select` so Postgres works it out once per query instead of once per row (Supabase's recommended pattern).
 
-## 9. Later phases (sketch only)
+## 9. Later phases
+
+### Budgets (built in Phase 6.1)
+
+Decision: [ADR-010](adr/010-budgets-repeat-until-changed.md). Migration: `supabase/migrations/20261011204141_budgets.sql`.
+
+`budgets (user_id, category_id, kind, currency, start_month, amount_minor)`, one row per category, currency and starting month.
+
+- A row means "from `start_month` on". The budget for a month is the latest row at or before that month.
+- `amount_minor = 0` ends the budget from that month on. Earlier months keep their old number.
+- `start_month` is always the first day of a month.
+- `kind` is always `'expense'`. It exists so the foreign key `(category_id, user_id, kind)` can only point at the user's own expense categories.
+- The same category can have one budget per currency. Only spending in that currency counts toward it.
+- Logged-in users may read, add and change their own rows. Nobody can delete one, and logged-out visitors have no access at all (this table also has explicit grants).
+
+Example for Food in kip: rows `(2026-10-01, 2,000,000)` and `(2027-01-01, 2,500,000)` give 2,000,000 for October to December 2026, and 2,500,000 from January 2027 on.
+
+### Still a sketch
 
 | Phase | Tables | Note |
 |---|---|---|
-| 6 Budgets | `budgets (user_id, category_id, month, amount_minor, currency)`, unique per category per month | `month` is the first day of the month |
 | 7 Goals | `goals (name, target_minor, currency, deadline, account_id?)`, `goal_contributions` | |
 | 8 Net worth | `exchange_rates (user_id, base, quote, rate numeric(20,10), on_date)` | History comes for free: the balance on any date = the sum of rows up to that date |
 | 9 Investments | `instruments`, `trades (side, quantity numeric, price_minor, fees_minor, trade_date)`, `prices (instrument_id, on_date, price_minor)` | Quantity is `numeric`, not an integer, because of fractional shares and crypto |
