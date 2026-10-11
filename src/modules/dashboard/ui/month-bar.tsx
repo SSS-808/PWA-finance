@@ -6,13 +6,15 @@ import { monthLabel, nextMonth, previousMonth } from "@/modules/transactions";
 const arrowClass =
   "inline-flex size-12 items-center justify-center rounded-lg hover:bg-muted";
 
-// The month switcher of Home; it changes ?month= and never goes past the current month
+// The month switcher of Home and Budgets (basePath); it changes ?month= and never goes past the current month
 export function DashboardMonthBar({
   month,
   currentMonth,
+  basePath = "/",
 }: {
   month: string;
   currentMonth: string;
+  basePath?: string;
 }) {
   const text = en.transactions.filters;
   return (
@@ -21,7 +23,7 @@ export function DashboardMonthBar({
       className="flex flex-wrap items-center gap-x-1"
     >
       <Link
-        href={`/?month=${previousMonth(month)}`}
+        href={`${basePath}?month=${previousMonth(month)}`}
         aria-label={text.previousMonth}
         className={arrowClass}
       >
@@ -32,7 +34,7 @@ export function DashboardMonthBar({
       </span>
       {nextMonth(month) <= currentMonth ? (
         <Link
-          href={`/?month=${nextMonth(month)}`}
+          href={`${basePath}?month=${nextMonth(month)}`}
           aria-label={text.nextMonth}
           className={arrowClass}
         >
