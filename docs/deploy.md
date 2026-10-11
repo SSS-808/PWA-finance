@@ -17,7 +17,7 @@ GitHub (your code) ──► Vercel (runs the website) ──► Supabase "prod"
 ## Steps
 
 ### 1. Accounts (one time)
-- [ ] Supabase account (free plan). Sign up with the **same email** you'll use to log in to the app: Supabase's built-in email only delivers to its own account members (see step 4).
+- [ ] Supabase account (free plan)
 - [ ] Vercel account, signed in with your GitHub (free "Hobby" plan)
 
 ### 2. Two Supabase projects
@@ -59,15 +59,19 @@ Good to know:
 - `link` may print that the local settings differ from the online ones. That's expected: `config.toml` describes the laptop setup, and step 4 sets the online one by hand.
 - **Never** run `pnpm supabase db reset --linked`. It erases the online database the laptop is linked to.
 
-### 4. Login settings in Supabase (do this for staging and for prod)
-- [ ] **Authentication → URL Configuration:** Site URL = the site's address (prod: your Vercel address; staging: leave it as the Supabase default). Redirect URLs: add `https://<your-site>/auth/confirm`.
-- [ ] **Authentication → Providers → Email:** email confirmation **on**, minimum password length **10**. These match `supabase/config.toml`.
-- [ ] **Authentication → Email Templates:**
-  - "Confirm signup": subject `Confirm your Personal Wallet account`, body = the contents of `supabase/templates/confirmation.html`
+### 4. Login settings in Supabase (prod now; staging when preview links are first used)
+- [ ] **Authentication → Sign In / Providers:** "Confirm email" **on**. In the **Email** provider: minimum password length **10**. These match `supabase/config.toml`.
+- [ ] **Your own email sender (SMTP).** Free Supabase projects can't edit email templates without one (found 2026-10-12), and the app needs our templates: with Supabase's default text, "Forgot password" doesn't work. We use Gmail, which is free and needs no domain:
+  - Google account: turn on 2-Step Verification, then create an **app password** at `myaccount.google.com/apppasswords`. Save it in a password manager, never in chat or code.
+  - **Authentication → Emails → SMTP Settings → Enable custom SMTP:** sender email = your Gmail address, sender name `Personal Wallet`, host `smtp.gmail.com`, port `465`, username = your Gmail address, password = the app password.
+  - The app password can send and read that account's mail. Deleting it in Google cuts the access at once.
+- [ ] **Authentication → Emails → Templates** (editable once SMTP is saved):
+  - "Confirm sign up": subject `Confirm your Personal Wallet account`, body = the contents of `supabase/templates/confirmation.html`
   - "Reset password": subject `Reset your Personal Wallet password`, body = `supabase/templates/recovery.html`
   - Why: our links use `/auth/confirm?token_hash=…`, so they work even when the email is opened on a different device from the one used to sign up.
 - [ ] Rate limits: keep Supabase's defaults online. The high limits in `config.toml` are only for the robot tests on your laptop.
-- [ ] Built-in email only reaches your own team's addresses, a few per hour. Fine while you're the only user. Before letting others sign up, add an email service (Phase 12).
+- [ ] **After step 5** (it needs the site's address): **Authentication → URL Configuration:** Site URL = your Vercel address. Redirect URLs: add `https://<your-site>/auth/confirm`. The links in our emails start with the Site URL, so a wrong one sends people to the wrong place.
+- [ ] Gmail is fine for personal use. Before letting others sign up, move to an email service with your own domain (Phase 12).
 
 ### 5. Vercel
 - [ ] Import the GitHub repo
