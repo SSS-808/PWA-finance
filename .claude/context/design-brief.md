@@ -106,7 +106,7 @@ Two leftovers from Phase 5.5: loading states (skeletons) and the accessibility p
 Each task has its own branch from `dev` and a PR into `dev`.
 1. Tokens in `globals.css` (done 2026-10-12).
 2. Home: the cards, Money In / Money Out, the nav, the Recent rows (done 2026-10-12). Category icons in the rows wait for task 3. The greeting is gone, so "Your name" in Settings is shown nowhere for now.
-3. Category icons and colours: the migration, then the pickers and lists.
+3. Category icons and colours: the migration, then the pickers and lists (done 2026-10-12). 24 icons and 10 colours; the keys live in `categories/domain/types.ts` and must match the migration's check constraints. The badge is `src/components/shared/category-icon.tsx`: it sits outside the categories module because client components can't import that module's barrel (it holds server code), and `domain/` files of other modules keep the icon and colour as plain strings because they may only import the money module.
 4. Add: Save on top, the amount card, the category row.
 5. Every other screen, plus loading states and the accessibility pass.
 6. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers. All project checks pass.

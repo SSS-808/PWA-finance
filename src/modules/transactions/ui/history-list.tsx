@@ -1,4 +1,7 @@
+import type { ReactNode } from "react";
+import { ArrowLeftRight, Wallet } from "lucide-react";
 import Link from "next/link";
+import { CategoryIcon } from "@/components/shared/category-icon";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { formatMoney, negate } from "@/modules/money";
@@ -39,20 +42,43 @@ function dayLabel(date: string, today: string): string {
   return formatDay(date);
 }
 
+function NeutralBadge({ children }: { children: ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
+    >
+      {children}
+    </span>
+  );
+}
+
 function EntryRow({ item }: { item: EntryItem }) {
   const content = (
     <>
-      <span className="min-w-0">
-        <span className="block text-base font-medium break-words">
-          {item.categoryName ?? en.transactions.kinds[item.kind]}
-        </span>
-        {item.note ? (
-          <span className="block text-sm break-words text-muted-foreground">
-            {item.note}
+      <span className="flex min-w-0 items-center gap-3">
+        {item.categoryLook ? (
+          <CategoryIcon
+            icon={item.categoryLook.icon}
+            color={item.categoryLook.color}
+          />
+        ) : (
+          <NeutralBadge>
+            <Wallet className="size-5" />
+          </NeutralBadge>
+        )}
+        <span className="min-w-0">
+          <span className="block text-base font-medium break-words">
+            {item.categoryName ?? en.transactions.kinds[item.kind]}
           </span>
-        ) : null}
-        <span className="block text-sm break-words text-muted-foreground">
-          {item.accountName}
+          {item.note ? (
+            <span className="block text-sm break-words text-muted-foreground">
+              {item.note}
+            </span>
+          ) : null}
+          <span className="block text-sm break-words text-muted-foreground">
+            {item.accountName}
+          </span>
         </span>
       </span>
       <span
@@ -96,17 +122,22 @@ function TransferRow({ item }: { item: TransferItem }) {
   const single = toAmount ?? (fromAmount ? negate(fromAmount) : null);
   const content = (
     <>
-      <span className="min-w-0">
-        <span className="block text-base font-medium break-words">
-          {item.from ?? en.transactions.unknownAccount}
-          {" → "}
-          {item.to ?? en.transactions.unknownAccount}
-        </span>
-        {item.note ? (
-          <span className="block text-sm break-words text-muted-foreground">
-            {item.note}
+      <span className="flex min-w-0 items-center gap-3">
+        <NeutralBadge>
+          <ArrowLeftRight className="size-5" />
+        </NeutralBadge>
+        <span className="min-w-0">
+          <span className="block text-base font-medium break-words">
+            {item.from ?? en.transactions.unknownAccount}
+            {" → "}
+            {item.to ?? en.transactions.unknownAccount}
           </span>
-        ) : null}
+          {item.note ? (
+            <span className="block text-sm break-words text-muted-foreground">
+              {item.note}
+            </span>
+          ) : null}
+        </span>
       </span>
       <span className="shrink-0 text-right text-base tabular-nums">
         {exchange ? (

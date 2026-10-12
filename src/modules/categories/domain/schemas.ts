@@ -1,9 +1,13 @@
 import { z } from "zod";
 import {
+  CATEGORY_COLORS,
   CATEGORY_ERROR_KEYS,
+  CATEGORY_ICONS,
   CATEGORY_KINDS,
+  type CategoryColor,
   type CategoryErrorKey,
   type CategoryFieldName,
+  type CategoryIconKey,
   type CategoryKind,
 } from "./types";
 
@@ -15,6 +19,8 @@ export const categoryFieldsSchema = z.object({
     .trim()
     .min(1, { error: "name_required" })
     .max(MAX_NAME_LENGTH, { error: "name_too_long" }),
+  icon: z.enum(CATEGORY_ICONS, { error: "invalid_icon" }),
+  color: z.enum(CATEGORY_COLORS, { error: "invalid_color" }),
 });
 
 export const createCategorySchema = categoryFieldsSchema.extend({
@@ -23,6 +29,14 @@ export const createCategorySchema = categoryFieldsSchema.extend({
 
 export function isCategoryKind(value: string): value is CategoryKind {
   return (CATEGORY_KINDS as readonly string[]).includes(value);
+}
+
+export function isCategoryIcon(value: string): value is CategoryIconKey {
+  return (CATEGORY_ICONS as readonly string[]).includes(value);
+}
+
+export function isCategoryColor(value: string): value is CategoryColor {
+  return (CATEGORY_COLORS as readonly string[]).includes(value);
 }
 
 // Turns schema issues into error keys, one per field

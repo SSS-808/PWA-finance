@@ -77,6 +77,17 @@ test("the card shows this month's numbers and the transfer changes none of them"
   const lakSpending = spending(page, "LAK");
   await expect(lakSpending.getByRole("link", { name: /Bills/ })).toBeVisible();
   await expect(lakSpending.getByRole("link", { name: /Food/ })).toBeVisible();
+  await expect(
+    lakSpending
+      .getByRole("link", { name: /Food/ })
+      .locator("svg.lucide-utensils"),
+  ).toBeVisible();
+  const recent = shown(
+    page.getByRole("region", { name: en.dashboard.recent, exact: true }),
+  );
+  await expect(
+    recent.getByRole("link", { name: /Food/ }).locator("svg.lucide-utensils"),
+  ).toBeVisible();
 });
 
 test("a category bar opens History for it, and an empty month says so", async ({

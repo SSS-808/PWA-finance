@@ -33,6 +33,7 @@ function row(overrides: Partial<HistoryRow> = {}): HistoryRow {
     createdAt: "2026-10-09T08:00:00+00:00",
     accountName: "Cash",
     categoryName: "Food",
+    categoryLook: { icon: "utensils", color: "orange" },
     note: null,
     amount: money(-45000, "LAK"),
     ...overrides,

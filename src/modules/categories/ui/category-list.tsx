@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CategoryIcon } from "@/components/shared/category-icon";
 import { en } from "@/messages/en";
 import type { ManagedCategory } from "../domain/types";
 import { ShowButton } from "./show-button";
@@ -6,15 +7,18 @@ import { ShowButton } from "./show-button";
 function CategoryRow({ category }: { category: ManagedCategory }) {
   return (
     <li className="flex min-h-14 items-center justify-between gap-3 rounded-lg px-3 py-2">
-      <span className="min-w-0">
-        <span className="block text-base font-medium break-words">
-          {category.name}
-        </span>
-        {category.hidden ? (
-          <span className="block text-sm text-muted-foreground">
-            {en.categories.kinds[category.kind]}
+      <span className="flex min-w-0 items-center gap-3">
+        <CategoryIcon icon={category.icon} color={category.color} />
+        <span className="min-w-0">
+          <span className="block text-base font-medium break-words">
+            {category.name}
           </span>
-        ) : null}
+          {category.hidden ? (
+            <span className="block text-sm text-muted-foreground">
+              {en.categories.kinds[category.kind]}
+            </span>
+          ) : null}
+        </span>
       </span>
       {category.hidden ? (
         <div className="w-36 shrink-0">
@@ -25,14 +29,14 @@ function CategoryRow({ category }: { category: ManagedCategory }) {
           href={`/settings/categories/${category.id}`}
           className="inline-flex min-h-12 shrink-0 items-center text-base underline underline-offset-4"
         >
-          {en.categories.rename}
+          {en.categories.edit}
         </Link>
       )}
     </li>
   );
 }
 
-// A titled list of categories; active ones link to Rename, hidden ones have Show again
+// A titled list of categories; active ones link to Edit, hidden ones have Show again
 export function CategoryList({
   id,
   title,

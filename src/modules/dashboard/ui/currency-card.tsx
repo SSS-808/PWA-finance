@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  CategoryIcon,
+  categoryBarClass,
+} from "@/components/shared/category-icon";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { formatMoney } from "@/modules/money";
@@ -6,7 +10,7 @@ import { baseFilters, filtersToQuery } from "@/modules/transactions";
 import type { CategorySpending } from "../domain/calculations";
 import type { DashboardCard } from "../domain/types";
 
-const rowClass = "block min-h-12 rounded-lg px-3 py-2";
+const rowClass = "flex min-h-12 items-center gap-3 rounded-lg px-3 py-2";
 
 function HeroStat({
   label,
@@ -52,22 +56,28 @@ function SpendingRow({
 }) {
   const content = (
     <>
-      <span className="flex items-center justify-between gap-3">
-        <span className="min-w-0 text-base break-words">
-          {item.categoryId === null ? en.dashboard.other : item.name}
+      <CategoryIcon icon={item.icon} color={item.color} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center justify-between gap-3">
+          <span className="min-w-0 text-base break-words">
+            {item.categoryId === null ? en.dashboard.other : item.name}
+          </span>
+          <span className="shrink-0 text-right text-base tabular-nums">
+            {formatMoney(item.amount)}
+          </span>
         </span>
-        <span className="shrink-0 text-right text-base tabular-nums">
-          {formatMoney(item.amount)}
-        </span>
-      </span>
-      <span
-        aria-hidden="true"
-        className="mt-2 block h-2 overflow-hidden rounded-full bg-muted"
-      >
         <span
-          className="block h-full rounded-full bg-primary"
-          style={{ width: `${item.share * 100}%` }}
-        />
+          aria-hidden="true"
+          className="mt-2 block h-2 overflow-hidden rounded-full bg-muted"
+        >
+          <span
+            className={cn(
+              "block h-full rounded-full",
+              categoryBarClass(item.color),
+            )}
+            style={{ width: `${item.share * 100}%` }}
+          />
+        </span>
       </span>
     </>
   );
