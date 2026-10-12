@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { ENTRY_KINDS, type EntryKind } from "../domain/types";
@@ -22,21 +21,25 @@ export function KindSwitch({
       role="group"
       aria-label={en.transactions.form.kind}
       className={cn(
-        "grid gap-2",
+        "grid gap-1 rounded-2xl bg-muted p-1",
         kinds.length === 3 ? "grid-cols-3" : "grid-cols-2",
       )}
     >
       {kinds.map((kind) => (
-        <Button
+        <button
           key={kind}
           type="button"
-          variant={value === kind ? "default" : "outline"}
           aria-pressed={value === kind}
-          className="h-12 text-base"
+          className={cn(
+            "h-11 rounded-xl text-base outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+            value === kind
+              ? "bg-card font-semibold text-foreground shadow-sm"
+              : "text-foreground",
+          )}
           onClick={() => onChange(kind)}
         >
           {en.transactions.kinds[kind]}
-        </Button>
+        </button>
       ))}
     </div>
   );

@@ -69,6 +69,20 @@ const TINT: Record<CategoryColor, string> = {
   green: "bg-cat-green-soft text-cat-green",
 };
 
+// The picked category is a solid circle in its colour
+const SOLID: Record<CategoryColor, string> = {
+  gray: "bg-cat-gray text-card",
+  orange: "bg-cat-orange text-card",
+  blue: "bg-cat-blue text-card",
+  violet: "bg-cat-violet text-card",
+  pink: "bg-cat-pink text-card",
+  teal: "bg-cat-teal text-card",
+  amber: "bg-cat-amber text-card",
+  rose: "bg-cat-rose text-card",
+  indigo: "bg-cat-indigo text-card",
+  green: "bg-cat-green text-card",
+};
+
 const BAR: Record<CategoryColor, string> = {
   gray: "bg-cat-gray",
   orange: "bg-cat-orange",
@@ -95,30 +109,36 @@ export function categoryBarClass(color: string): string {
   return BAR[isColorKey(color) ? color : "gray"];
 }
 
-// A round badge with the category's icon; sm fits inside a chip
+const BADGE_SIZE = { sm: "size-7", md: "size-10", lg: "size-12" };
+const ICON_SIZE = { sm: "size-4", md: "size-5", lg: "size-5" };
+
+// A round badge with the category's icon; solid fills it with its colour
 export function CategoryIcon({
   icon,
   color,
   size = "md",
+  solid = false,
   className,
 }: {
   icon: string;
   color: string;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
+  solid?: boolean;
   className?: string;
 }) {
   const Icon = ICONS[isIconKey(icon) ? icon : "tag"];
+  const key = isColorKey(color) ? color : "gray";
   return (
     <span
       aria-hidden="true"
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full",
-        size === "sm" ? "size-7" : "size-10",
-        TINT[isColorKey(color) ? color : "gray"],
+        BADGE_SIZE[size],
+        solid ? SOLID[key] : TINT[key],
         className,
       )}
     >
-      <Icon className={size === "sm" ? "size-4" : "size-5"} />
+      <Icon className={ICON_SIZE[size]} />
     </span>
   );
 }
