@@ -49,12 +49,12 @@ export function AppNavFrame({ pathname }: { pathname: string | null }) {
   return (
     <nav
       aria-label={en.nav.label}
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:sticky lg:top-0 lg:h-dvh lg:w-56 lg:shrink-0 lg:border-t-0 lg:border-r lg:pb-0"
+      className="fixed inset-x-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-10 mx-auto max-w-md rounded-full border border-border bg-card p-1.5 shadow-lg lg:sticky lg:inset-x-auto lg:top-0 lg:bottom-auto lg:mx-0 lg:h-dvh lg:w-56 lg:max-w-none lg:shrink-0 lg:rounded-none lg:border-0 lg:border-r lg:bg-background lg:p-0 lg:shadow-none"
     >
       <p className="hidden px-4 pt-6 pb-4 text-lg font-semibold lg:block">
         {en.app.name}
       </p>
-      <ul className="flex lg:flex-col">
+      <ul className="flex items-center lg:flex-col lg:items-stretch lg:gap-1">
         {items.map(({ href, label, icon: Icon }) => {
           if (href === ADD_HREF) {
             return (
@@ -72,7 +72,7 @@ export function AppNavFrame({ pathname }: { pathname: string | null }) {
                     event.preventDefault();
                     router.push(addHref(window.location.pathname));
                   }}
-                  className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                  className="flex size-13 items-center justify-center rounded-full bg-primary text-primary-foreground"
                 >
                   <Icon className="size-6" aria-hidden="true" />
                 </Link>
@@ -86,9 +86,9 @@ export function AppNavFrame({ pathname }: { pathname: string | null }) {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-14 flex-col items-center justify-center gap-1 text-xs lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-sm",
+                  "flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-full text-xs lg:mx-2 lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-xl lg:px-3 lg:text-sm",
                   active
-                    ? "font-medium text-foreground"
+                    ? "bg-primary-soft font-semibold text-primary"
                     : "text-muted-foreground",
                 )}
               >

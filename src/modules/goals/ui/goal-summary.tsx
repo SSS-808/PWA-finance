@@ -21,14 +21,17 @@ export function GoalSummary({
   }
 
   return (
-    <section aria-labelledby="home-goals" className="space-y-4">
+    <section
+      aria-labelledby="home-goals"
+      className="space-y-2 rounded-2xl border border-border bg-card px-4 py-4"
+    >
       <div className="flex items-center justify-between gap-3">
-        <h2 id="home-goals" className="text-xl font-semibold">
+        <h2 id="home-goals" className="text-lg font-semibold">
           {en.goals.title}
         </h2>
         <Link
           href="/goals"
-          className="inline-flex min-h-12 items-center rounded-lg px-3 text-base underline-offset-4 hover:underline"
+          className="inline-flex min-h-12 items-center rounded-lg px-3 text-base font-medium text-primary underline-offset-4 hover:underline"
         >
           {en.goals.seeAll}
         </Link>

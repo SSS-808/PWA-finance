@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { money } from "@/modules/money";
 import {
   emptySummary,
+  mainFirst,
   monthSummary,
   savingsRate,
   type SummaryRow,
@@ -43,6 +44,30 @@ describe("savingsRate", () => {
 
   it("never gives -0", () => {
     expect(savingsRate(money(1000, "LAK"), money(1002, "LAK"))).toBe(0);
+  });
+});
+
+describe("mainFirst", () => {
+  const cards = [
+    { currency: "LAK" as const },
+    { currency: "USD" as const },
+    { currency: "THB" as const },
+  ];
+
+  it("moves the main currency from the middle to the front", () => {
+    expect(mainFirst(cards, "USD").map((card) => card.currency)).toEqual([
+      "USD",
+      "LAK",
+      "THB",
+    ]);
+  });
+
+  it("keeps the order when the main currency has no card", () => {
+    expect(mainFirst(cards.slice(0, 2), "THB")).toEqual(cards.slice(0, 2));
+  });
+
+  it("gives an empty list for an empty list", () => {
+    expect(mainFirst([], "LAK")).toEqual([]);
   });
 });
 

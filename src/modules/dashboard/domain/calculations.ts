@@ -97,6 +97,17 @@ function spendingByCategory(
   return top;
 }
 
+// The main currency's card goes first; the others keep their order
+export function mainFirst<T extends { currency: CurrencyCode }>(
+  cards: readonly T[],
+  main: string,
+): T[] {
+  return [
+    ...cards.filter((card) => card.currency === main),
+    ...cards.filter((card) => card.currency !== main),
+  ];
+}
+
 export function emptySummary(currency: CurrencyCode): CurrencySummary {
   return {
     currency,

@@ -26,7 +26,7 @@ async function NewEntry({
 }: {
   searchParams: PageProps<"/transactions/new">["searchParams"];
 }) {
-  const { from } = await searchParams;
+  const { from, kind } = await searchParams;
   const [profile, accounts, expenseCategories, incomeCategories, lastId] =
     await Promise.all([
       getProfile(),
@@ -49,6 +49,7 @@ async function NewEntry({
       // A new key per visit: Next keeps the old form of an earlier visit, with stale values
       key={crypto.randomUUID()}
       returnTo={safeNextPath(typeof from === "string" ? from : null)}
+      initialKind={kind === "income" ? "income" : "expense"}
       accounts={active.map(({ id, name, currency }) => ({
         id,
         name,

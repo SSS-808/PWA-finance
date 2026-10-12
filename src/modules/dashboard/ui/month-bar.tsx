@@ -4,7 +4,7 @@ import { en } from "@/messages/en";
 import { monthLabel, nextMonth, previousMonth } from "@/modules/transactions";
 
 const arrowClass =
-  "inline-flex size-12 items-center justify-center rounded-lg hover:bg-muted";
+  "inline-flex size-12 items-center justify-center rounded-full hover:bg-muted";
 
 // The month switcher of Home and Budgets (basePath); it changes ?month= and never goes past the current month
 export function DashboardMonthBar({
@@ -20,7 +20,7 @@ export function DashboardMonthBar({
   return (
     <nav
       aria-label={text.monthLabel}
-      className="flex flex-wrap items-center gap-x-1"
+      className="flex flex-wrap items-center justify-center gap-x-1"
     >
       <Link
         href={`${basePath}?month=${previousMonth(month)}`}

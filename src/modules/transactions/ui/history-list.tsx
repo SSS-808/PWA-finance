@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { formatMoney, negate } from "@/modules/money";
 import type {
@@ -54,7 +55,13 @@ function EntryRow({ item }: { item: EntryItem }) {
           {item.accountName}
         </span>
       </span>
-      <span className="shrink-0 text-right text-base tabular-nums">
+      <span
+        className={cn(
+          "shrink-0 text-right text-base font-medium tabular-nums",
+          item.kind === "income" && "text-income",
+          item.kind === "expense" && "text-expense",
+        )}
+      >
         {formatMoney(
           item.amount,
           item.kind === "expense" ? {} : { signDisplay: "always" },

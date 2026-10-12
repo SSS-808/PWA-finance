@@ -73,8 +73,8 @@ export const en = {
     logout: "Log out",
   },
   home: {
-    greeting: "You're logged in as {email}.",
-    greetingNamed: "Hi, {name}!",
+    moneyIn: "Money In",
+    moneyOut: "Money Out",
     passwordUpdated: "Your password was changed.",
     startTitle: "Start by adding your accounts",
   },
