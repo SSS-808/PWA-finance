@@ -1,9 +1,29 @@
-# Design brief (saved 2026-10-12, not started)
+# Design brief (saved 2026-10-12, started the same day)
 
 ## In plain words
-The app works but is plain grey. This file is the plan for giving it a look, to be used when the design phase starts. It is a paint-and-furniture plan: the rooms (login, accounts, transactions, dashboard) are already built and stay as they are.
+The app works but is plain grey. This file is the plan for giving it a look. It is a paint-and-furniture plan: the rooms (login, accounts, transactions, dashboard) are already built and stay as they are.
 
-The order of work does not change: E2E in CI → data export → Phase 6 Budgets. The design phase starts when the user says so. Until then "function before looks" still applies.
+The design phase started on 2026-10-12, after Phase 7 was released. The user picked look A; see "The pick" below.
+
+## The pick (2026-10-12)
+Three looks were drawn for Home and Add, light and dark: A "Emerald hero", B "Quiet cards", C "Tinted tiles". The user picked **A** and changed it with comments on the mockups. The mockups are on a private canvas, not in the repo. What was decided:
+
+**Home**
+- No page title and no greeting on screen. Home starts at the month switcher. Keep an invisible title for screen readers.
+- The **main currency** card comes first (Settings → Main currency): solid emerald, white text, balance big, Income and Spending below, then Saved and Savings rate.
+- Then **Money In** (soft green) and **Money Out** (soft red), side by side.
+- Then the cards of the other currencies, smaller, in the same emerald.
+- Then "Where your money went" as a white card: a round coloured icon per category and a bar in the category's colour.
+- Then Recent, with the category icon and a green or red amount in each row.
+- The bottom nav is a floating rounded pill. The active item is emerald on a soft emerald pill. The ＋ stays in the middle.
+
+**Add**
+- **Save sits at the top right**, next to the "Add" title, so it stays reachable with the keyboard open. No Save at the bottom.
+- The Expense / Income / Transfer switch is plain grey.
+- The amount is big, in a white card. Only the number is coloured (red for money out, green for money in). No tinted header: the user found it "too much red".
+- Categories are **one row of 4**, swiped sideways for the rest, with dots under it. A button on the right of "Category" opens the full list. The user's wording for it is "Add more"; "Show all" was offered as clearer and is still open.
+- Every category icon **always has its own colour**. The picked one is a solid circle in its colour.
+- Then Account and Date side by side, then Note.
 
 ## Where this came from
 - **Another AI's prompt** ("Build a Premium Responsive Expense Tracker PWA"). About 70% of it described things already built or already on the roadmap, so only its look-and-feel parts were kept.
@@ -26,7 +46,7 @@ The order of work does not change: E2E in CI → data export → Phase 6 Budgets
 | `--income`, `--expense`, `--net` | do not exist | green, red, blue, each with a soft tinted version for tiles |
 | `--chart-1` … `--chart-5` | greys | the category colours |
 
-- Exact values are chosen from the mockups, not here.
+- The exact values live in `src/app/globals.css` (in since 2026-10-12): `--primary`, the neutrals, `--radius` at 14px, and `--income`, `--expense`, `--net`, each with a `-soft` twin for tiles (classes like `text-income`, `bg-expense-soft`). Every text colour was checked at 4.5:1 or better on its background, light and dark. `--destructive` in light mode was darkened for the same reason. The category colours and `--chart-*` come with the category task.
 - **Dark mode counts as much as light.** The user's phone runs dark. It keeps following the device; no manual switch. Pocket Clear's idea worth borrowing: near-black page, tiles tinted dark green, dark red or dark blue.
 - **Colour is never the only signal.** Amounts keep their sign and label, so the app reads fine without colour.
 - **Font:** Geist stays. It has no Lao letters, so a Lao-ready fallback font is needed before any Lao text is added.
@@ -82,13 +102,18 @@ Checked 2026-10-12: no migration gives categories an icon or a colour. So decisi
 ## Also waiting for this phase
 Two leftovers from Phase 5.5: loading states (skeletons) and the accessibility pass.
 
-## How the phase will run
-1. Mockups a/b/c made from the real app: Home and Add, in light and dark.
-2. The chosen one becomes tokens in `globals.css`.
-3. Apply it to every screen.
-4. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers.
-5. All project checks pass.
+## How the phase runs
+Each task has its own branch from `dev` and a PR into `dev`.
+1. Tokens in `globals.css` (done 2026-10-12).
+2. Home: the cards, Money In / Money Out, the nav, the Recent rows.
+3. Category icons and colours: the migration, then the pickers and lists.
+4. Add: Save on top, the amount card, the category row.
+5. Every other screen, plus loading states and the accessibility pass.
+6. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers. All project checks pass.
 
 ## Still open
-- Pocket Clear's Budgets tab has not been seen. It would help the look of Phase 6.
+- "Add more" or "Show all" as the label of the button that opens every category.
+- "Transportation" is too long for four icons in a row on a 320px screen. Measure it in the Add task.
+- Lunch Money's transaction list could not be loaded during the research. Look again before the History screen.
+- Pocket Clear's Budgets tab was seen on its website on 2026-10-12: a ring with the percent used, then one thin bar per category. Ours already works that way.
 - Bringing over the user's Pocket Clear history (about 233 entries, May to September 2026) is only an idea. CSV export is a paid feature there.
