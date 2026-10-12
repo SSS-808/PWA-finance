@@ -4,7 +4,7 @@ import { en } from "../../src/messages/en";
 import {
   PASSWORD,
   emailBox,
-  greeting,
+  expectSignedInAs,
   logIn,
   logOutFromSettings,
   signUp,
@@ -55,7 +55,7 @@ test("sign up, confirm by email, see the home page, then log out", async ({
 
   await page.goto(await waitForLink(email, "email"));
   await expect(page).toHaveURL("/");
-  await expect(page.getByText(greeting(email))).toBeVisible();
+  await expectSignedInAs(page, email);
 
   await logOutFromSettings(page);
 });
@@ -131,14 +131,14 @@ test("forgot password: reset link, new password, log in with it", async ({
 
   await logOutFromSettings(page);
   await logIn(page, email, NEW_PASSWORD);
-  await expect(page.getByText(greeting(email))).toBeVisible();
+  await expectSignedInAs(page, email);
 });
 
 test("a logged-in user visiting the login page is sent home", async ({
   page,
 }) => {
   await logIn(page, DEMO_EMAIL, DEMO_PASSWORD);
-  await expect(page.getByText(greeting(DEMO_EMAIL))).toBeVisible();
+  await expectSignedInAs(page, DEMO_EMAIL);
 
   await page.goto("/login");
   await expect(page).toHaveURL("/");
@@ -147,5 +147,5 @@ test("a logged-in user visiting the login page is sent home", async ({
 test("the seed demo user can log in and sees their email", async ({ page }) => {
   await logIn(page, DEMO_EMAIL, DEMO_PASSWORD);
   await expect(page).toHaveURL("/");
-  await expect(page.getByText(greeting(DEMO_EMAIL))).toBeVisible();
+  await expectSignedInAs(page, DEMO_EMAIL);
 });

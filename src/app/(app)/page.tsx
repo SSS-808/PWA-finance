@@ -7,18 +7,24 @@ import { BudgetSummary, getBudgetMonth } from "@/modules/budgets";
 import {
   CurrencyCard,
   DashboardMonthBar,
+  MoneyButtons,
+  SpendingCard,
   getDashboard,
+  mainFirst,
 } from "@/modules/dashboard";
 import { GoalSummary, listGoals } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
-import { HistoryList, SavedNotice, parseFilters } from "@/modules/transactions";
+import {
+  HistoryList,
+  SavedNotice,
+  monthLabel,
+  parseFilters,
+} from "@/modules/transactions";
 
 export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
-    <div className="w-full max-w-2xl space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.dashboard.title}
-      </h1>
+    <div className="w-full max-w-2xl space-y-4">
+      <h1 className="sr-only">{en.dashboard.title}</h1>
       <Suspense>
         <HomeContent searchParams={searchParams} />
       </Suspense>
@@ -43,11 +49,13 @@ async function HomeContent({
     getBudgetMonth(month),
     listGoals(),
   ]);
-  const greeting = profile.displayName
-    ? en.home.greetingNamed.replace("{name}", profile.displayName)
-    : en.home.greeting.replace("{email}", profile.email);
+  const ordered = mainFirst(cards, profile.baseCurrency);
+  const [main, ...others] = ordered;
+  const withSpending = ordered.filter(
+    (card) => card.summary.byCategory.length > 0,
+  );
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {notice === "password-updated" ? (
         <ToastOnce message={en.home.passwordUpdated} param="notice" />
       ) : null}
@@ -56,9 +64,8 @@ async function HomeContent({
         savedTransfer={savedTransfer}
         deleted={deleted}
       />
-      <p className="text-base break-words">{greeting}</p>
-      {cards.length === 0 ? (
-        <div className="space-y-4 rounded-lg border border-border px-4 py-6">
+      {main === undefined ? (
+        <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
           <h2 className="text-xl font-semibold">{en.home.startTitle}</h2>
           <Button asChild className="h-12 w-full text-base">
             <Link href="/accounts/new">{en.accounts.addFirst}</Link>
@@ -67,9 +74,20 @@ async function HomeContent({
       ) : (
         <>
           <DashboardMonthBar month={month} currentMonth={currentMonth} />
-          {cards.map((card) => (
-            <CurrencyCard key={card.currency} card={card} month={month} />
+          <CurrencyCard card={main} main />
+          <MoneyButtons />
+          {others.map((card) => (
+            <CurrencyCard key={card.currency} card={card} main={false} />
           ))}
+          {withSpending.length > 0 ? (
+            withSpending.map((card) => (
+              <SpendingCard key={card.currency} card={card} month={month} />
+            ))
+          ) : (
+            <p className="rounded-2xl border border-border bg-card px-4 py-5 text-base text-muted-foreground">
+              {en.dashboard.noSpending.replace("{month}", monthLabel(month))}
+            </p>
+          )}
           <BudgetSummary
             groups={budgets.groups}
             month={month}
@@ -83,7 +101,7 @@ async function HomeContent({
               </h2>
               <Link
                 href="/transactions"
-                className="inline-flex min-h-12 items-center rounded-lg px-3 text-base underline-offset-4 hover:underline"
+                className="inline-flex min-h-12 items-center rounded-lg px-3 text-base font-medium text-primary underline-offset-4 hover:underline"
               >
                 {en.dashboard.seeAll}
               </Link>
@@ -91,7 +109,7 @@ async function HomeContent({
             {recent.length > 0 ? (
               <HistoryList days={recent} today={today} />
             ) : (
-              <div className="space-y-4 rounded-lg border border-border px-4 py-6">
+              <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
                 <h3 className="text-xl font-semibold">
                   {en.transactions.empty}
                 </h3>

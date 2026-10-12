@@ -105,7 +105,7 @@ Two leftovers from Phase 5.5: loading states (skeletons) and the accessibility p
 ## How the phase runs
 Each task has its own branch from `dev` and a PR into `dev`.
 1. Tokens in `globals.css` (done 2026-10-12).
-2. Home: the cards, Money In / Money Out, the nav, the Recent rows.
+2. Home: the cards, Money In / Money Out, the nav, the Recent rows (done 2026-10-12). Category icons in the rows wait for task 3. The greeting is gone, so "Your name" in Settings is shown nowhere for now.
 3. Category icons and colours: the migration, then the pickers and lists.
 4. Add: Save on top, the amount card, the category row.
 5. Every other screen, plus loading states and the accessibility pass.

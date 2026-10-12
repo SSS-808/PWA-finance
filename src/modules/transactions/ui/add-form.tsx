@@ -10,6 +10,7 @@ type View = { type: "entry"; kind: EntryKind } | { type: "transfer" };
 // The Add page: Expense and Income share one form; Transfer swaps in its own
 export function AddForm({
   returnTo,
+  initialKind,
   accounts,
   expenseCategories,
   incomeCategories,
@@ -17,13 +18,14 @@ export function AddForm({
   today,
 }: {
   returnTo: string;
+  initialKind: EntryKind;
   accounts: readonly AccountOption[];
   expenseCategories: readonly CategoryOption[];
   incomeCategories: readonly CategoryOption[];
   defaultAccountId: string;
   today: string;
 }) {
-  const [view, setView] = useState<View>({ type: "entry", kind: "expense" });
+  const [view, setView] = useState<View>({ type: "entry", kind: initialKind });
 
   if (view.type === "transfer") {
     return (
