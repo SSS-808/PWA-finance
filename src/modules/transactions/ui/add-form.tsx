@@ -9,6 +9,7 @@ type View = { type: "entry"; kind: EntryKind } | { type: "transfer" };
 
 // The Add page: Expense and Income share one form; Transfer swaps in its own
 export function AddForm({
+  title,
   returnTo,
   initialKind,
   accounts,
@@ -17,6 +18,7 @@ export function AddForm({
   defaultAccountId,
   today,
 }: {
+  title: string;
   returnTo: string;
   initialKind: EntryKind;
   accounts: readonly AccountOption[];
@@ -30,6 +32,7 @@ export function AddForm({
   if (view.type === "transfer") {
     return (
       <TransferForm
+        title={title}
         mode="create"
         returnTo={returnTo}
         accounts={accounts}
@@ -41,6 +44,7 @@ export function AddForm({
   }
   return (
     <EntryForm
+      title={title}
       mode="create"
       returnTo={returnTo}
       accounts={accounts}

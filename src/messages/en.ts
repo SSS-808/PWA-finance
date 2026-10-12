@@ -452,6 +452,8 @@ export const en = {
       note: "Note (optional)",
       submit: "Save",
       submitting: "Saving…",
+      showAll: "Show all",
+      showLess: "Show less",
     },
     transfer: {
       from: "From",

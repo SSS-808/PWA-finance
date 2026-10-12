@@ -21,7 +21,7 @@ Three looks were drawn for Home and Add, light and dark: A "Emerald hero", B "Qu
 - **Save sits at the top right**, next to the "Add" title, so it stays reachable with the keyboard open. No Save at the bottom.
 - The Expense / Income / Transfer switch is plain grey.
 - The amount is big, in a white card. Only the number is coloured (red for money out, green for money in). No tinted header: the user found it "too much red".
-- Categories are **one row of 4**, swiped sideways for the rest, with dots under it. A button on the right of "Category" opens the full list. The user's wording for it is "Add more"; "Show all" was offered as clearer and is still open.
+- Categories are **one row of 4**, swiped sideways for the rest, with dots under it. A "Show all" button on the right of "Category" opens the full grid and turns into "Show less" (the user first called it "Add more", then chose "Show all" on 2026-10-12).
 - Every category icon **always has its own colour**. The picked one is a solid circle in its colour.
 - Then Account and Date side by side, then Note.
 
@@ -107,13 +107,12 @@ Each task has its own branch from `dev` and a PR into `dev`.
 1. Tokens in `globals.css` (done 2026-10-12).
 2. Home: the cards, Money In / Money Out, the nav, the Recent rows (done 2026-10-12). Category icons in the rows wait for task 3. The greeting is gone, so "Your name" in Settings is shown nowhere for now.
 3. Category icons and colours: the migration, then the pickers and lists (done 2026-10-12). 24 icons and 10 colours; the keys live in `categories/domain/types.ts` and must match the migration's check constraints. The badge is `src/components/shared/category-icon.tsx`: it sits outside the categories module because client components can't import that module's barrel (it holds server code), and `domain/` files of other modules keep the icon and colour as plain strings because they may only import the money module.
-4. Add: Save on top, the amount card, the category row.
+4. Add: Save on top, the amount card, the category row (done 2026-10-12). The two edit screens share the forms, so they changed too. The title now lives inside the form, so these pages show no title while they load: fix it with the loading states in task 5. The Next.js dev badge is switched off (`next.config.ts`) because it sat on top of Save.
 5. Every other screen, plus loading states and the accessibility pass.
 6. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers. All project checks pass.
 
 ## Still open
-- "Add more" or "Show all" as the label of the button that opens every category.
-- "Transportation" is too long for four icons in a row on a 320px screen. Measure it in the Add task.
+- Measured in the Add task: at 320px "Transportation" and "Entertainment" go onto two lines with a hyphen; nothing is cut off.
 - Lunch Money's transaction list could not be loaded during the research. Look again before the History screen.
 - Pocket Clear's Budgets tab was seen on its website on 2026-10-12: a ring with the percent used, then one thin bar per category. Ours already works that way.
 - Bringing over the user's Pocket Clear history (about 233 entries, May to September 2026) is only an idea. CSV export is a paid feature there.

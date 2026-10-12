@@ -11,9 +11,6 @@ export default function NewTransactionPage({
 }: PageProps<"/transactions/new">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.transactions.addTitle}
-      </h1>
       <Suspense>
         <NewEntry searchParams={searchParams} />
       </Suspense>
@@ -37,7 +34,16 @@ async function NewEntry({
     ]);
   const active = accounts.filter((account) => !account.archived);
   const first = active[0];
-  if (!first) return <EmptyAccounts />;
+  if (!first) {
+    return (
+      <>
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {en.transactions.addTitle}
+        </h1>
+        <EmptyAccounts />
+      </>
+    );
+  }
 
   // The remembered account is used only while it is still active
   const defaultAccountId = active.some((account) => account.id === lastId)
@@ -46,6 +52,7 @@ async function NewEntry({
 
   return (
     <AddForm
+      title={en.transactions.addTitle}
       // A new key per visit: Next keeps the old form of an earlier visit, with stale values
       key={crypto.randomUUID()}
       returnTo={safeNextPath(typeof from === "string" ? from : null)}

@@ -30,6 +30,7 @@ import { createTransfer, updateTransfer } from "../server/transfer-actions";
 import { ADD_KINDS, KindSwitch } from "./kind-switch";
 
 type TransferFormProps = {
+  title: string;
   accounts: readonly AccountOption[];
 } & (
   | {
@@ -46,7 +47,7 @@ type TransferFormProps = {
 const idleState: TransferFormState = { status: "idle" };
 
 const selectClass =
-  "h-12 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
+  "h-12 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 function isErrorKey(value: string | undefined): value is TransactionErrorKey {
   return (TRANSACTION_ERROR_KEYS as readonly string[]).includes(value ?? "");
@@ -93,7 +94,7 @@ function startValues(props: TransferFormProps): TransferFormValues {
 
 function NeedTwoAccounts() {
   return (
-    <div className="space-y-4 rounded-lg border border-border px-4 py-6">
+    <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
       <p className="text-base">{en.transactions.transfer.needTwo}</p>
       <Button asChild className="h-12 w-full text-base">
         <Link href="/accounts/new">{en.transactions.transfer.addAccount}</Link>
@@ -163,6 +164,15 @@ function TransferFields(props: TransferFormProps) {
       })}
       className="space-y-6"
     >
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
+        <h1 className="text-3xl font-semibold tracking-tight">{props.title}</h1>
+        <SubmitButton
+          shape="pill"
+          label={en.transactions.form.submit}
+          pendingLabel={en.transactions.form.submitting}
+          pending={pending}
+        />
+      </div>
       {state.error ? (
         <p
           role="alert"
@@ -175,53 +185,70 @@ function TransferFields(props: TransferFormProps) {
           }
         </p>
       ) : null}
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-from`} className="text-base">
-          {en.transactions.transfer.from}
-        </Label>
-        <select
-          id={`${uid}-from`}
-          aria-invalid={Boolean(fromError)}
-          aria-describedby={fromError ? `${uid}-from-error` : undefined}
-          className={selectClass}
-          defaultValue={initial.fromAccountId}
-          {...register("fromAccountId")}
-        >
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </select>
-        <FieldMessage id={`${uid}-from-error`} error={fromError} />
+      {props.mode === "create" ? (
+        <KindSwitch
+          kinds={ADD_KINDS}
+          value="transfer"
+          onChange={(next) => {
+            if (next !== "transfer") props.onChooseEntry(next);
+          }}
+        />
+      ) : null}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor={`${uid}-from`} className="text-base">
+            {en.transactions.transfer.from}
+          </Label>
+          <select
+            id={`${uid}-from`}
+            aria-invalid={Boolean(fromError)}
+            aria-describedby={fromError ? `${uid}-from-error` : undefined}
+            className={selectClass}
+            defaultValue={initial.fromAccountId}
+            {...register("fromAccountId")}
+          >
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+          <FieldMessage id={`${uid}-from-error`} error={fromError} />
+        </div>
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor={`${uid}-to`} className="text-base">
+            {en.transactions.transfer.to}
+          </Label>
+          <select
+            id={`${uid}-to`}
+            aria-invalid={Boolean(toError)}
+            aria-describedby={toError ? `${uid}-to-error` : undefined}
+            className={selectClass}
+            defaultValue={initial.toAccountId}
+            {...register("toAccountId")}
+          >
+            <option value="">{en.transactions.transfer.choose}</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+          <FieldMessage id={`${uid}-to-error`} error={toError} />
+        </div>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-to`} className="text-base">
-          {en.transactions.transfer.to}
-        </Label>
-        <select
-          id={`${uid}-to`}
-          aria-invalid={Boolean(toError)}
-          aria-describedby={toError ? `${uid}-to-error` : undefined}
-          className={selectClass}
-          defaultValue={initial.toAccountId}
-          {...register("toAccountId")}
+      <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+        <Label
+          htmlFor={`${uid}-amount`}
+          className="text-sm font-normal text-muted-foreground"
         >
-          <option value="">{en.transactions.transfer.choose}</option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </select>
-        <FieldMessage id={`${uid}-to-error`} error={toError} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-amount`} className="text-base">
           {en.transactions.transfer.amount}
         </Label>
-        <div className="flex items-center gap-2">
-          <span aria-hidden="true" className="text-3xl text-muted-foreground">
+        <div className="flex items-baseline gap-2">
+          <span
+            aria-hidden="true"
+            className="text-3xl font-semibold text-muted-foreground"
+          >
             {fromCurrency ? currencySymbol(fromCurrency) : null}
           </span>
           <AmountInput
@@ -229,7 +256,7 @@ function TransferFields(props: TransferFormProps) {
             autoFocus
             aria-invalid={Boolean(amountError)}
             aria-describedby={amountError ? `${uid}-amount-error` : undefined}
-            className="h-16 text-3xl font-semibold tabular-nums md:text-3xl"
+            className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
             defaultValue={initial.amount}
             {...register("amount")}
           />
@@ -237,12 +264,18 @@ function TransferFields(props: TransferFormProps) {
         <FieldMessage id={`${uid}-amount-error`} error={amountError} />
       </div>
       {showArrived ? (
-        <div className="space-y-2">
-          <Label htmlFor={`${uid}-arrived`} className="text-base">
+        <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+          <Label
+            htmlFor={`${uid}-arrived`}
+            className="text-sm font-normal text-muted-foreground"
+          >
             {en.transactions.transfer.arrived}
           </Label>
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="text-3xl text-muted-foreground">
+          <div className="flex items-baseline gap-2">
+            <span
+              aria-hidden="true"
+              className="text-3xl font-semibold text-muted-foreground"
+            >
               {toCurrency ? currencySymbol(toCurrency) : null}
             </span>
             <AmountInput
@@ -251,7 +284,7 @@ function TransferFields(props: TransferFormProps) {
               aria-describedby={
                 arrivedError ? `${uid}-arrived-error` : undefined
               }
-              className="h-16 text-3xl font-semibold tabular-nums md:text-3xl"
+              className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
               defaultValue={initial.arrived}
               {...register("arrived")}
             />
@@ -270,7 +303,7 @@ function TransferFields(props: TransferFormProps) {
           max={MAX_DATE}
           aria-invalid={Boolean(dateError)}
           aria-describedby={dateError ? `${uid}-date-error` : undefined}
-          className="h-12 text-base"
+          className="h-12 bg-card text-base dark:bg-card"
           defaultValue={initial.date}
           {...register("date")}
         />
@@ -286,24 +319,21 @@ function TransferFields(props: TransferFormProps) {
           maxLength={MAX_NOTE_LENGTH}
           aria-invalid={Boolean(noteError)}
           aria-describedby={noteError ? `${uid}-note-error` : undefined}
-          className="h-12 text-base"
+          className="h-12 bg-card text-base dark:bg-card"
           defaultValue={initial.note}
           {...register("note")}
         />
         <FieldMessage id={`${uid}-note-error`} error={noteError} />
       </div>
-      <SubmitButton
-        label={en.transactions.form.submit}
-        pendingLabel={en.transactions.form.submitting}
-        pending={pending}
-      />
     </form>
   );
 }
 
 export function TransferForm(props: TransferFormProps) {
+  if (props.accounts.length >= 2) return <TransferFields {...props} />;
   return (
     <div className="space-y-6">
+      <h1 className="text-3xl font-semibold tracking-tight">{props.title}</h1>
       {props.mode === "create" ? (
         <KindSwitch
           kinds={ADD_KINDS}
@@ -313,11 +343,7 @@ export function TransferForm(props: TransferFormProps) {
           }}
         />
       ) : null}
-      {props.accounts.length < 2 ? (
-        <NeedTwoAccounts />
-      ) : (
-        <TransferFields {...props} />
-      )}
+      <NeedTwoAccounts />
     </div>
   );
 }
