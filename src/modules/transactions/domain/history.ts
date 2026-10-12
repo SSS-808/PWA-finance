@@ -9,6 +9,7 @@ export type HistoryRow = {
   createdAt: string;
   accountName: string;
   categoryName: string | null;
+  categoryLook: { icon: string; color: string } | null;
   note: string | null;
   amount: Money;
 };
@@ -20,6 +21,7 @@ export type EntryItem = {
   createdAt: string;
   accountName: string;
   categoryName: string | null;
+  categoryLook: { icon: string; color: string } | null;
   note: string | null;
   amount: Money;
 };
@@ -54,6 +56,7 @@ export function toHistoryItems(rows: readonly HistoryRow[]): HistoryItem[] {
         createdAt: row.createdAt,
         accountName: row.accountName,
         categoryName: row.categoryName,
+        categoryLook: row.categoryLook,
         note: row.note,
         amount: row.amount,
       });

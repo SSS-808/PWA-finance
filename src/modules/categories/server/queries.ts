@@ -3,9 +3,18 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/modules/auth";
-import { isCategoryKind } from "../domain/schemas";
+import {
+  isCategoryColor,
+  isCategoryIcon,
+  isCategoryKind,
+} from "../domain/schemas";
 import { countUsage, sortByUsage } from "../domain/usage";
-import type { Category, CategoryKind, ManagedCategory } from "../domain/types";
+import type {
+  Category,
+  CategoryKind,
+  CategoryLook,
+  ManagedCategory,
+} from "../domain/types";
 
 // Usage is counted over the latest rows only, so old habits fade out
 const USAGE_SAMPLE = 500;
@@ -16,10 +25,23 @@ type CategoryRow = {
   id: string;
   name: string;
   kind: string;
+  icon: string;
+  color: string;
   archived_at: string | null;
 };
 
-const CATEGORY_COLUMNS = "id, name, kind, archived_at";
+const CATEGORY_COLUMNS = "id, name, kind, icon, color, archived_at";
+
+// The database checks these values, so anything else is a bug
+function toLook(row: { icon: string; color: string }): CategoryLook {
+  if (!isCategoryIcon(row.icon)) {
+    throw new Error(`Unexpected category icon: ${row.icon}`);
+  }
+  if (!isCategoryColor(row.color)) {
+    throw new Error(`Unexpected category colour: ${row.color}`);
+  }
+  return { icon: row.icon, color: row.color };
+}
 
 function toManaged(row: CategoryRow): ManagedCategory {
   // The database checks this value, so anything else is a bug
@@ -30,6 +52,7 @@ function toManaged(row: CategoryRow): ManagedCategory {
     id: row.id,
     name: row.name,
     kind: row.kind,
+    ...toLook(row),
     hidden: row.archived_at !== null,
   };
 }
@@ -41,7 +64,10 @@ export async function listCategories(
 ): Promise<Category[]> {
   await requireUser();
   const supabase = await createClient();
-  let query = supabase.from("categories").select("id, name").eq("kind", kind);
+  let query = supabase
+    .from("categories")
+    .select("id, name, icon, color")
+    .eq("kind", kind);
   // Only a real uuid goes into the filter text
   query =
     includeId !== undefined && idSchema.safeParse(includeId).success
@@ -70,7 +96,12 @@ export async function listCategories(
   }
   const usage = countUsage(recent.data.map((row) => row.category_id));
   return sortByUsage(
-    categories.data.map((row) => ({ id: row.id, name: row.name, kind })),
+    categories.data.map((row) => ({
+      id: row.id,
+      name: row.name,
+      kind,
+      ...toLook(row),
+    })),
     usage,
   );
 }

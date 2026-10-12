@@ -49,7 +49,13 @@ async function CategoryDetail({
           </span>
         ) : null}
       </p>
-      <CategoryForm mode="rename" id={category.id} name={category.name} />
+      <CategoryForm
+        mode="edit"
+        id={category.id}
+        name={category.name}
+        icon={category.icon}
+        color={category.color}
+      />
       {category.hidden ? (
         <ShowButton id={category.id} />
       ) : (

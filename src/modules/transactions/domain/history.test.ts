@@ -16,6 +16,7 @@ function row(overrides: Partial<HistoryRow>): HistoryRow {
     createdAt: "2026-10-09T08:00:00+00:00",
     accountName: "Cash",
     categoryName: "Food",
+    categoryLook: { icon: "utensils", color: "orange" },
     note: null,
     amount: money(-45000, "LAK"),
     ...overrides,
@@ -29,6 +30,7 @@ function item(overrides: Partial<HistoryItem> & { id: string }): HistoryItem {
     createdAt: "2026-10-09T08:00:00+00:00",
     accountName: "Cash",
     categoryName: "Food",
+    categoryLook: { icon: "utensils", color: "orange" },
     note: null,
     amount: money(-1, "LAK"),
     ...overrides,
@@ -44,9 +46,15 @@ describe("toHistoryItems", () => {
         id: "c",
         kind: "opening_balance",
         categoryName: null,
+        categoryLook: null,
         amount: money(1500000, "LAK"),
       }),
-      row({ id: "d", kind: "adjustment", categoryName: null }),
+      row({
+        id: "d",
+        kind: "adjustment",
+        categoryName: null,
+        categoryLook: null,
+      }),
     ];
     expect(toHistoryItems(rows)).toEqual([
       {
@@ -56,6 +64,7 @@ describe("toHistoryItems", () => {
         createdAt: "2026-10-09T08:00:00+00:00",
         accountName: "Cash",
         categoryName: "Food",
+        categoryLook: { icon: "utensils", color: "orange" },
         note: "Lunch",
         amount: money(-45000, "LAK"),
       },
@@ -64,6 +73,7 @@ describe("toHistoryItems", () => {
         id: "c",
         kind: "opening_balance",
         categoryName: null,
+        categoryLook: null,
       }),
       expect.objectContaining({ id: "d", kind: "adjustment" }),
     ]);

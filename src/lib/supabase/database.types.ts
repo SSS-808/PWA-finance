@@ -120,7 +120,9 @@ export type Database = {
       categories: {
         Row: {
           archived_at: string | null;
+          color: string;
           created_at: string;
+          icon: string;
           id: string;
           kind: string;
           name: string;
@@ -130,7 +132,9 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           archived_at?: string | null;
+          color?: string;
           created_at?: string;
+          icon?: string;
           id?: string;
           kind: string;
           name: string;
@@ -139,7 +143,9 @@ export type Database = {
         };
         Update: {
           archived_at?: string | null;
+          color?: string;
           created_at?: string;
+          icon?: string;
           id?: string;
           kind?: string;
           name?: string;

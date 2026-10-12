@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useActionState, useId } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AmountInput } from "@/components/shared/amount-input";
+import { CategoryIcon } from "@/components/shared/category-icon";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -195,7 +196,12 @@ export function EntryForm(props: EntryFormProps) {
                 defaultChecked={category.id === initial.categoryId}
                 {...register("categoryId")}
               />
-              <span className="inline-flex min-h-11 items-center rounded-full border border-input bg-background px-4 text-base peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
+              <span className="inline-flex min-h-11 items-center gap-2 rounded-full border border-input bg-background py-1 pr-4 pl-1.5 text-base peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
+                <CategoryIcon
+                  icon={category.icon}
+                  color={category.color}
+                  size="sm"
+                />
                 {category.name}
               </span>
             </label>

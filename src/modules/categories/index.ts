@@ -1,15 +1,20 @@
+export { CATEGORY_COLORS, CATEGORY_ICONS } from "./domain/types";
 export type {
   Category,
+  CategoryColor,
   CategoryFormState,
+  CategoryIconKey,
   CategoryKind,
+  CategoryLook,
   ManagedCategory,
 } from "./domain/types";
+export { isCategoryColor, isCategoryIcon } from "./domain/schemas";
 export { countUsage, sortByUsage } from "./domain/usage";
 export {
   createCategory,
   hideCategory,
-  renameCategory,
   showCategory,
+  updateCategory,
 } from "./server/actions";
 export {
   getCategory,

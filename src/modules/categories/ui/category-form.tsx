@@ -1,23 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useId } from "react";
+import { useActionState, useId, useState } from "react";
+import {
+  CategoryIcon,
+  categoryBarClass,
+} from "@/components/shared/category-icon";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { MAX_NAME_LENGTH } from "../domain/schemas";
 import {
+  CATEGORY_COLORS,
+  CATEGORY_ICONS,
   CATEGORY_KINDS,
   type CategoryErrorKey,
   type CategoryFormState,
   type CategoryFormValues,
+  type CategoryLook,
 } from "../domain/types";
-import { createCategory, renameCategory } from "../server/actions";
+import { createCategory, updateCategory } from "../server/actions";
 
 type CategoryFormProps =
-  { mode: "create" } | { mode: "rename"; id: string; name: string };
+  | { mode: "create" }
+  | ({ mode: "edit"; id: string; name: string } & CategoryLook);
 
 const idleState: CategoryFormState = { status: "idle" };
 
@@ -33,21 +42,30 @@ function FieldMessage({ id, error }: { id: string; error?: CategoryErrorKey }) {
   );
 }
 
+function startLook(props: CategoryFormProps): CategoryLook {
+  return props.mode === "edit"
+    ? { icon: props.icon, color: props.color }
+    : { icon: "tag", color: "gray" };
+}
+
 function startValues(props: CategoryFormProps): CategoryFormValues {
   return {
-    name: props.mode === "rename" ? props.name : "",
+    name: props.mode === "edit" ? props.name : "",
     kind: CATEGORY_KINDS[0],
+    ...startLook(props),
   };
 }
 
 export function CategoryForm(props: CategoryFormProps) {
   const uid = useId();
-  const renaming = props.mode === "rename";
+  const editing = props.mode === "edit";
   const action =
-    props.mode === "rename"
-      ? renameCategory.bind(null, props.id)
+    props.mode === "edit"
+      ? updateCategory.bind(null, props.id)
       : createCategory;
   const [state, formAction] = useActionState(action, idleState);
+  // The icon badges follow the picked colour, so the pick lives in state
+  const [look, setLook] = useState<CategoryLook>(() => startLook(props));
   const fieldErrors = state.fieldErrors ?? {};
   // Values from the last submit win over the starting values, so the form reset keeps what was typed
   const current = state.values ?? startValues(props);
@@ -79,7 +97,64 @@ export function CategoryForm(props: CategoryFormProps) {
         />
         <FieldMessage id={`${uid}-name-error`} error={fieldErrors.name} />
       </div>
-      {renaming ? null : (
+      <fieldset
+        aria-describedby={fieldErrors.icon ? `${uid}-icon-error` : undefined}
+      >
+        <legend className="mb-2 text-base font-medium">
+          {en.categories.form.icon}
+        </legend>
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-8">
+          {CATEGORY_ICONS.map((key) => (
+            <label key={key} className="relative">
+              <input
+                type="radio"
+                name="icon"
+                value={key}
+                aria-label={en.categories.icons[key]}
+                checked={look.icon === key}
+                onChange={() => setLook({ ...look, icon: key })}
+                className="peer absolute inset-0 size-full cursor-pointer opacity-0"
+              />
+              <span className="flex h-12 items-center justify-center rounded-xl border-2 border-transparent peer-checked:border-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
+                <CategoryIcon icon={key} color={look.color} />
+              </span>
+            </label>
+          ))}
+        </div>
+        <FieldMessage id={`${uid}-icon-error`} error={fieldErrors.icon} />
+      </fieldset>
+      <fieldset
+        aria-describedby={fieldErrors.color ? `${uid}-color-error` : undefined}
+      >
+        <legend className="mb-2 text-base font-medium">
+          {en.categories.form.color}
+        </legend>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORY_COLORS.map((key) => (
+            <label key={key} className="relative">
+              <input
+                type="radio"
+                name="color"
+                value={key}
+                aria-label={en.categories.colors[key]}
+                checked={look.color === key}
+                onChange={() => setLook({ ...look, color: key })}
+                className="peer absolute inset-0 size-full cursor-pointer opacity-0"
+              />
+              <span className="flex size-12 items-center justify-center rounded-full border-2 border-transparent peer-checked:border-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
+                <span
+                  className={cn(
+                    "block size-8 rounded-full",
+                    categoryBarClass(key),
+                  )}
+                />
+              </span>
+            </label>
+          ))}
+        </div>
+        <FieldMessage id={`${uid}-color-error`} error={fieldErrors.color} />
+      </fieldset>
+      {editing ? null : (
         <div className="space-y-2">
           <Label htmlFor={`${uid}-kind`} className="text-base">
             {en.categories.form.kind}
@@ -108,17 +183,17 @@ export function CategoryForm(props: CategoryFormProps) {
       <div className="space-y-3">
         <SubmitButton
           label={
-            renaming
+            editing
               ? en.categories.form.submitEdit
               : en.categories.form.submitNew
           }
           pendingLabel={
-            renaming
+            editing
               ? en.categories.form.submittingEdit
               : en.categories.form.submittingNew
           }
         />
-        {renaming ? (
+        {editing ? (
           <Button asChild variant="outline" className="h-12 w-full text-base">
             <Link href="/settings/categories">{en.categories.form.cancel}</Link>
           </Button>
