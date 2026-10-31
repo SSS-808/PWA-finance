@@ -1,14 +1,16 @@
 import { cn } from "@/lib/utils";
 
-// A thin bar that fills to the percent (capped at 100); "over" turns it red
+// A thin bar that fills to the percent (capped at 100); "over" turns it red, fillClass sets the colour otherwise
 export function ProgressBar({
   label,
   percent,
   tone = "default",
+  fillClass,
 }: {
   label: string;
   percent: number;
   tone?: "default" | "over";
+  fillClass?: string;
 }) {
   const width = Math.min(percent, 100);
   return (
@@ -23,7 +25,7 @@ export function ProgressBar({
       <span
         className={cn(
           "block h-full rounded-full",
-          tone === "over" ? "bg-destructive" : "bg-primary",
+          tone === "over" ? "bg-destructive" : (fillClass ?? "bg-primary"),
         )}
         style={{ width: `${width}%` }}
       />

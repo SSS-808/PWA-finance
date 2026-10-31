@@ -1,5 +1,6 @@
 "use client";
 
+import { Archive } from "lucide-react";
 import { useState } from "react";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,11 @@ export function ArchiveButton({ id }: { id: string }) {
     return (
       <Button
         type="button"
-        variant="outline"
-        className="h-12 w-full text-base"
+        variant="ghost"
+        className="h-11 w-full gap-2 text-base text-muted-foreground underline underline-offset-4"
         onClick={() => setConfirming(true)}
       >
+        <Archive className="size-5" aria-hidden="true" />
         {en.goals.archive}
       </Button>
     );

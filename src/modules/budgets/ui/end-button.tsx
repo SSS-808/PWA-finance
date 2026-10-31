@@ -20,8 +20,8 @@ export function EndButton({
     return (
       <Button
         type="button"
-        variant="outline"
-        className="h-12 w-full text-base"
+        variant="ghost"
+        className="h-11 w-full text-base text-muted-foreground underline underline-offset-4"
         onClick={() => setConfirming(true)}
       >
         {en.budgets.end}

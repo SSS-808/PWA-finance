@@ -30,7 +30,10 @@ export function ContributionForm({
   const generalError = state.error ?? fieldErrors.direction;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form
+      action={formAction}
+      className="space-y-4 rounded-2xl border border-border bg-card p-5"
+    >
       {generalError ? (
         <p
           role="alert"
@@ -39,12 +42,18 @@ export function ContributionForm({
           {en.goals.errors[generalError]}
         </p>
       ) : null}
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-amount`} className="text-base">
+      <div className="space-y-1 rounded-xl border border-border px-4 py-3 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+        <Label
+          htmlFor={`${uid}-amount`}
+          className="text-sm font-normal text-muted-foreground"
+        >
           {en.goals.money.amount}
         </Label>
-        <div className="flex items-center gap-2">
-          <span aria-hidden="true" className="text-base text-muted-foreground">
+        <div className="flex items-baseline gap-2">
+          <span
+            aria-hidden="true"
+            className="text-3xl font-semibold text-muted-foreground"
+          >
             {currencySymbol(currency)}
           </span>
           <AmountInput
@@ -53,7 +62,7 @@ export function ContributionForm({
             defaultValue={state.values?.amount ?? ""}
             aria-invalid={Boolean(amountError)}
             aria-describedby={amountError ? `${uid}-amount-error` : undefined}
-            className="h-12 text-base"
+            className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
           />
         </div>
         {amountError ? (

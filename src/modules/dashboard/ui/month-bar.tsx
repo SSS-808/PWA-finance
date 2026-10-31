@@ -4,7 +4,7 @@ import { en } from "@/messages/en";
 import { monthLabel, nextMonth, previousMonth } from "@/modules/transactions";
 
 const arrowClass =
-  "inline-flex size-12 items-center justify-center rounded-full hover:bg-muted";
+  "inline-flex size-11 items-center justify-center rounded-full hover:bg-muted";
 
 // The month switcher of Home and Budgets (basePath); it changes ?month= and never goes past the current month
 export function DashboardMonthBar({
@@ -20,7 +20,7 @@ export function DashboardMonthBar({
   return (
     <nav
       aria-label={text.monthLabel}
-      className="flex flex-wrap items-center justify-center gap-x-1"
+      className="flex min-h-13 items-center justify-between rounded-full border border-border bg-card p-1"
     >
       <Link
         href={`${basePath}?month=${previousMonth(month)}`}
@@ -29,7 +29,7 @@ export function DashboardMonthBar({
       >
         <ChevronLeft className="size-5" aria-hidden="true" />
       </Link>
-      <span className="min-w-36 text-center text-base font-medium">
+      <span className="text-center text-base font-semibold">
         {monthLabel(month)}
       </span>
       {nextMonth(month) <= currentMonth ? (
@@ -41,7 +41,7 @@ export function DashboardMonthBar({
           <ChevronRight className="size-5" aria-hidden="true" />
         </Link>
       ) : (
-        <span className="size-12" aria-hidden="true" />
+        <span className="size-11" aria-hidden="true" />
       )}
     </nav>
   );

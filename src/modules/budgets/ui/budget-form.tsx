@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState, useId, useState } from "react";
 import { AmountInput } from "@/components/shared/amount-input";
 import { HelpHint } from "@/components/shared/help-hint";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
 import {
@@ -16,7 +14,7 @@ import {
 import type { BudgetErrorKey, BudgetFormState } from "../domain/types";
 import { saveBudget } from "../server/actions";
 
-type BudgetFormProps =
+type BudgetFormProps = { title: string } & (
   | {
       mode: "create";
       categories: { id: string; name: string }[];
@@ -28,12 +26,13 @@ type BudgetFormProps =
       categoryName: string;
       currency: CurrencyCode;
       amount: string;
-    };
+    }
+);
 
 const idleState: BudgetFormState = { status: "idle" };
 
 const selectClass =
-  "h-12 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
+  "h-12 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 function FieldMessage({ id, error }: { id: string; error?: BudgetErrorKey }) {
   if (!error) return null;
@@ -59,6 +58,16 @@ export function BudgetForm(props: BudgetFormProps) {
 
   return (
     <form action={formAction} className="space-y-6">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
+        <h1 className="text-3xl font-semibold tracking-tight break-words">
+          {props.title}
+        </h1>
+        <SubmitButton
+          shape="pill"
+          label={en.budgets.form.submit}
+          pendingLabel={en.budgets.form.submitting}
+        />
+      </div>
       {state.error ? (
         <p
           role="alert"
@@ -164,19 +173,10 @@ export function BudgetForm(props: BudgetFormProps) {
             aria-describedby={
               fieldErrors.amount ? `${uid}-amount-error` : undefined
             }
-            className="h-12 text-base"
+            className="h-12 bg-card text-base dark:bg-card"
           />
         </div>
         <FieldMessage id={`${uid}-amount-error`} error={fieldErrors.amount} />
-      </div>
-      <div className="space-y-3">
-        <SubmitButton
-          label={en.budgets.form.submit}
-          pendingLabel={en.budgets.form.submitting}
-        />
-        <Button asChild variant="outline" className="h-12 w-full text-base">
-          <Link href="/budgets">{en.budgets.form.cancel}</Link>
-        </Button>
       </div>
     </form>
   );

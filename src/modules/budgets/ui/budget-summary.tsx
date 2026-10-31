@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  CategoryIcon,
+  categoryBarClass,
+} from "@/components/shared/category-icon";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { type BudgetGroup, mostUsedLines } from "../domain/calculations";
@@ -48,12 +52,19 @@ export function BudgetSummary({
           <ul className="divide-y divide-border">
             {mostUsedLines(group.lines, 3).map((line) => (
               <li key={line.categoryId} className="space-y-2 py-3">
-                <p className="min-w-0 text-base font-medium break-words">
-                  {line.hidden
-                    ? `${line.name} ${en.categories.hiddenSuffix}`
-                    : line.name}
-                </p>
-                <Progress label={line.name} numbers={line} />
+                <div className="flex items-center gap-2">
+                  <CategoryIcon icon={line.icon} color={line.color} size="sm" />
+                  <p className="min-w-0 text-base font-medium break-words">
+                    {line.hidden
+                      ? `${line.name} ${en.categories.hiddenSuffix}`
+                      : line.name}
+                  </p>
+                </div>
+                <Progress
+                  label={line.name}
+                  numbers={line}
+                  fillClass={categoryBarClass(line.color)}
+                />
               </li>
             ))}
           </ul>
