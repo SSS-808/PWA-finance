@@ -15,7 +15,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | **5.5** | **MVP release** | M | Done: live since 2026-10-12 (in Laos it opens only with a VPN until it has its own domain). Sign-up closed, error and 404 pages, browser tests in CI and a data export are in. Loading states and the accessibility pass moved to the design phase |
 | 6 | Budgets | M | Done (2026-10-12) |
 | 7 | Savings goals | M | Done: released to the live site on 2026-10-12 |
-| 7.5 | Design: the new look | L | In progress since 2026-10-12 (look A chosen; the colours are in). Plan: [design-brief.md](../.claude/context/design-brief.md). Includes loading states and the accessibility pass |
+| 7.5 | Design: the new look | L | Done: released to the live site on 2026-10-31 (look A on every screen, category icons and colours, loading screens, an accessibility checker, measured at 6 widths). Plan and results: [design-brief.md](../.claude/context/design-brief.md) |
 | 8 | Net worth and exchange rates | M | |
 | 9 | Investments | L | |
 | 10 | Analytics | M | |
