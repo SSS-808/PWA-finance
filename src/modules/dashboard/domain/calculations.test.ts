@@ -2,20 +2,21 @@ import { describe, expect, it } from "vitest";
 import { money } from "@/modules/money";
 import {
   emptySummary,
+  mainFirst,
   monthSummary,
   savingsRate,
   type SummaryRow,
 } from "./calculations";
 
-const names = new Map([
-  ["food", "Food"],
-  ["bills", "Bills"],
-  ["fun", "Fun"],
-  ["trip", "Trip"],
-  ["gym", "Gym"],
-  ["tea", "Tea"],
-  ["gift", "Gift"],
-  ["pay", "Salary"],
+const names = new Map<string, { name: string; icon: string; color: string }>([
+  ["food", { name: "Food", icon: "utensils", color: "orange" }],
+  ["bills", { name: "Bills", icon: "zap", color: "amber" }],
+  ["fun", { name: "Fun", icon: "tv", color: "violet" }],
+  ["trip", { name: "Trip", icon: "plane", color: "blue" }],
+  ["gym", { name: "Gym", icon: "dumbbell", color: "green" }],
+  ["tea", { name: "Tea", icon: "coffee", color: "teal" }],
+  ["gift", { name: "Gift", icon: "gift", color: "pink" }],
+  ["pay", { name: "Salary", icon: "briefcase", color: "indigo" }],
 ]);
 
 function lak(kind: string, minor: number, categoryId: string | null = null) {
@@ -43,6 +44,30 @@ describe("savingsRate", () => {
 
   it("never gives -0", () => {
     expect(savingsRate(money(1000, "LAK"), money(1002, "LAK"))).toBe(0);
+  });
+});
+
+describe("mainFirst", () => {
+  const cards = [
+    { currency: "LAK" as const },
+    { currency: "USD" as const },
+    { currency: "THB" as const },
+  ];
+
+  it("moves the main currency from the middle to the front", () => {
+    expect(mainFirst(cards, "USD").map((card) => card.currency)).toEqual([
+      "USD",
+      "LAK",
+      "THB",
+    ]);
+  });
+
+  it("keeps the order when the main currency has no card", () => {
+    expect(mainFirst(cards.slice(0, 2), "THB")).toEqual(cards.slice(0, 2));
+  });
+
+  it("gives an empty list for an empty list", () => {
+    expect(mainFirst([], "LAK")).toEqual([]);
   });
 });
 
@@ -166,12 +191,16 @@ describe("monthSummary", () => {
       {
         categoryId: "bills",
         name: "Bills",
+        icon: "zap",
+        color: "amber",
         amount: money(300, "LAK"),
         share: 0.6,
       },
       {
         categoryId: "food",
         name: "Food",
+        icon: "utensils",
+        color: "orange",
         amount: money(200, "LAK"),
         share: 0.4,
       },
@@ -202,6 +231,8 @@ describe("monthSummary", () => {
     expect(summary?.byCategory.at(-1)).toEqual({
       categoryId: null,
       name: "",
+      icon: "ellipsis",
+      color: "gray",
       amount: money(100, "LAK"),
       share: 100 / 2100,
     });
@@ -242,12 +273,16 @@ describe("monthSummary", () => {
       {
         categoryId: "food",
         name: "Food",
+        icon: "utensils",
+        color: "orange",
         amount: money(350, "LAK"),
         share: 0.7,
       },
       {
         categoryId: null,
         name: "",
+        icon: "ellipsis",
+        color: "gray",
         amount: money(150, "LAK"),
         share: 0.3,
       },

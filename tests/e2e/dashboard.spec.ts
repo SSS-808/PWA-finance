@@ -25,7 +25,19 @@ function mainNav(page: Page) {
 
 // The dashboard card of one currency
 function card(page: Page, currency: keyof typeof en.currencies) {
-  return shown(page.getByRole("region", { name: en.currencies[currency] }));
+  return shown(
+    page.getByRole("region", { name: en.currencies[currency], exact: true }),
+  );
+}
+
+// The "Where your money went" card of one currency
+function spending(page: Page, currency: keyof typeof en.currencies) {
+  return shown(
+    page.getByRole("region", {
+      name: `${en.dashboard.whereMoneyWent} ${en.currencies[currency]}`,
+      exact: true,
+    }),
+  );
 }
 
 // The value that sits next to a label in a card
@@ -61,13 +73,21 @@ test("the card shows this month's numbers and the transfer changes none of them"
   await expect(stat(lak, en.dashboard.spending)).toHaveText("₭395,000");
   await expect(stat(lak, en.dashboard.saved)).toHaveText("₭7,605,000");
   await expect(stat(lak, en.dashboard.savingsRate)).toHaveText("95%");
+  await expect(lak.getByText("₭8,605,000", { exact: true })).toBeVisible();
+  const lakSpending = spending(page, "LAK");
+  await expect(lakSpending.getByRole("link", { name: /Bills/ })).toBeVisible();
+  await expect(lakSpending.getByRole("link", { name: /Food/ })).toBeVisible();
   await expect(
-    lak
-      .getByText(en.dashboard.totalBalance)
-      .locator("xpath=following-sibling::p"),
-  ).toHaveText("₭8,605,000");
-  await expect(lak.getByRole("link", { name: /Bills/ })).toBeVisible();
-  await expect(lak.getByRole("link", { name: /Food/ })).toBeVisible();
+    lakSpending
+      .getByRole("link", { name: /Food/ })
+      .locator("svg.lucide-utensils"),
+  ).toBeVisible();
+  const recent = shown(
+    page.getByRole("region", { name: en.dashboard.recent, exact: true }),
+  );
+  await expect(
+    recent.getByRole("link", { name: /Food/ }).locator("svg.lucide-utensils"),
+  ).toBeVisible();
 });
 
 test("a category bar opens History for it, and an empty month says so", async ({
@@ -79,7 +99,7 @@ test("a category bar opens History for it, and an empty month says so", async ({
   await addEntry(page, { amount: "350,000", category: "Bills" });
 
   await page.goto("/");
-  await card(page, "LAK").getByRole("link", { name: /Bills/ }).click();
+  await spending(page, "LAK").getByRole("link", { name: /Bills/ }).click();
   await expect(page).toHaveURL(
     /\/transactions\?month=\d{4}-\d{2}&category=[0-9a-f-]{36}&type=expense$/,
   );
@@ -94,8 +114,60 @@ test("a category bar opens History for it, and an empty month says so", async ({
   const start = noSpending.slice(0, noSpending.indexOf("{month}"));
   await expect(shown(page.getByText(start))).toBeVisible();
   await expect(
-    card(page, "LAK").getByRole("link", { name: /Bills/ }),
+    spending(page, "LAK").getByRole("link", { name: /Bills/ }),
   ).toHaveCount(0);
+});
+
+test("the main currency's card comes first, and Money In and Money Out open Add with the type chosen", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addAccount(page, {
+    name: "Dollars",
+    type: "bank",
+    currency: "USD",
+    amount: "1,234.50",
+  });
+
+  async function top(currency: keyof typeof en.currencies) {
+    const box = await card(page, currency).boundingBox();
+    return box?.y ?? Number.NaN;
+  }
+
+  await page.goto("/");
+  await expect(card(page, "USD")).toBeVisible();
+  expect(await top("LAK")).toBeLessThan(await top("USD"));
+
+  await page.goto("/settings");
+  await page
+    .getByRole("combobox", { name: en.settings.profile.baseCurrency })
+    .selectOption("USD");
+  await page.getByRole("button", { name: en.settings.profile.submit }).click();
+  await expect(
+    page
+      .locator("[data-sonner-toast]")
+      .filter({ hasText: en.settings.profile.saved }),
+  ).toBeVisible();
+
+  await page.goto("/");
+  await expect(card(page, "LAK")).toBeVisible();
+  expect(await top("USD")).toBeLessThan(await top("LAK"));
+
+  const pressed = (name: string) =>
+    page.getByRole("button", { name, exact: true });
+  await shown(page.getByRole("link", { name: en.home.moneyIn })).click();
+  await expect(pressed(en.transactions.kinds.income)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  await page.goto("/");
+  await shown(page.getByRole("link", { name: en.home.moneyOut })).click();
+  await expect(pressed(en.transactions.kinds.expense)).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 test("home fits every width and the nav never covers the last element", async ({

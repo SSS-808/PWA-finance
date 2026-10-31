@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { toDecimalString } from "@/modules/money";
@@ -13,10 +14,17 @@ export default function EditTransferPage({
 }: PageProps<"/transactions/transfer/[transferId]">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.transactions.transfer.editTitle}
-      </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton
+              title={en.transactions.transfer.editTitle}
+              fields={4}
+            />
+          </>
+        }
+      >
         <EditTransfer params={params} />
       </Suspense>
     </div>
@@ -45,6 +53,7 @@ async function EditTransfer({
   return (
     <div className="space-y-6">
       <TransferForm
+        title={en.transactions.transfer.editTitle}
         // A new key per visit: Next keeps the old form of an earlier visit, with stale values
         key={crypto.randomUUID()}
         mode="edit"

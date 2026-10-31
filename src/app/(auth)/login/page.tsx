@@ -1,11 +1,19 @@
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { AuthShell, LoginForm, isSignupOpen } from "@/modules/auth";
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <AuthShell title={en.auth.login.title}>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton fields={2} />
+          </>
+        }
+      >
         <LoginFormLoader searchParams={searchParams} />
       </Suspense>
     </AuthShell>

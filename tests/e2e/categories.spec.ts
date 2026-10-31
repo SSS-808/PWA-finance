@@ -54,9 +54,7 @@ function row(page: Page, name: string) {
 
 async function renameFromList(page: Page, from: string, to: string) {
   await page.goto(LIST_URL);
-  await row(page, from)
-    .getByRole("link", { name: en.categories.rename })
-    .click();
+  await row(page, from).getByRole("link", { name: en.categories.edit }).click();
   const nameBox = page.getByRole("textbox", {
     name: en.categories.form.name,
     exact: true,
@@ -84,6 +82,44 @@ test("a new category shows up as a chip on the Add form", async ({ page }) => {
     .getByRole("button", { name: en.transactions.kinds.income })
     .click();
   await expect(chip(page, "Coffee")).toHaveCount(0);
+});
+
+test("a category keeps the icon and colour it was given", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash" });
+
+  await page.goto(LIST_URL);
+  await page
+    .getByRole("textbox", { name: en.categories.form.name, exact: true })
+    .fill("Coffee beans");
+  await page
+    .getByRole("radio", { name: en.categories.icons.coffee, exact: true })
+    .check();
+  await page
+    .getByRole("radio", { name: en.categories.colors.amber, exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: en.categories.form.submitNew })
+    .click();
+  await expect(notice(page, en.categories.notices.added)).toBeVisible();
+  await expect(
+    row(page, "Coffee beans").locator("svg.lucide-coffee"),
+  ).toBeVisible();
+
+  await row(page, "Coffee beans")
+    .getByRole("link", { name: en.categories.edit })
+    .click();
+  await expect(
+    page.getByRole("radio", { name: en.categories.icons.coffee, exact: true }),
+  ).toBeChecked();
+  await expect(
+    page.getByRole("radio", { name: en.categories.colors.amber, exact: true }),
+  ).toBeChecked();
+
+  await openAddForm(page);
+  await expect(
+    chip(page, "Coffee beans").locator("xpath=..").locator("svg.lucide-coffee"),
+  ).toBeVisible();
 });
 
 test("renaming a category renames it in History", async ({ page }) => {
@@ -115,7 +151,7 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
 
   await page.goto(LIST_URL);
   await row(page, "Café")
-    .getByRole("link", { name: en.categories.rename })
+    .getByRole("link", { name: en.categories.edit })
     .click();
   await page
     .getByRole("button", { name: en.categories.detail.hide, exact: true })
@@ -159,12 +195,17 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
 
   // The old entry keeps its category, and its Edit form still has it selected
   await page.goto("/transactions");
-  // The History filter still lists it, marked as hidden
+  // The History filter still lists it, marked as hidden; the open panel covers the rows, so close it again
+  const filtersToggle = page.locator("summary", {
+    hasText: en.transactions.filters.filters,
+  });
+  await filtersToggle.click();
   await expect(
     page
       .getByRole("combobox", { name: en.transactions.filters.category })
       .getByRole("option", { name: `Café ${en.categories.hiddenSuffix}` }),
   ).toHaveCount(1);
+  await filtersToggle.click();
   await page.getByRole("link", { name: /Café.*-₭20,000/ }).click();
   await expect(chip(page, "Café")).toBeChecked();
 
@@ -183,7 +224,9 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
 test("the category pages fit every width", async ({ page }) => {
   await signUpAndConfirm(page);
   await page.goto("/settings/categories");
-  const firstRename = page.getByRole("link", { name: /rename/i }).first();
+  const firstRename = page
+    .getByRole("link", { name: en.categories.edit, exact: true })
+    .first();
   const editPath = await firstRename.getAttribute("href");
   for (const path of [
     "/settings/categories",

@@ -1,23 +1,33 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
+import {
+  FormSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   FixBalanceForm,
-  displayBalance,
+  balanceText,
   getAccount,
   isDebt,
 } from "@/modules/accounts";
-import { formatMoney } from "@/modules/money";
 
 export default function FixBalancePage({
   params,
 }: PageProps<"/accounts/[id]/fix-balance">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.accounts.fix.title}
-      </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <Skeleton className="h-6 w-24" />
+            <FormSkeleton title={en.accounts.fix.title} />
+          </div>
+        }
+      >
         <FixBalance params={params} />
       </Suspense>
     </div>
@@ -33,29 +43,15 @@ async function FixBalance({
   const account = await getAccount(id);
   // The database refuses archived accounts, so the page doesn't offer them
   if (account.archived) notFound();
-  const { amount, owed } = displayBalance(account.type, account.balance);
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <p className="text-base break-words text-muted-foreground">
-          {account.name}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {en.accounts.fix.current}
-        </p>
-        <p className="text-3xl font-semibold tracking-tight tabular-nums">
-          {formatMoney(amount)}
-          {owed ? (
-            <span className="text-base font-normal text-muted-foreground">
-              {" "}
-              {en.accounts.owed}
-            </span>
-          ) : null}
-        </p>
-      </div>
+      <BackLink href={`/accounts/${account.id}`} label={account.name} />
       <FixBalanceForm
         id={account.id}
+        title={en.accounts.fix.title}
+        accountName={account.name}
+        current={balanceText(account.type, account.balance).text}
         currency={account.currency}
         owing={isDebt(account.type)}
       />

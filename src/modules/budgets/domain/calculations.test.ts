@@ -16,8 +16,8 @@ const BILLS = "22222222-2222-4222-8222-222222222222";
 const GAMES = "33333333-3333-4333-8333-333333333333";
 
 const categories: BudgetCategory[] = [
-  { id: FOOD, name: "Food", hidden: false },
-  { id: BILLS, name: "Bills", hidden: false },
+  { id: FOOD, name: "Food", hidden: false, icon: "utensils", color: "orange" },
+  { id: BILLS, name: "Bills", hidden: false, icon: "zap", color: "blue" },
 ];
 
 function change(
@@ -127,6 +127,8 @@ describe("budgetGroups", () => {
             categoryId: FOOD,
             name: "Food",
             hidden: false,
+            icon: "utensils",
+            color: "orange",
             budget: money(2_000_000, "LAK"),
             spent: money(0, "LAK"),
             left: money(2_000_000, "LAK"),
@@ -243,10 +245,23 @@ describe("budgetGroups", () => {
     const [group] = budgetGroups(
       [change(FOOD, "2026-10", 1_000)],
       [],
-      [{ id: FOOD, name: "Food", hidden: true }],
+      [{ id: FOOD, name: "Food", hidden: true, icon: "tag", color: "gray" }],
       "2026-10",
     );
     expect(group?.lines[0]?.hidden).toBe(true);
+  });
+
+  it("carries the icon and colour of each category onto its line", () => {
+    const [group] = budgetGroups(
+      [change(FOOD, "2026-10", 1_000), change(BILLS, "2026-10", 1_000)],
+      [],
+      categories,
+      "2026-10",
+    );
+    expect(group?.lines.map((line) => [line.icon, line.color])).toEqual([
+      ["zap", "blue"],
+      ["utensils", "orange"],
+    ]);
   });
 
   it("skips a budget whose category is unknown", () => {
@@ -262,9 +277,9 @@ describe("budgetGroups", () => {
 
   it("sorts lines by name, then by id when names match", () => {
     const twins: BudgetCategory[] = [
-      { id: BILLS, name: "Food", hidden: true },
-      { id: FOOD, name: "Food", hidden: false },
-      { id: GAMES, name: "Bills", hidden: false },
+      { id: BILLS, name: "Food", hidden: true, icon: "tag", color: "gray" },
+      { id: FOOD, name: "Food", hidden: false, icon: "tag", color: "gray" },
+      { id: GAMES, name: "Bills", hidden: false, icon: "tag", color: "gray" },
     ];
     const [group] = budgetGroups(
       [
@@ -308,6 +323,8 @@ describe("mostUsedLines", () => {
       categoryId,
       name,
       hidden: false,
+      icon: "tag",
+      color: "gray",
       budget: money(100, "LAK"),
       spent: money(percent, "LAK"),
       left: money(100 - percent, "LAK"),

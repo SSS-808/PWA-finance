@@ -1,11 +1,22 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { AuthShell, SignupForm, isSignupOpen } from "@/modules/auth";
 
 export default function SignupPage() {
   return (
-    <Suspense>
+    <Suspense
+      fallback={
+        // The auth shell sits inside this boundary, so the fallback draws its frame
+        <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-4 py-12">
+          <LoadingStatus />
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <FormSkeleton fields={2} />
+          </div>
+        </main>
+      }
+    >
       <SignupContent />
     </Suspense>
   );

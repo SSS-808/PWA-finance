@@ -71,7 +71,12 @@ export async function getDashboard(month: string): Promise<Dashboard> {
   ]);
   const summaries = monthSummary(
     rows,
-    new Map(categories.map((category) => [category.id, category.name])),
+    new Map(
+      categories.map((category) => [
+        category.id,
+        { name: category.name, icon: category.icon, color: category.color },
+      ]),
+    ),
   );
   const cards = groupByCurrency(
     accounts.filter((account) => !account.archived),

@@ -1,5 +1,6 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,12 @@ export function ErrorMessage({
 
   return (
     <div className="space-y-6">
+      <span
+        aria-hidden="true"
+        className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground"
+      >
+        <TriangleAlert className="size-6" />
+      </span>
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.problem.crashTitle}
       </h1>

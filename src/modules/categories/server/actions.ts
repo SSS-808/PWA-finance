@@ -34,6 +34,8 @@ export async function createCategory(
   const values: CategoryFormValues = {
     name: textField(formData, "name"),
     kind: textField(formData, "kind"),
+    icon: textField(formData, "icon"),
+    color: textField(formData, "color"),
   };
   const parsed = createCategorySchema.safeParse(values);
   if (!parsed.success) {
@@ -45,9 +47,12 @@ export async function createCategory(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("categories")
-    .insert({ name: parsed.data.name, kind: parsed.data.kind });
+  const { error } = await supabase.from("categories").insert({
+    name: parsed.data.name,
+    kind: parsed.data.kind,
+    icon: parsed.data.icon,
+    color: parsed.data.color,
+  });
   if (error) {
     // 23505 is the unique index on active category names per kind
     if (error.code === "23505") {
@@ -60,7 +65,7 @@ export async function createCategory(
   redirect(`${LIST_PATH}?notice=added`);
 }
 
-export async function renameCategory(
+export async function updateCategory(
   id: string,
   _prev: CategoryFormState,
   formData: FormData,
@@ -70,6 +75,8 @@ export async function renameCategory(
   const values: CategoryFormValues = {
     name: textField(formData, "name"),
     kind: category.kind,
+    icon: textField(formData, "icon"),
+    color: textField(formData, "color"),
   };
   const parsed = categoryFieldsSchema.safeParse(values);
   if (!parsed.success) {
@@ -83,14 +90,18 @@ export async function renameCategory(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
-    .update({ name: parsed.data.name })
+    .update({
+      name: parsed.data.name,
+      icon: parsed.data.icon,
+      color: parsed.data.color,
+    })
     .eq("id", id)
     .select("id");
   if (error) {
     if (error.code === "23505") {
       return { status: "error", fieldErrors: { name: "name_taken" }, values };
     }
-    logDatabaseError("Could not rename the category", error);
+    logDatabaseError("Could not update the category", error);
     return { status: "error", error: "unknown", values };
   }
   if (data.length === 0) return { status: "error", error: "not_found", values };

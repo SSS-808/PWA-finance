@@ -284,6 +284,82 @@ test("the most-used category comes first", async ({ page }) => {
   expect(names.slice(0, 3)).toEqual(["Transportation", "Food", "Bills"]);
 });
 
+test("Save sits above the amount box and stays in view at the bottom of the form", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "100,000" });
+  await page.setViewportSize({ width: 390, height: 500 });
+  await openAddForm(page);
+
+  const save = await saveButton(page).boundingBox();
+  const amount = await amountBox(page).boundingBox();
+  expect((save?.y ?? 0) + (save?.height ?? 0)).toBeLessThanOrEqual(
+    amount?.y ?? 0,
+  );
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await expect(saveButton(page)).toBeInViewport();
+});
+
+// Counts the radios whose whole badge lies inside the width of the category group
+function radiosInsideRow(group: Locator): Promise<number> {
+  return group.evaluate((element) => {
+    const row = element.getBoundingClientRect();
+    return [...element.querySelectorAll("input[type=radio]")].filter(
+      (radio) => {
+        const box = radio.getBoundingClientRect();
+        return box.left >= row.left - 1 && box.right <= row.right + 1;
+      },
+    ).length;
+  });
+}
+
+test("the category row shows four at a time, Show all opens the rest, and a hidden one can be saved", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "100,000" });
+  await page.setViewportSize({ width: 390, height: 800 });
+  await openAddForm(page);
+
+  const group = page.getByRole("radiogroup", {
+    name: en.transactions.form.category,
+  });
+  await expect(group.getByRole("radio")).toHaveCount(9);
+  await expect.poll(() => radiosInsideRow(group)).toBe(4);
+
+  await page
+    .getByRole("button", { name: en.transactions.form.showAll })
+    .click();
+  const showLess = page.getByRole("button", {
+    name: en.transactions.form.showLess,
+  });
+  await expect(showLess).toHaveAttribute("aria-expanded", "true");
+  await expect.poll(() => radiosInsideRow(group)).toBe(9);
+
+  // Travel is the last of the nine, so it was outside the row before
+  await fillEntry(page, { amount: "1,000", category: "Travel" });
+  await waitForSaved(page);
+  await page.goto("/transactions");
+  await expect(
+    page.getByRole("link", { name: /Travel.*-₭1,000/ }),
+  ).toBeVisible();
+});
+
+test("the amount takes the colour of the kind", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "100" });
+  await openAddForm(page);
+
+  await expect(amountBox(page)).toHaveClass(/text-expense/);
+  await page
+    .getByRole("button", { name: en.transactions.kinds.income })
+    .click();
+  await expect(amountBox(page)).toHaveClass(/text-income/);
+});
+
 test("the form answers before it calls the server, and the server still checks", async ({
   page,
 }) => {

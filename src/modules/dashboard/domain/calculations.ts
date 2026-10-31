@@ -26,7 +26,11 @@ export type CategorySpending = {
   name: string;
   amount: Money;
   share: number;
+  icon: string;
+  color: string;
 };
+
+type CategoryInfo = { name: string; icon: string; color: string };
 
 export type CurrencySummary = {
   currency: CurrencyCode;
@@ -53,22 +57,22 @@ function bySpendingThenName(a: CategorySpending, b: CategorySpending): number {
 // Spending per category, largest first: the top few, then everything else as one "Other" bucket
 function spendingByCategory(
   expenses: readonly SummaryRow[],
-  categoriesById: ReadonlyMap<string, string>,
+  categoriesById: ReadonlyMap<string, CategoryInfo>,
   spending: Money,
 ): CategorySpending[] {
   const { currency } = spending;
-  const named = new Map<string, { name: string; amount: Money }>();
+  const named = new Map<string, CategoryInfo & { amount: Money }>();
   let unnamed = zero(currency);
   for (const row of expenses) {
     const spent = negate(row.amount);
-    const name =
+    const info =
       row.categoryId === null ? undefined : categoriesById.get(row.categoryId);
-    if (row.categoryId === null || name === undefined) {
+    if (row.categoryId === null || info === undefined) {
       unnamed = add(unnamed, spent);
     } else {
       const current = named.get(row.categoryId);
       named.set(row.categoryId, {
-        name,
+        ...info,
         amount: add(current?.amount ?? zero(currency), spent),
       });
     }
@@ -77,6 +81,8 @@ function spendingByCategory(
   const ranked: CategorySpending[] = [...named].map(([categoryId, item]) => ({
     categoryId,
     name: item.name,
+    icon: item.icon,
+    color: item.color,
     amount: item.amount,
     share: share(item.amount),
   }));
@@ -90,11 +96,24 @@ function spendingByCategory(
     top.push({
       categoryId: null,
       name: "",
+      icon: "ellipsis",
+      color: "gray",
       amount: other,
       share: share(other),
     });
   }
   return top;
+}
+
+// The main currency's card goes first; the others keep their order
+export function mainFirst<T extends { currency: CurrencyCode }>(
+  cards: readonly T[],
+  main: string,
+): T[] {
+  return [
+    ...cards.filter((card) => card.currency === main),
+    ...cards.filter((card) => card.currency !== main),
+  ];
 }
 
 export function emptySummary(currency: CurrencyCode): CurrencySummary {
@@ -111,7 +130,7 @@ export function emptySummary(currency: CurrencyCode): CurrencySummary {
 // One summary per currency that has income or expenses; transfers, starting amounts and fixes are ignored
 export function monthSummary(
   rows: readonly SummaryRow[],
-  categoriesById: ReadonlyMap<string, string>,
+  categoriesById: ReadonlyMap<string, CategoryInfo>,
 ): CurrencySummary[] {
   const summaries: CurrencySummary[] = [];
   for (const currency of CURRENCY_CODES) {

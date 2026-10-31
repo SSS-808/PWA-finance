@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { AddLink } from "@/components/shared/add-link";
+import { CardListSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   AccountList,
@@ -11,20 +12,25 @@ import {
 import { SavedNotice } from "@/modules/transactions";
 
 const toggleClass =
-  "inline-flex min-h-12 items-center font-medium underline underline-offset-4";
+  "flex min-h-11 items-center justify-center text-base font-medium text-muted-foreground underline underline-offset-4";
 
 export default function AccountsPage({ searchParams }: PageProps<"/accounts">) {
   return (
     <div className="w-full max-w-2xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">
           {en.accounts.title}
         </h1>
-        <Button asChild className="h-12 text-base">
-          <Link href="/accounts/new">{en.accounts.add}</Link>
-        </Button>
+        <AddLink href="/accounts/new" label={en.accounts.add} />
       </div>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <CardListSkeleton rows={3} />
+          </>
+        }
+      >
         <AccountsContent searchParams={searchParams} />
       </Suspense>
     </div>

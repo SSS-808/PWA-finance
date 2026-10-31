@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { greeting, logOutFromSettings, signUpAndConfirm } from "./helpers";
+import { logOutFromSettings, signUpAndConfirm } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -30,11 +30,11 @@ async function saveProfile(page: Page) {
   await page.getByRole("button", { name: en.settings.profile.submit }).click();
 }
 
-test("home shows the email greeting and marks Home as the current page", async ({
-  page,
-}) => {
-  const { email } = await signUpAndConfirm(page);
-  await expect(page.getByText(greeting(email))).toBeVisible();
+test("home marks Home as the current page", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await expect(
+    page.getByRole("heading", { name: en.dashboard.title, level: 1 }),
+  ).toBeAttached();
   await expect(navLink(page, en.nav.home)).toHaveAttribute(
     "aria-current",
     "page",
@@ -45,9 +45,7 @@ test("home shows the email greeting and marks Home as the current page", async (
   );
 });
 
-test("settings saves the name, currency and time zone, and Home greets by name", async ({
-  page,
-}) => {
+test("settings saves the name, currency and time zone", async ({ page }) => {
   await signUpAndConfirm(page);
   await navLink(page, en.nav.settings).click();
   await expect(navLink(page, en.nav.settings)).toHaveAttribute(
@@ -75,11 +73,9 @@ test("settings saves the name, currency and time zone, and Home greets by name",
     .filter({ hasText: en.settings.profile.saved });
   await expect(savedToast).toBeHidden({ timeout: 6000 });
 
-  // The client-side trip to Home must already show the new name
+  // A client-side trip to Home and back must still work after a save
   await navLink(page, en.nav.home).click();
-  await expect(
-    page.getByText(en.home.greetingNamed.replace("{name}", "Sai")),
-  ).toBeVisible();
+  await expect(page).toHaveURL("/");
 
   await navLink(page, en.nav.settings).click();
   await expect(page).toHaveURL(/\/settings$/);
@@ -91,11 +87,6 @@ test("settings saves the name, currency and time zone, and Home greets by name",
   await expect(nameBox(page)).toHaveValue("Sai");
   await expect(currencyBox(page)).toHaveValue("USD");
   await expect(timeZoneBox(page)).toHaveValue("Asia/Bangkok");
-
-  await navLink(page, en.nav.home).click();
-  await expect(
-    page.getByText(en.home.greetingNamed.replace("{name}", "Sai")),
-  ).toBeVisible();
 });
 
 test("a name longer than 60 characters is refused by the server", async ({
@@ -129,9 +120,10 @@ test("the nav is a bottom bar on a phone and a left sidebar on a computer", asyn
   expect(await nav.evaluate((el) => getComputedStyle(el).position)).toBe(
     "fixed",
   );
-  expect(phone?.x).toBe(0);
-  expect(phone?.width).toBe(390);
-  expect((phone?.y ?? 0) + (phone?.height ?? 0)).toBeCloseTo(800, 0);
+  // The phone bar floats 16px in from the sides and the bottom
+  expect(phone?.x).toBe(16);
+  expect(phone?.width).toBe(358);
+  expect((phone?.y ?? 0) + (phone?.height ?? 0)).toBeCloseTo(784, 0);
 
   await page.setViewportSize({ width: 1280, height: 800 });
   const desktop = await nav.boundingBox();

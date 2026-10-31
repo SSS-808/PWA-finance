@@ -1,16 +1,25 @@
-import { ArrowLeft } from "lucide-react";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
+import {
+  HeroSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import {
   ArchiveButton,
   ContributionForm,
   ContributionHistory,
+  GoalIcon,
   GoalNotice,
+  GoalPercent,
   GoalProgress,
   UnarchiveButton,
   getGoal,
+  goalProgress,
 } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
 
@@ -20,14 +29,16 @@ export default function GoalPage({
 }: PageProps<"/goals/[id]">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Link
-        href="/goals"
-        className="inline-flex min-h-12 items-center gap-2 text-base text-muted-foreground"
+      <BackLink href="/goals" label={en.goals.back} />
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <HeroSkeleton />
+            <Skeleton className="h-44 rounded-2xl" />
+          </div>
+        }
       >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {en.goals.back}
-      </Link>
-      <Suspense>
         <GoalDetail params={params} searchParams={searchParams} />
       </Suspense>
     </div>
@@ -44,23 +55,36 @@ async function GoalDetail({
   const { id } = await params;
   const { notice } = await searchParams;
   const [goal, profile] = await Promise.all([getGoal(id), getProfile()]);
+  const today = todayIn(profile.timeZone);
+  const progress = goalProgress(goal, today);
 
   return (
     <div className="space-y-6">
       <GoalNotice notice={notice} />
-      <h1 className="text-3xl font-semibold tracking-tight break-words">
-        {goal.name}
-      </h1>
-      <div className="space-y-2">
-        <GoalProgress goal={goal} today={todayIn(profile.timeZone)} />
+      <div className="space-y-3 rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-3">
+          <GoalIcon reached={progress.reached} />
+          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight break-words">
+            {goal.name}
+          </h1>
+          <GoalPercent percent={progress.percent} reached={progress.reached} />
+        </div>
+        <GoalProgress goal={goal} today={today} />
       </div>
       {goal.archived ? null : (
         <ContributionForm goalId={goal.id} currency={goal.target.currency} />
       )}
       <ContributionHistory contributions={goal.contributions} />
       <div className="space-y-3">
-        <Button asChild variant="outline" className="h-12 w-full text-base">
-          <Link href={`/goals/${goal.id}/edit`}>{en.goals.edit}</Link>
+        <Button
+          asChild
+          variant="outline"
+          className="h-12 w-full rounded-xl bg-card text-base"
+        >
+          <Link href={`/goals/${goal.id}/edit`}>
+            <Pencil className="size-5" aria-hidden="true" />
+            {en.goals.edit}
+          </Link>
         </Button>
         {goal.archived ? (
           <UnarchiveButton id={goal.id} />

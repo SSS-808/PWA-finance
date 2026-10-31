@@ -86,8 +86,10 @@ export async function logOutFromSettings(page: Page) {
   await expect(page).toHaveURL(/\/login$/);
 }
 
-export function greeting(email: string): string {
-  return en.home.greeting.replace("{email}", email);
+// Home shows no email, so Settings is where the signed-in address is checked
+export async function expectSignedInAs(page: Page, email: string) {
+  await page.getByRole("link", { name: en.nav.settings }).click();
+  await expect(page.getByText(email, { exact: true })).toBeVisible();
 }
 
 // The dev server compiles each page the first time it is opened
@@ -186,7 +188,7 @@ export async function addAccount(page: Page, account: NewAccount) {
   if (account.amount) {
     await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
   }
-  await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
   await patient(page).toHaveURL(/\/accounts$/);
 }
 

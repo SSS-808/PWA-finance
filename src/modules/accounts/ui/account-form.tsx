@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState, useId, useState } from "react";
 import { AmountInput } from "@/components/shared/amount-input";
 import { HelpHint } from "@/components/shared/help-hint";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
@@ -28,7 +26,7 @@ import type {
 } from "../domain/types";
 import { createAccount, updateAccount } from "../server/actions";
 
-type AccountFormProps =
+type AccountFormProps = { title: string } & (
   | { mode: "create" }
   | {
       mode: "edit";
@@ -37,12 +35,13 @@ type AccountFormProps =
       name: string;
       type: AccountType;
       startingAmount: string;
-    };
+    }
+);
 
 const idleState: AccountFormState = { status: "idle" };
 
 const selectClass =
-  "h-12 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
+  "h-12 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 function FieldMessage({ id, error }: { id: string; error?: AccountErrorKey }) {
   if (!error) return null;
@@ -72,7 +71,6 @@ function startValues(props: AccountFormProps): AccountFormValues {
 
 export function AccountForm(props: AccountFormProps) {
   const uid = useId();
-  const editing = props.mode === "edit";
   const action =
     props.mode === "edit" ? updateAccount.bind(null, props.id) : createAccount;
   const [state, formAction] = useActionState(action, idleState);
@@ -85,6 +83,16 @@ export function AccountForm(props: AccountFormProps) {
 
   return (
     <form action={formAction} className="space-y-6">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
+        <h1 className="text-3xl font-semibold tracking-tight break-words">
+          {props.title}
+        </h1>
+        <SubmitButton
+          shape="pill"
+          label={en.accounts.form.save}
+          pendingLabel={en.accounts.form.saving}
+        />
+      </div>
       {state.error ? (
         <p
           role="alert"
@@ -106,7 +114,7 @@ export function AccountForm(props: AccountFormProps) {
           aria-invalid={Boolean(fieldErrors.name)}
           placeholder={en.accounts.form.namePlaceholder}
           aria-describedby={fieldErrors.name ? `${uid}-name-error` : undefined}
-          className="h-12 text-base"
+          className="h-12 bg-card text-base dark:bg-card"
         />
         <FieldMessage id={`${uid}-name-error`} error={fieldErrors.name} />
       </div>
@@ -201,32 +209,13 @@ export function AccountForm(props: AccountFormProps) {
             aria-describedby={
               fieldErrors.startingAmount ? `${uid}-amount-error` : undefined
             }
-            className="h-12 text-base"
+            className="h-12 bg-card text-base dark:bg-card"
           />
         </div>
         <FieldMessage
           id={`${uid}-amount-error`}
           error={fieldErrors.startingAmount}
         />
-      </div>
-      <div className="space-y-3">
-        <SubmitButton
-          label={
-            editing ? en.accounts.form.submitEdit : en.accounts.form.submitNew
-          }
-          pendingLabel={
-            editing
-              ? en.accounts.form.submittingEdit
-              : en.accounts.form.submittingNew
-          }
-        />
-        <Button asChild variant="outline" className="h-12 w-full text-base">
-          <Link
-            href={props.mode === "edit" ? `/accounts/${props.id}` : "/accounts"}
-          >
-            {en.accounts.form.cancel}
-          </Link>
-        </Button>
       </div>
     </form>
   );

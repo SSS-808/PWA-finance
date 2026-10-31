@@ -53,7 +53,7 @@ function notice(page: Page, message: string) {
 }
 
 function submitNew(page: Page) {
-  return page.getByRole("button", { name: en.accounts.form.submitNew });
+  return page.getByRole("button", { name: en.accounts.form.save });
 }
 
 async function addAccount(page: Page, account: NewAccount) {
@@ -150,7 +150,7 @@ test("accounts are grouped by currency with a total, and a debt shows as owed", 
   await expect(page).toHaveURL(/\/accounts$/);
 
   const dollars = page.getByRole("region", { name: en.currencies.USD });
-  await expect(accountLink(dollars, /Visa.*\$30\.00 owed/)).toBeVisible();
+  await expect(accountLink(dollars, /Visa.*Owed \$30\.00/)).toBeVisible();
   await expect(dollars.getByText(en.accounts.total).locator("..")).toHaveText(
     /^Total\s*-\$30\.00$/,
   );
@@ -192,7 +192,7 @@ test("editing changes the name and starting amount, and a taken name is refused"
 
   await nameBox(page).fill("Wallet cash");
   await amountBox(page).fill("2,000,000");
-  await page.getByRole("button", { name: en.accounts.form.submitEdit }).click();
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
   await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
   await expect(notice(page, en.accounts.notices.saved)).toBeVisible();
   await expect(

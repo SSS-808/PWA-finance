@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { listCategories } from "@/modules/categories";
@@ -10,10 +11,14 @@ export default function EditTransactionPage({
 }: PageProps<"/transactions/[id]">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.transactions.editTitle}
-      </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.transactions.editTitle} fields={4} />
+          </>
+        }
+      >
         <EditEntry params={params} />
       </Suspense>
     </div>
@@ -46,6 +51,7 @@ async function EditEntry({
   return (
     <div className="space-y-6">
       <EntryForm
+        title={en.transactions.editTitle}
         // A new key per visit: Next keeps the old form of an earlier visit, with stale values
         key={crypto.randomUUID()}
         mode="edit"

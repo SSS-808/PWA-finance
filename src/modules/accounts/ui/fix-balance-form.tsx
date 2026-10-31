@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState, useId } from "react";
 import { AmountInput } from "@/components/shared/amount-input";
 import { SubmitButton } from "@/components/shared/submit-button";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
@@ -28,10 +26,17 @@ function FieldMessage({ id, error }: { id: string; error?: AccountErrorKey }) {
 
 export function FixBalanceForm({
   id,
+  title,
+  accountName,
+  current,
   currency,
   owing,
 }: {
   id: string;
+  title: string;
+  accountName: string;
+  // The balance as the app shows it now, already formatted
+  current: string;
   currency: CurrencyCode;
   owing: boolean;
 }) {
@@ -46,6 +51,16 @@ export function FixBalanceForm({
 
   return (
     <form action={formAction} className="space-y-6">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
+        <h1 className="text-3xl font-semibold tracking-tight break-words">
+          {title}
+        </h1>
+        <SubmitButton
+          shape="pill"
+          label={en.accounts.fix.submit}
+          pendingLabel={en.accounts.fix.submitting}
+        />
+      </div>
       {state.error ? (
         <p
           role="alert"
@@ -54,12 +69,29 @@ export function FixBalanceForm({
           {en.accounts.errors[state.error]}
         </p>
       ) : null}
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-amount`} className="text-base">
+      <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4">
+        <p className="text-base break-words text-muted-foreground">
+          {accountName}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {en.accounts.fix.current}
+        </p>
+        <p className="text-2xl font-semibold tracking-tight tabular-nums">
+          {current}
+        </p>
+      </div>
+      <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+        <Label
+          htmlFor={`${uid}-amount`}
+          className="text-sm font-normal text-muted-foreground"
+        >
           {owing ? en.accounts.fix.debtLabel : en.accounts.fix.assetLabel}
         </Label>
-        <div className="flex items-center gap-2">
-          <span aria-hidden="true" className="text-3xl text-muted-foreground">
+        <div className="flex items-baseline gap-2">
+          <span
+            aria-hidden="true"
+            className="text-3xl font-semibold text-muted-foreground"
+          >
             {currencySymbol(currency)}
           </span>
           <AmountInput
@@ -71,7 +103,7 @@ export function FixBalanceForm({
             aria-describedby={
               fieldErrors.amount ? `${uid}-amount-error` : undefined
             }
-            className="h-16 text-3xl font-semibold tabular-nums md:text-3xl"
+            className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight text-foreground tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
           />
         </div>
         <FieldMessage id={`${uid}-amount-error`} error={fieldErrors.amount} />
@@ -87,17 +119,8 @@ export function FixBalanceForm({
           maxLength={MAX_NOTE_LENGTH}
           placeholder={en.accounts.fix.noteHint}
           defaultValue={values.note}
-          className="h-12 text-base"
+          className="h-12 bg-card text-base dark:bg-card"
         />
-      </div>
-      <div className="space-y-3">
-        <SubmitButton
-          label={en.accounts.fix.submit}
-          pendingLabel={en.accounts.fix.submitting}
-        />
-        <Button asChild variant="outline" className="h-12 w-full text-base">
-          <Link href={`/accounts/${id}`}>{en.accounts.form.cancel}</Link>
-        </Button>
       </div>
     </form>
   );
