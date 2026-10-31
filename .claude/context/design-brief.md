@@ -25,6 +25,16 @@ Three looks were drawn for Home and Add, light and dark: A "Emerald hero", B "Qu
 - Every category icon **always has its own colour**. The picked one is a solid circle in its colour.
 - Then Account and Date side by side, then Note.
 
+## Task 5 mockups (approved 2026-10-31)
+History, Accounts, Account details, Budgets and Goals were drawn on a private canvas (not in the repo), light and dark. The user approved them with one change: a debt reads "Owed ₭2,500,000", the word first.
+- **Headers:** title left, a small emerald "+ Add" pill right (Accounts, Budgets, Goals).
+- **History:** month switcher as a pill; a search box with a "Filters" button that opens Account, Category and Type; each day is a white card under its heading; a row shows the note and account on one line.
+- **Accounts:** one white card per currency, its name and total above it; a fixed icon per account type in soft emerald (no database change); debts in the expense colour.
+- **Account details:** an emerald card with name, type · currency and the big balance; Edit and Fix balance side by side; Recent with "See all"; Archive as a quiet link at the bottom.
+- **Budgets:** month switcher; one card per currency with the total on top, then a row per category with its icon and a bar in its colour; over budget turns red and says "over"; a row opens its edit page.
+- **Goals:** a card per goal with one target icon for all (no database change), the percent on the right, an emerald bar; a reached goal turns green with a tick.
+- **Forms** (account, fix balance, budget, goal): like Add, a sticky title with a Save pill on top, and a back link instead of Cancel.
+
 ## Where this came from
 - **Another AI's prompt** ("Build a Premium Responsive Expense Tracker PWA"). About 70% of it described things already built or already on the roadmap, so only its look-and-feel parts were kept.
 - **Pocket Clear** (https://pocketclear.app/), the app the user logs in every day. Eight of the user's own screenshots were reviewed (Home, Reports, Add), in dark mode with kip amounts. The pictures are not stored in the repo.

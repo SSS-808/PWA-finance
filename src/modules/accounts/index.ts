@@ -17,7 +17,9 @@ export {
 } from "./server/actions";
 export { AccountForm } from "./ui/account-form";
 export { AccountList } from "./ui/account-list";
+export { AccountTypeIcon } from "./ui/account-type-icon";
 export { ArchiveButton } from "./ui/archive-button";
+export { balanceText } from "./ui/balance-text";
 export { EmptyAccounts } from "./ui/empty-accounts";
 export { FixBalanceForm } from "./ui/fix-balance-form";
 export { Notice } from "./ui/notice";

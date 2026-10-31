@@ -188,7 +188,7 @@ export async function addAccount(page: Page, account: NewAccount) {
   if (account.amount) {
     await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
   }
-  await page.getByRole("button", { name: en.accounts.form.submitNew }).click();
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
   await patient(page).toHaveURL(/\/accounts$/);
 }
 
