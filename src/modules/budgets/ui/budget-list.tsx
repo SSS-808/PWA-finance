@@ -1,9 +1,34 @@
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import {
+  CategoryIcon,
+  categoryBarClass,
+} from "@/components/shared/category-icon";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { monthLabel } from "@/modules/transactions";
 import type { BudgetGroup, BudgetLine } from "../domain/calculations";
 import { Progress, fill } from "./budget-progress";
+
+function LineBody({ line }: { line: BudgetLine }) {
+  return (
+    <>
+      <CategoryIcon icon={line.icon} color={line.color} />
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <p className="text-base font-medium break-words">
+          {line.hidden
+            ? `${line.name} ${en.categories.hiddenSuffix}`
+            : line.name}
+        </p>
+        <Progress
+          label={line.name}
+          numbers={line}
+          fillClass={categoryBarClass(line.color)}
+        />
+      </div>
+    </>
+  );
+}
 
 function Line({
   line,
@@ -15,28 +40,29 @@ function Line({
   canEdit: boolean;
 }) {
   return (
-    <li className="space-y-2 py-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="min-w-0 text-base font-medium break-words">
-          {line.hidden
-            ? `${line.name} ${en.categories.hiddenSuffix}`
-            : line.name}
-        </p>
-        {canEdit ? (
-          <Link
-            href={`/budgets/edit?category=${line.categoryId}&currency=${currency}`}
-            className="inline-flex min-h-12 shrink-0 items-center rounded-lg px-3 text-base underline underline-offset-4"
-          >
-            {en.budgets.edit}
-          </Link>
-        ) : null}
-      </div>
-      <Progress label={line.name} numbers={line} />
+    <li>
+      {canEdit ? (
+        <Link
+          href={`/budgets/edit?category=${line.categoryId}&currency=${currency}`}
+          className="flex gap-3 px-4 py-3 hover:bg-muted"
+        >
+          <LineBody line={line} />
+          <span className="sr-only">{en.budgets.edit}</span>
+          <ChevronRight
+            className="size-5 shrink-0 self-center text-muted-foreground"
+            aria-hidden="true"
+          />
+        </Link>
+      ) : (
+        <div className="flex gap-3 px-4 py-3">
+          <LineBody line={line} />
+        </div>
+      )}
     </li>
   );
 }
 
-// One section per currency: a total line, then a line per budgeted category
+// One card per currency: a total on top, then a row per budgeted category
 export function BudgetList({
   groups,
   month,
@@ -48,7 +74,7 @@ export function BudgetList({
 }) {
   if (groups.length === 0) {
     return isCurrentMonth ? (
-      <div className="space-y-4 rounded-lg border border-border px-4 py-6">
+      <div className="space-y-4 rounded-2xl border border-border bg-card px-5 py-6">
         <h2 className="text-xl font-semibold">{en.budgets.empty}</h2>
         <Button asChild className="h-12 w-full text-base">
           <Link href="/budgets/new">{en.budgets.add}</Link>
@@ -67,19 +93,19 @@ export function BudgetList({
         <section
           key={group.currency}
           aria-labelledby={`budgets-${group.currency}`}
-          className="space-y-3 rounded-lg border border-border px-4 py-5"
+          className="overflow-hidden rounded-2xl border border-border bg-card"
         >
-          <h2
-            id={`budgets-${group.currency}`}
-            className="text-xl font-semibold"
-          >
-            {en.currencies[group.currency]}
-          </h2>
-          <div className="space-y-2">
-            <p className="text-base font-semibold">{en.budgets.total}</p>
+          <div className="space-y-2 px-4 py-4">
+            <h2
+              id={`budgets-${group.currency}`}
+              className="text-sm font-medium text-muted-foreground"
+            >
+              {en.currencies[group.currency]} <span aria-hidden="true">·</span>{" "}
+              {en.budgets.total}
+            </h2>
             <Progress label={en.budgets.total} numbers={group} />
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border border-t border-border">
             {group.lines.map((line) => (
               <Line
                 key={line.categoryId}
@@ -91,11 +117,6 @@ export function BudgetList({
           </ul>
         </section>
       ))}
-      {isCurrentMonth ? (
-        <Button asChild className="h-12 w-full text-base">
-          <Link href="/budgets/new">{en.budgets.add}</Link>
-        </Button>
-      ) : null}
     </div>
   );
 }

@@ -1,6 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { en } from "@/messages/en";
 import { BudgetForm, EndButton, getBudgetToEdit } from "@/modules/budgets";
 import { money, toDecimalString } from "@/modules/money";
@@ -10,16 +9,7 @@ export default function EditBudgetPage({
 }: PageProps<"/budgets/edit">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Link
-        href="/budgets"
-        className="inline-flex min-h-12 items-center gap-2 text-base text-muted-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {en.budgets.back}
-      </Link>
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.budgets.editTitle}
-      </h1>
+      <BackLink href="/budgets" label={en.budgets.back} />
       <Suspense>
         <EditBudgetContent searchParams={searchParams} />
       </Suspense>
@@ -42,6 +32,7 @@ async function EditBudgetContent({
     <div className="space-y-6">
       <BudgetForm
         mode="edit"
+        title={en.budgets.editTitle}
         categoryId={budget.categoryId}
         categoryName={budget.categoryName}
         currency={budget.currency}

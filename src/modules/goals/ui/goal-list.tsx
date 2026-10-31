@@ -1,24 +1,31 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
-import type { Goal } from "../domain/calculations";
-import { GoalProgress } from "./goal-progress";
+import { type Goal, goalProgress } from "../domain/calculations";
+import { GoalIcon } from "./goal-icon";
+import { GoalPercent, GoalProgress } from "./goal-progress";
 
 function GoalCard({ goal, today }: { goal: Goal; today: string }) {
+  const progress = goalProgress(goal, today);
   return (
-    <li className="space-y-2 rounded-lg border border-border px-4 py-4">
+    <li>
       <Link
         href={`/goals/${goal.id}`}
-        className="inline-flex min-h-12 items-center text-base font-medium break-words underline underline-offset-4"
+        className="block space-y-3 rounded-2xl border border-border bg-card p-4 hover:bg-muted"
       >
-        {goal.name}
+        <div className="flex items-center gap-3">
+          <GoalIcon reached={progress.reached} />
+          <span className="min-w-0 flex-1 text-base font-semibold break-words">
+            {goal.name}
+          </span>
+          <GoalPercent percent={progress.percent} reached={progress.reached} />
+        </div>
+        <GoalProgress goal={goal} today={today} />
       </Link>
-      <GoalProgress goal={goal} today={today} />
     </li>
   );
 }
 
-// Goals as cards; the active list also has the add link, and an empty one says so
+// Goals as cards; an empty active list says so, and the header pill adds a goal
 export function GoalList({
   goals,
   today,
@@ -43,20 +50,19 @@ export function GoalList({
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {goals.length === 0 ? (
+  if (goals.length === 0) {
+    return (
+      <div className="rounded-2xl border border-border bg-card px-5 py-6">
         <p className="text-xl font-semibold">{en.goals.empty}</p>
-      ) : (
-        <ul className="space-y-3">
-          {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} today={today} />
-          ))}
-        </ul>
-      )}
-      <Button asChild className="h-12 w-full text-base">
-        <Link href="/goals/new">{en.goals.add}</Link>
-      </Button>
-    </div>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="space-y-3">
+      {goals.map((goal) => (
+        <GoalCard key={goal.id} goal={goal} today={today} />
+      ))}
+    </ul>
   );
 }

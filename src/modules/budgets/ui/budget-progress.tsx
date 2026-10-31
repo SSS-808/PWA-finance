@@ -17,9 +17,11 @@ export function fill(text: string, values: Record<string, string>): string {
 export function Progress({
   label,
   numbers,
+  fillClass,
 }: {
   label: string;
   numbers: Numbers;
+  fillClass?: string;
 }) {
   const { budget, spent, left, percent } = numbers;
   const over = left.minor < 0;
@@ -36,6 +38,7 @@ export function Progress({
         label={label}
         percent={percent}
         tone={over ? "over" : "default"}
+        fillClass={fillClass}
       />
       <p
         className={cn(

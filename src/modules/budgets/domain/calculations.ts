@@ -25,12 +25,20 @@ export type ExpenseRow = {
   amountMinor: number;
 };
 
-export type BudgetCategory = { id: string; name: string; hidden: boolean };
+export type BudgetCategory = {
+  id: string;
+  name: string;
+  hidden: boolean;
+  icon: string;
+  color: string;
+};
 
 export type BudgetLine = {
   categoryId: string;
   name: string;
   hidden: boolean;
+  icon: string;
+  color: string;
   budget: Money;
   spent: Money;
   left: Money;
@@ -125,6 +133,8 @@ export function budgetGroups(
         categoryId: change.categoryId,
         name: category.name,
         hidden: category.hidden,
+        icon: category.icon,
+        color: category.color,
         budget,
         spent,
         left: subtract(budget, spent),
