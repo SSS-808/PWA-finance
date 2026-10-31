@@ -119,10 +119,15 @@ Each task has its own branch from `dev` and a PR into `dev`.
 3. Category icons and colours: the migration, then the pickers and lists (done 2026-10-12). 24 icons and 10 colours; the keys live in `categories/domain/types.ts` and must match the migration's check constraints. The badge is `src/components/shared/category-icon.tsx`: it sits outside the categories module because client components can't import that module's barrel (it holds server code), and `domain/` files of other modules keep the icon and colour as plain strings because they may only import the money module.
 4. Add: Save on top, the amount card, the category row (done 2026-10-12). The two edit screens share the forms, so they changed too. The title now lives inside the form, so these pages show no title while they load: fix it with the loading states in task 5. The Next.js dev badge is switched off (`next.config.ts`) because it sat on top of Save.
 5. Every other screen, plus loading states and the accessibility pass (done 2026-10-31, PRs #25–#30). Accounts, History, Budgets and Goals follow the approved mockups; Settings, sign-in and problem pages follow the same rules. Every `<Suspense>` has a skeleton fallback (`components/shared/skeleton.tsx`). `tests/e2e/accessibility.spec.ts` runs axe (WCAG 2.2 AA tags) on 14 signed-in and 3 signed-out pages, light and dark: no problems found. A keyboard walk-through of History showed a logical order with a visible focus ring on every stop.
-6. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers. All project checks pass.
+6. Measure at 320, 390, 768, 1024, 1280 and 1440px, light and dark: page width = screen width, no overflow, no broken lines. Report the numbers. All project checks pass. (Done 2026-10-31.) 21 pages (18 signed in, login, forgot password, 404) × 6 widths × light and dark = 252 views, measured in the browser with the seed data:
+   - Sideways overflow (`scrollWidth − clientWidth`): **0 px in all 252**. Exactly one `<h1>` in every view.
+   - Fixed: the picked category on Add and Edit turned bold, so "Transportation" (79 px, 85 px bold) broke mid-word at 375 and 390 px, where a label has 79–83 px. The picked label now keeps its normal weight; the solid circle shows the pick.
+   - Left as is: at 320 px a label has 65 px, so "Transportation" and "Entertainment" still split over two lines there (Chrome on Windows adds no hyphen). Nothing is cut off.
+   - Fine: on Budgets at 320 px "₭45,000 of ₭2,000,000" wraps between words, never inside a number.
+   - Not problems (how the script counts): icons on the swipe row's later pages sit off screen by design; the closed Filters panel's links; the screen-reader "Total" word in Accounts totals.
 
 ## Still open
-- Measured in the Add task: at 320px "Transportation" and "Entertainment" go onto two lines with a hyphen; nothing is cut off.
+- At 320px "Transportation" and "Entertainment" go onto two lines in the category picker (no hyphen in Chrome on Windows); nothing is cut off. See task 6.
 - Lunch Money's transaction list could not be loaded during the research. Look again before the History screen.
 - Pocket Clear's Budgets tab was seen on its website on 2026-10-12: a ring with the percent used, then one thin bar per category. Ours already works that way.
 - Bringing over the user's Pocket Clear history (about 233 entries, May to September 2026) is only an idea. CSV export is a paid feature there.
