@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  CardListSkeleton,
+  HeroSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { ToastOnce } from "@/components/shared/toast-once";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
@@ -25,7 +31,19 @@ export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
     <div className="w-full max-w-2xl space-y-4">
       <h1 className="sr-only">{en.dashboard.title}</h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-4">
+            <LoadingStatus />
+            <HeroSkeleton />
+            <div aria-hidden="true" className="grid grid-cols-2 gap-3">
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+            </div>
+            <CardListSkeleton rows={3} />
+          </div>
+        }
+      >
         <HomeContent searchParams={searchParams} />
       </Suspense>
     </div>

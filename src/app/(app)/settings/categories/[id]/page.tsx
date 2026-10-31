@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   CategoryForm,
@@ -17,7 +18,14 @@ export default function CategoryPage({
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.categories.detail.title}
       </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton fields={2} />
+          </>
+        }
+      >
         <CategoryDetail params={params} />
       </Suspense>
     </div>

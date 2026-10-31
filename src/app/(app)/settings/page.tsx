@@ -2,6 +2,11 @@ import { ChevronRight, Download, KeyRound, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  FormSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { LogoutButton, requireUser } from "@/modules/auth";
@@ -49,7 +54,14 @@ export default function SettingsPage() {
           {en.settings.profile.title}
         </h2>
         <div className={cn(cardClass, "p-5")}>
-          <Suspense>
+          <Suspense
+            fallback={
+              <>
+                <LoadingStatus />
+                <FormSkeleton fields={3} />
+              </>
+            }
+          >
             <ProfileSection />
           </Suspense>
         </div>
@@ -79,7 +91,14 @@ export default function SettingsPage() {
           {en.settings.account.title}
         </h2>
         <div className={cn(cardClass, "divide-y divide-border")}>
-          <Suspense>
+          <Suspense
+            fallback={
+              <div className="px-4 py-3">
+                <LoadingStatus />
+                <Skeleton className="h-10 w-48" />
+              </div>
+            }
+          >
             <AccountEmail />
           </Suspense>
           <Link href="/reset-password" className={rowClass}>

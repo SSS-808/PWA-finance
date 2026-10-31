@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AddLink } from "@/components/shared/add-link";
+import { LoadingStatus, Skeleton } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { GoalList, GoalNotice, listGoals } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
@@ -17,7 +18,16 @@ export default function GoalsPage({ searchParams }: PageProps<"/goals">) {
         </h1>
         <AddLink href="/goals/new" label={en.goals.add} />
       </div>
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-3">
+            <LoadingStatus />
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+            <Skeleton className="h-32 rounded-2xl" />
+          </div>
+        }
+      >
         <GoalsContent searchParams={searchParams} />
       </Suspense>
     </div>

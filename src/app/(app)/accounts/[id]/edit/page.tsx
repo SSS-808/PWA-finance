@@ -1,5 +1,10 @@
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import {
+  FormSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { AccountForm, displayBalance, getAccount } from "@/modules/accounts";
 import { isZero, toDecimalString } from "@/modules/money";
@@ -9,7 +14,15 @@ export default function EditAccountPage({
 }: PageProps<"/accounts/[id]/edit">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <Skeleton className="h-6 w-24" />
+            <FormSkeleton title={en.accounts.form.editTitle} />
+          </div>
+        }
+      >
         <EditForm params={params} />
       </Suspense>
     </div>

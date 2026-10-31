@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { BudgetForm } from "@/modules/budgets";
@@ -12,7 +13,14 @@ export default function NewBudgetPage() {
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/budgets" label={en.budgets.back} />
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.budgets.newTitle} />
+          </>
+        }
+      >
         <NewBudgetContent />
       </Suspense>
     </div>
