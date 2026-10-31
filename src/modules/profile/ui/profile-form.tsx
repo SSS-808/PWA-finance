@@ -15,7 +15,7 @@ import { updateProfile } from "../server/actions";
 const idleState: ProfileFormState = { status: "idle" };
 
 const selectClass =
-  "h-12 w-full rounded-lg border border-input bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
+  "h-12 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
 function FieldMessage({ id, error }: { id: string; error?: ProfileErrorKey }) {
   if (!error) return null;
@@ -73,7 +73,7 @@ export function ProfileForm({
           aria-describedby={
             fieldErrors.displayName ? "profile-name-error" : undefined
           }
-          className="h-12 text-base"
+          className="h-12 bg-card text-base dark:bg-card"
         />
         <FieldMessage id="profile-name-error" error={fieldErrors.displayName} />
       </div>

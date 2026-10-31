@@ -1,6 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { en } from "@/messages/en";
 import {
   CategoryForm,
@@ -14,13 +13,7 @@ export default function CategoryPage({
 }: PageProps<"/settings/categories/[id]">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Link
-        href="/settings/categories"
-        className="inline-flex min-h-12 items-center gap-2 text-base text-muted-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {en.categories.backToList}
-      </Link>
+      <BackLink href="/settings/categories" label={en.categories.backToList} />
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.categories.detail.title}
       </h1>

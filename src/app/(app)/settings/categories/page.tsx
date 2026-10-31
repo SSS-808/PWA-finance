@@ -1,6 +1,6 @@
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { en } from "@/messages/en";
 import {
   CategoryForm,
@@ -10,20 +10,14 @@ import {
 } from "@/modules/categories";
 
 const toggleClass =
-  "inline-flex min-h-12 items-center font-medium underline underline-offset-4";
+  "flex min-h-11 items-center justify-center text-base font-medium text-muted-foreground underline underline-offset-4";
 
 export default function CategoriesPage({
   searchParams,
 }: PageProps<"/settings/categories">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex min-h-12 items-center gap-2 text-base text-muted-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {en.categories.backToSettings}
-      </Link>
+      <BackLink href="/settings" label={en.categories.backToSettings} />
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.categories.title}
       </h1>
@@ -48,11 +42,16 @@ async function CategoriesContent({
   return (
     <div className="space-y-8">
       <CategoryNotice notice={notice} />
-      <section aria-labelledby="categories-add" className="space-y-4">
-        <h2 id="categories-add" className="text-xl font-semibold">
+      <section aria-labelledby="categories-add" className="space-y-2">
+        <h2
+          id="categories-add"
+          className="px-1 text-sm font-medium text-muted-foreground"
+        >
           {en.categories.addTitle}
         </h2>
-        <CategoryForm mode="create" />
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <CategoryForm mode="create" />
+        </div>
       </section>
       <CategoryList
         id="categories-expense"
