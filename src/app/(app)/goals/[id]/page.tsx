@@ -2,6 +2,11 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import {
+  HeroSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import {
@@ -25,7 +30,15 @@ export default function GoalPage({
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/goals" label={en.goals.back} />
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <HeroSkeleton />
+            <Skeleton className="h-44 rounded-2xl" />
+          </div>
+        }
+      >
         <GoalDetail params={params} searchParams={searchParams} />
       </Suspense>
     </div>

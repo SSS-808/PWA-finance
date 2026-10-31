@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { BudgetForm, EndButton, getBudgetToEdit } from "@/modules/budgets";
 import { money, toDecimalString } from "@/modules/money";
@@ -10,7 +11,14 @@ export default function EditBudgetPage({
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/budgets" label={en.budgets.back} />
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.budgets.editTitle} />
+          </>
+        }
+      >
         <EditBudgetContent searchParams={searchParams} />
       </Suspense>
     </div>

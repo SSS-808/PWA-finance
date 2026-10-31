@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import {
+  FormSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   FixBalanceForm,
@@ -14,7 +19,15 @@ export default function FixBalancePage({
 }: PageProps<"/accounts/[id]/fix-balance">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <Skeleton className="h-6 w-24" />
+            <FormSkeleton title={en.accounts.fix.title} />
+          </div>
+        }
+      >
         <FixBalance params={params} />
       </Suspense>
     </div>

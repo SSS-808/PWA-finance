@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AddLink } from "@/components/shared/add-link";
+import { CardListSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   AccountList,
@@ -22,7 +23,14 @@ export default function AccountsPage({ searchParams }: PageProps<"/accounts">) {
         </h1>
         <AddLink href="/accounts/new" label={en.accounts.add} />
       </div>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <CardListSkeleton rows={3} />
+          </>
+        }
+      >
         <AccountsContent searchParams={searchParams} />
       </Suspense>
     </div>

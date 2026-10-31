@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { listCategories } from "@/modules/categories";
@@ -10,7 +11,14 @@ export default function EditTransactionPage({
 }: PageProps<"/transactions/[id]">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.transactions.editTitle} fields={4} />
+          </>
+        }
+      >
         <EditEntry params={params} />
       </Suspense>
     </div>

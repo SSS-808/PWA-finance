@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  CardListSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
@@ -23,7 +28,21 @@ export default function TransactionsPage({
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.transactions.title}
       </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <div aria-hidden="true" className="space-y-3">
+              <Skeleton className="h-13 rounded-full" />
+              <Skeleton className="h-12 rounded-xl" />
+            </div>
+            <div className="space-y-5">
+              <CardListSkeleton rows={4} />
+              <CardListSkeleton rows={4} />
+            </div>
+          </div>
+        }
+      >
         <HistoryContent searchParams={searchParams} />
       </Suspense>
     </div>

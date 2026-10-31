@@ -2,6 +2,12 @@ import { Pencil, Scale } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import {
+  CardListSkeleton,
+  HeroSkeleton,
+  LoadingStatus,
+  Skeleton,
+} from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import {
@@ -29,7 +35,19 @@ export default function AccountPage({
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/accounts" label={en.accounts.detail.back} />
-      <Suspense>
+      <Suspense
+        fallback={
+          <div className="space-y-6">
+            <LoadingStatus />
+            <HeroSkeleton />
+            <div aria-hidden="true" className="grid grid-cols-2 gap-3">
+              <Skeleton className="h-12 rounded-xl" />
+              <Skeleton className="h-12 rounded-xl" />
+            </div>
+            <CardListSkeleton rows={3} />
+          </div>
+        }
+      >
         <AccountDetail params={params} searchParams={searchParams} />
       </Suspense>
     </div>

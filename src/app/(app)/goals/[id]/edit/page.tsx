@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { GoalForm, getGoal } from "@/modules/goals";
 import { toDecimalString } from "@/modules/money";
@@ -10,7 +11,14 @@ export default function EditGoalPage({
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/goals" label={en.goals.back} />
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.goals.editTitle} />
+          </>
+        }
+      >
         <EditGoalContent params={params} />
       </Suspense>
     </div>

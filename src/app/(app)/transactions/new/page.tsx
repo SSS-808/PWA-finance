@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { EmptyAccounts, listAccounts } from "@/modules/accounts";
 import { safeNextPath } from "@/modules/auth";
@@ -11,7 +12,14 @@ export default function NewTransactionPage({
 }: PageProps<"/transactions/new">) {
   return (
     <div className="w-full max-w-md space-y-6">
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <FormSkeleton title={en.transactions.addTitle} fields={4} />
+          </>
+        }
+      >
         <NewEntry searchParams={searchParams} />
       </Suspense>
     </div>

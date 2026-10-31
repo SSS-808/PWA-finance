@@ -2,7 +2,7 @@ export const en = {
   help: {
     about: "About {field}",
   },
-  common: { add: "Add" },
+  common: { add: "Add", loading: "Loading…" },
   app: {
     name: "Personal Wallet",
     tagline: "Track every kip, dollar and baht.",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { CardListSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   CategoryForm,
@@ -21,7 +22,14 @@ export default function CategoriesPage({
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.categories.title}
       </h1>
-      <Suspense>
+      <Suspense
+        fallback={
+          <>
+            <LoadingStatus />
+            <CardListSkeleton rows={5} />
+          </>
+        }
+      >
         <CategoriesContent searchParams={searchParams} />
       </Suspense>
     </div>
