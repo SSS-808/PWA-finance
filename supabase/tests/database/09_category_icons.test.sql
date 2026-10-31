@@ -34,7 +34,7 @@ select is((select count(*) from public.categories where name = 'Coffee beans'), 
 update public.categories set icon = 'car' where name = 'Coffee beans';
 
 reset role;
-select is((select icon from public.categories where name = 'Coffee beans'), 'coffee', 'another user cannot change the icon');
+select is((select icon from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and name = 'Coffee beans'), 'coffee', 'another user cannot change the icon');
 
 select * from finish();
 rollback;
