@@ -11,7 +11,7 @@ select is((select icon || '/' || color from public.categories where user_id = 'a
 select is((select icon || '/' || color from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and kind = 'income' and name = 'Salary'), 'briefcase/green', 'Salary starts as the green briefcase');
 select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and icon = 'tag'), 0::bigint, 'no default category is left on the neutral tag');
 select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and icon = 'ellipsis' and color = 'gray'), 2::bigint, 'both Other categories are the grey dots');
-select is((select count(distinct icon) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 14::bigint, 'the 15 default categories use 14 different icons');
+select is((select count(distinct icon) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 15::bigint, 'the 16 default categories use 15 different icons');
 
 set local role authenticated;
 set local request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';

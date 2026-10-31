@@ -147,10 +147,13 @@ create table public.accounts (
   name text not null check (char_length(name) between 1 and 60),
   type text not null check (type in ('cash', 'bank', 'savings', 'credit_card', 'loan', 'investment', 'other')),
   currency char(3) not null references public.currencies (code),
+  -- What the bank keeps (since 2026-10-31): free to spend = balance − this; debts have none
+  minimum_minor bigint not null default 0 check (minimum_minor >= 0),
   archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (id, user_id, currency)  -- target for the composite foreign key below
+  unique (id, user_id, currency),  -- target for the composite foreign key below
+  check (minimum_minor = 0 or type not in ('credit_card', 'loan'))
 );
 -- One name once per currency (since 2026-10-31), so "BCEL" can be kip, dollars and baht, shown as one card
 create unique index accounts_active_name_uq on public.accounts (user_id, lower(name), currency) where archived_at is null;
@@ -364,7 +367,7 @@ begin
   from (values
     ('Food', 'expense'), ('Transportation', 'expense'), ('Education', 'expense'),
     ('Entertainment', 'expense'), ('Shopping', 'expense'), ('Bills', 'expense'),
-    ('Healthcare', 'expense'), ('Travel', 'expense'), ('Other', 'expense'),
+    ('Healthcare', 'expense'), ('Travel', 'expense'), ('Bank fees', 'expense'), ('Other', 'expense'),  -- Bank fees since 2026-10-31
     ('Salary', 'income'), ('Freelance', 'income'), ('Business', 'income'),
     ('Investment', 'income'), ('Gift', 'income'), ('Other', 'income')
   ) as c (name, kind);

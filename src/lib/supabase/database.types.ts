@@ -15,6 +15,7 @@ export type Database = {
           created_at: string;
           currency: string;
           id: string;
+          minimum_minor: number;
           name: string;
           type: string;
           updated_at: string;
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string;
           currency: string;
           id?: string;
+          minimum_minor?: number;
           name: string;
           type: string;
           updated_at?: string;
@@ -36,6 +38,7 @@ export type Database = {
           created_at?: string;
           currency?: string;
           id?: string;
+          minimum_minor?: number;
           name?: string;
           type?: string;
           updated_at?: string;
@@ -499,6 +502,7 @@ export type Database = {
       create_account: {
         Args: {
           p_currency: string;
+          p_minimum_minor: number;
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;
@@ -530,6 +534,7 @@ export type Database = {
       update_account: {
         Args: {
           p_account_id: string;
+          p_minimum_minor: number;
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;

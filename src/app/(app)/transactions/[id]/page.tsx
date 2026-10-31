@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
-import { listAccounts } from "@/modules/accounts";
+import { freeToSpend, listAccounts } from "@/modules/accounts";
 import { listCategories } from "@/modules/categories";
-import { isNegative, negate, toDecimalString } from "@/modules/money";
+import { isNegative, isZero, negate, toDecimalString } from "@/modules/money";
 import { DeleteEntryButton, EntryForm, getEntry } from "@/modules/transactions";
 
 export default function EditTransactionPage({
@@ -40,10 +40,12 @@ async function EditEntry({
   // The entry's own account stays in the list even if it was archived since
   const options = accounts
     .filter((account) => !account.archived || account.id === entry.accountId)
-    .map(({ id: accountId, name, currency }) => ({
+    .map(({ id: accountId, name, currency, balance, minimum }) => ({
       id: accountId,
       name,
       currency,
+      free: isZero(minimum) ? null : freeToSpend(balance, minimum),
+      minimum: isZero(minimum) ? null : minimum,
     }));
   // The form shows the amount without a sign; the Income/Expense switch carries the sign
   const size = isNegative(entry.amount) ? negate(entry.amount) : entry.amount;

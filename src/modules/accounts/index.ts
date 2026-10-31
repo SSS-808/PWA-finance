@@ -2,6 +2,7 @@ export { ACCOUNT_TYPES, isAccountType, isDebt } from "./domain/account-types";
 export type { AccountType } from "./domain/account-types";
 export {
   displayBalance,
+  freeToSpend,
   groupByCurrency,
   sameNameOthers,
 } from "./domain/calculations";

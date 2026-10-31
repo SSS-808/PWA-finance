@@ -28,6 +28,7 @@ export const CATEGORY_ICONS = [
   "paw-print",
   "dumbbell",
   "wrench",
+  "landmark",
 ] as const;
 
 export type CategoryIconKey = (typeof CATEGORY_ICONS)[number];

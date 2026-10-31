@@ -10,6 +10,7 @@ import {
   GraduationCap,
   HeartPulse,
   House,
+  Landmark,
   Laptop,
   PawPrint,
   Plane,
@@ -53,6 +54,7 @@ const ICONS: Record<CategoryIconKey, LucideIcon> = {
   "paw-print": PawPrint,
   dumbbell: Dumbbell,
   wrench: Wrench,
+  landmark: Landmark,
 };
 
 // Tailwind only sees whole class names, so every colour is spelled out

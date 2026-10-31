@@ -11,6 +11,8 @@ import {
   CURRENCY_CODES,
   type CurrencyCode,
   currencySymbol,
+  isCurrencyCode,
+  toDecimalString,
 } from "@/modules/money";
 import {
   ACCOUNT_TYPES,
@@ -18,6 +20,7 @@ import {
   isAccountType,
   isDebt,
 } from "../domain/account-types";
+import { defaultMinimum } from "../domain/calculations";
 import { MAX_NAME_LENGTH } from "../domain/schemas";
 import type {
   AccountErrorKey,
@@ -40,6 +43,7 @@ type AccountFormProps = { title: string } & (
       name: string;
       type: AccountType;
       startingAmount: string;
+      minimum: string;
     }
 );
 
@@ -57,6 +61,12 @@ function FieldMessage({ id, error }: { id: string; error?: AccountErrorKey }) {
   );
 }
 
+// The minimum a new account starts with, as typed in the box
+function defaultMinimumText(type: string, currency: string): string {
+  if (!isAccountType(type) || !isCurrencyCode(currency)) return "";
+  return toDecimalString(defaultMinimum(type, currency));
+}
+
 function startValues(props: AccountFormProps): AccountFormValues {
   if (props.mode === "edit") {
     return {
@@ -64,13 +74,17 @@ function startValues(props: AccountFormProps): AccountFormValues {
       type: props.type,
       currency: props.currency,
       startingAmount: props.startingAmount,
+      minimum: props.minimum,
     };
   }
+  const type = props.type ?? ACCOUNT_TYPES[0];
+  const currency = props.currency ?? CURRENCY_CODES[0];
   return {
     name: props.name ?? "",
-    type: props.type ?? ACCOUNT_TYPES[0],
-    currency: props.currency ?? CURRENCY_CODES[0],
+    type,
+    currency,
     startingAmount: "",
+    minimum: defaultMinimumText(type, currency),
   };
 }
 
@@ -85,6 +99,18 @@ export function AccountForm(props: AccountFormProps) {
   const [type, setType] = useState(current.type);
   const [currency, setCurrency] = useState(current.currency);
   const owing = isAccountType(type) && isDebt(type);
+  // A new account follows the default minimum of its type and currency until the person types their own
+  const [minimumTyped, setMinimumTyped] = useState(false);
+  const [minimumKey, setMinimumKey] = useState(0);
+  const minimumStart =
+    props.mode === "create" && !minimumTyped
+      ? defaultMinimumText(type, currency)
+      : current.minimum;
+
+  function followDefault() {
+    // A new key remounts the box, because React keeps the old default after the value changed
+    if (!minimumTyped) setMinimumKey((key) => key + 1);
+  }
 
   return (
     <form action={formAction} className="space-y-6">
@@ -133,7 +159,10 @@ export function AccountForm(props: AccountFormProps) {
           id={`${uid}-type`}
           name="type"
           defaultValue={current.type}
-          onChange={(event) => setType(event.target.value)}
+          onChange={(event) => {
+            setType(event.target.value);
+            followDefault();
+          }}
           aria-invalid={Boolean(fieldErrors.type)}
           aria-describedby={fieldErrors.type ? `${uid}-type-error` : undefined}
           className={selectClass}
@@ -175,7 +204,10 @@ export function AccountForm(props: AccountFormProps) {
               id={`${uid}-currency`}
               name="currency"
               defaultValue={current.currency}
-              onChange={(event) => setCurrency(event.target.value)}
+              onChange={(event) => {
+                setCurrency(event.target.value);
+                followDefault();
+              }}
               aria-invalid={Boolean(fieldErrors.currency)}
               aria-describedby={
                 fieldErrors.currency ? `${uid}-currency-error` : undefined
@@ -221,6 +253,34 @@ export function AccountForm(props: AccountFormProps) {
           id={`${uid}-amount-error`}
           error={fieldErrors.startingAmount}
         />
+      </div>
+      <div hidden={owing} className="space-y-2">
+        <div className="flex items-center gap-1">
+          <Label htmlFor={`${uid}-minimum`} className="text-base">
+            {en.accounts.form.minimum}
+          </Label>
+          <HelpHint label={en.accounts.form.minimum}>
+            {en.accounts.form.minimumHint}
+          </HelpHint>
+        </div>
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className="text-base text-muted-foreground">
+            {currencySymbol(currency)}
+          </span>
+          <AmountInput
+            key={minimumKey}
+            id={`${uid}-minimum`}
+            name="minimum"
+            defaultValue={minimumStart}
+            onChange={() => setMinimumTyped(true)}
+            aria-invalid={Boolean(fieldErrors.minimum)}
+            aria-describedby={
+              fieldErrors.minimum ? `${uid}-minimum-error` : undefined
+            }
+            className="h-12 bg-card text-base dark:bg-card"
+          />
+        </div>
+        <FieldMessage id={`${uid}-minimum-error`} error={fieldErrors.minimum} />
       </div>
     </form>
   );

@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
-import { EmptyAccounts, listAccounts } from "@/modules/accounts";
+import { EmptyAccounts, freeToSpend, listAccounts } from "@/modules/accounts";
 import { safeNextPath } from "@/modules/auth";
 import { listCategories } from "@/modules/categories";
+import { isZero } from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
 import { AddForm, readLastAccountId } from "@/modules/transactions";
 
@@ -65,10 +66,12 @@ async function NewEntry({
       key={crypto.randomUUID()}
       returnTo={safeNextPath(typeof from === "string" ? from : null)}
       initialKind={kind === "income" ? "income" : "expense"}
-      accounts={active.map(({ id, name, currency }) => ({
+      accounts={active.map(({ id, name, currency, balance, minimum }) => ({
         id,
         name,
         currency,
+        free: isZero(minimum) ? null : freeToSpend(balance, minimum),
+        minimum: isZero(minimum) ? null : minimum,
       }))}
       expenseCategories={expenseCategories}
       incomeCategories={incomeCategories}

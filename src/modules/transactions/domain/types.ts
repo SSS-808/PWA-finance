@@ -54,10 +54,13 @@ export type EntryFormState = {
   fieldErrors?: Partial<Record<EntryFieldName, TransactionErrorKey>>;
 };
 
+// free and minimum are null for an account that has no minimum
 export type AccountOption = {
   id: string;
   name: string;
   currency: CurrencyCode;
+  free: Money | null;
+  minimum: Money | null;
 };
 
 export type CategoryOption = {

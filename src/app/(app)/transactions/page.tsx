@@ -79,7 +79,14 @@ async function HistoryContent({
         filters={filters}
         today={today}
         count={count}
-        accounts={accounts}
+        // The filter list only needs names, so no minimum is passed
+        accounts={accounts.map(({ id, name, currency }) => ({
+          id,
+          name,
+          currency,
+          free: null,
+          minimum: null,
+        }))}
         expenseCategories={categories.filter(
           (category) => category.kind === "expense",
         )}

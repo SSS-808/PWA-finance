@@ -11,13 +11,15 @@ export const ACCOUNT_ERROR_KEYS = [
   "amount_negative",
   "amount_too_many_decimals",
   "amount_too_large",
+  "minimum_negative",
   "not_found",
   "unknown",
 ] as const;
 
 export type AccountErrorKey = (typeof ACCOUNT_ERROR_KEYS)[number];
 
-export type AccountFieldName = "name" | "type" | "currency" | "startingAmount";
+export type AccountFieldName =
+  "name" | "type" | "currency" | "startingAmount" | "minimum";
 
 export type AccountFormValues = Record<AccountFieldName, string>;
 
@@ -46,4 +48,5 @@ export type Account = {
   currency: CurrencyCode;
   archived: boolean;
   balance: Money;
+  minimum: Money;
 };

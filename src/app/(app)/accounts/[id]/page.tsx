@@ -9,6 +9,7 @@ import {
   Skeleton,
 } from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import {
   AccountTypeIcon,
@@ -17,11 +18,17 @@ import {
   Notice,
   UnarchiveButton,
   balanceText,
+  freeToSpend,
   getAccount,
   listAccounts,
   sameNameOthers,
 } from "@/modules/accounts";
-import { CURRENCY_CODES } from "@/modules/money";
+import {
+  CURRENCY_CODES,
+  formatMoney,
+  isNegative,
+  isZero,
+} from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
 import {
   HistoryList,
@@ -85,6 +92,9 @@ async function AccountDetail({
     account,
     accounts.filter((other) => !other.archived),
   );
+  const free = isZero(account.minimum)
+    ? null
+    : freeToSpend(account.balance, account.minimum);
 
   return (
     <div className="space-y-6">
@@ -121,6 +131,29 @@ async function AccountDetail({
           {balanceText(account.type, account.balance).text}
         </p>
       </section>
+      {free ? (
+        <dl className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+            <dt className="text-base">{en.accounts.detail.minimum}</dt>
+            <dd className="text-base tabular-nums">
+              {formatMoney(account.minimum)}
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+            <dt className="text-base font-semibold">
+              {en.accounts.detail.free}
+            </dt>
+            <dd
+              className={cn(
+                "text-base font-semibold tabular-nums",
+                isNegative(free) ? "text-expense" : "text-income",
+              )}
+            >
+              {formatMoney(free)}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
       {account.archived ? (
         <div className="space-y-3">
           <Button

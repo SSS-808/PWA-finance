@@ -25,6 +25,7 @@ export const accountFieldsSchema = z.object({
     .max(MAX_NAME_LENGTH, { error: "name_too_long" }),
   type: z.enum(ACCOUNT_TYPES, { error: "invalid_type" }),
   startingAmount: z.string(),
+  minimum: z.string(),
 });
 
 export const createAccountSchema = accountFieldsSchema.extend({
@@ -81,4 +82,35 @@ export function parseStartingAmount(
     ok: true,
     value: isDebt(type) ? negate(parsed.value) : parsed.value,
   };
+}
+
+export type MinimumError =
+  Exclude<StartingAmountError, "amount_negative"> | "minimum_negative";
+
+export type MinimumResult =
+  { ok: true; value: Money } | { ok: false; error: MinimumError };
+
+const MINIMUM_ERRORS: Record<
+  Exclude<ParseMoneyError, "empty">,
+  MinimumError
+> = {
+  invalid: "amount_invalid",
+  negative: "minimum_negative",
+  too_many_decimals: "amount_too_many_decimals",
+  too_large: "amount_too_large",
+};
+
+// Empty means 0; a debt has no minimum, so whatever was typed counts as 0
+export function parseMinimum(
+  input: string,
+  type: AccountType,
+  currency: CurrencyCode,
+): MinimumResult {
+  if (isDebt(type)) return { ok: true, value: zero(currency) };
+  const parsed = parseMoney(input, currency);
+  if (!parsed.ok) {
+    if (parsed.error === "empty") return { ok: true, value: zero(currency) };
+    return { ok: false, error: MINIMUM_ERRORS[parsed.error] };
+  }
+  return { ok: true, value: parsed.value };
 }

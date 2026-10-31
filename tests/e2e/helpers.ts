@@ -100,6 +100,8 @@ export type NewAccount = {
   type?: string;
   currency?: string;
   amount?: string;
+  // Left at 0 unless a test is about the minimum, so no pop-up gets in the way
+  minimum?: string;
 };
 
 export type Entry = {
@@ -192,6 +194,12 @@ export async function addAccount(page: Page, account: NewAccount) {
     .selectOption(account.currency ?? "LAK");
   if (account.amount) {
     await page.getByRole("textbox", { name: /now\?$/ }).fill(account.amount);
+  }
+  // A debt has no minimum box
+  if (account.type !== "credit_card" && account.type !== "loan") {
+    await page
+      .getByRole("textbox", { name: en.accounts.form.minimum, exact: true })
+      .fill(account.minimum ?? "0");
   }
   await page.getByRole("button", { name: en.accounts.form.save }).click();
   await patient(page).toHaveURL(/\/accounts$/);
