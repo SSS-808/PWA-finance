@@ -195,12 +195,17 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
 
   // The old entry keeps its category, and its Edit form still has it selected
   await page.goto("/transactions");
-  // The History filter still lists it, marked as hidden
+  // The History filter still lists it, marked as hidden; the open panel covers the rows, so close it again
+  const filtersToggle = page.locator("summary", {
+    hasText: en.transactions.filters.filters,
+  });
+  await filtersToggle.click();
   await expect(
     page
       .getByRole("combobox", { name: en.transactions.filters.category })
       .getByRole("option", { name: `Café ${en.categories.hiddenSuffix}` }),
   ).toHaveCount(1);
+  await filtersToggle.click();
   await page.getByRole("link", { name: /Café.*-₭20,000/ }).click();
   await expect(chip(page, "Café")).toBeChecked();
 

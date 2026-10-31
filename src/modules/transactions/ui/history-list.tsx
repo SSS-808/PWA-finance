@@ -12,8 +12,7 @@ import type {
   TransferItem,
 } from "../domain/history";
 
-const rowClass =
-  "flex min-h-14 items-center justify-between gap-3 rounded-lg px-3 py-2";
+const rowClass = "flex min-h-16 items-center justify-between gap-3 px-4 py-3";
 
 function previousDay(date: string): string {
   const [year = 0, month = 0, day = 0] = date.split("-").map(Number);
@@ -71,13 +70,12 @@ function EntryRow({ item }: { item: EntryItem }) {
           <span className="block text-base font-medium break-words">
             {item.categoryName ?? en.transactions.kinds[item.kind]}
           </span>
-          {item.note ? (
-            <span className="block text-sm break-words text-muted-foreground">
-              {item.note}
-            </span>
-          ) : null}
           <span className="block text-sm break-words text-muted-foreground">
-            {item.accountName}
+            {item.note ? <span>{item.note}</span> : null}
+            {item.note && item.accountName ? (
+              <span aria-hidden="true"> · </span>
+            ) : null}
+            <span>{item.accountName}</span>
           </span>
         </span>
       </span>
@@ -132,11 +130,9 @@ function TransferRow({ item }: { item: TransferItem }) {
             {" → "}
             {item.to ?? en.transactions.unknownAccount}
           </span>
-          {item.note ? (
-            <span className="block text-sm break-words text-muted-foreground">
-              {item.note}
-            </span>
-          ) : null}
+          <span className="block text-sm break-words text-muted-foreground">
+            {item.note ?? en.transactions.kinds.transfer}
+          </span>
         </span>
       </span>
       <span className="shrink-0 text-right text-base tabular-nums">
@@ -189,20 +185,20 @@ export function HistoryList({
   today: string;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {days.map((day) => (
         <section
           key={day.date}
           aria-labelledby={`history-${day.date}`}
-          className="space-y-1"
+          className="space-y-2"
         >
           <h2
             id={`history-${day.date}`}
-            className="text-sm font-medium text-muted-foreground"
+            className="px-1 text-sm font-medium text-muted-foreground"
           >
             {dayLabel(day.date, today)}
           </h2>
-          <ul>
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {day.items.map((item) => (
               <Row key={item.id} item={item} />
             ))}
