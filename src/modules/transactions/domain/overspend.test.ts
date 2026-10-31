@@ -27,31 +27,25 @@ const cash: AccountOption = {
 
 describe("overspendWarning", () => {
   it("gives the numbers for the pop-up when the payment is more than is free", () => {
-    expect(overspendWarning(bcelKip, money(7000000, "LAK"), null)).toEqual(
-      {
-        free: money(6950000, "LAK"),
-        minimum: money(50000, "LAK"),
-        account: "BCEL",
-      },
-    );
+    expect(overspendWarning(bcelKip, money(7000000, "LAK"), null)).toEqual({
+      free: money(6950000, "LAK"),
+      minimum: money(50000, "LAK"),
+      account: "BCEL",
+    });
   });
 
   it("names the account by its name, since the amounts show the currency", () => {
-    expect(
-      overspendWarning(bcelUsd, money(991, "USD"), null)?.account,
-    ).toBe("BCEL");
+    expect(overspendWarning(bcelUsd, money(991, "USD"), null)?.account).toBe(
+      "BCEL",
+    );
   });
 
   it("gives nothing when the payment is less than the free amount", () => {
-    expect(
-      overspendWarning(bcelKip, money(100000, "LAK"), null),
-    ).toBeNull();
+    expect(overspendWarning(bcelKip, money(100000, "LAK"), null)).toBeNull();
   });
 
   it("gives nothing when the payment is exactly the free amount", () => {
-    expect(
-      overspendWarning(bcelKip, money(6950000, "LAK"), null),
-    ).toBeNull();
+    expect(overspendWarning(bcelKip, money(6950000, "LAK"), null)).toBeNull();
   });
 
   it("gives nothing for an account without a minimum", () => {
@@ -65,15 +59,11 @@ describe("overspendWarning", () => {
 
   it("adds the old amount of an edited entry back before comparing", () => {
     const back = money(100000, "LAK");
-    expect(
-      overspendWarning(bcelKip, money(7050000, "LAK"), back),
-    ).toBeNull();
-    expect(overspendWarning(bcelKip, money(7050001, "LAK"), back)).toEqual(
-      {
-        free: money(7050000, "LAK"),
-        minimum: money(50000, "LAK"),
-        account: "BCEL",
-      },
-    );
+    expect(overspendWarning(bcelKip, money(7050000, "LAK"), back)).toBeNull();
+    expect(overspendWarning(bcelKip, money(7050001, "LAK"), back)).toEqual({
+      free: money(7050000, "LAK"),
+      minimum: money(50000, "LAK"),
+      account: "BCEL",
+    });
   });
 });
