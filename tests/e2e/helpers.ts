@@ -126,6 +126,11 @@ export function amountBox(page: Page) {
   });
 }
 
+// The currency rows of an account on the Accounts page: the links inside the card named after it
+export function accountRows(page: Page, name: string) {
+  return page.getByRole("region", { name, exact: true }).getByRole("link");
+}
+
 export function accountBox(page: Page) {
   return page.getByRole("combobox", {
     name: en.transactions.form.account,

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
 import { currencySymbol, groupAmountInput } from "@/modules/money";
+import { accountLabel } from "../domain/account-label";
 import { MAX_DATE, MAX_NOTE_LENGTH, MIN_DATE } from "../domain/schemas";
 import {
   type TransferInput,
@@ -209,7 +210,7 @@ function TransferFields(props: TransferFormProps) {
           >
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.name}
+                {accountLabel(account, accounts)}
               </option>
             ))}
           </select>
@@ -230,7 +231,7 @@ function TransferFields(props: TransferFormProps) {
             <option value="">{en.transactions.transfer.choose}</option>
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.name}
+                {accountLabel(account, accounts)}
               </option>
             ))}
           </select>

@@ -6,6 +6,7 @@ import {
 } from "@playwright/test";
 import { en } from "../../src/messages/en";
 import {
+  accountRows,
   addAccount,
   addTransfer,
   amountBox,
@@ -41,19 +42,15 @@ function notice(page: Page, message: string) {
   return page.locator("[data-sonner-toast]").filter({ hasText: message });
 }
 
-function accountLink(page: Page, name: RegExp) {
-  return page.getByRole("link", { name });
-}
-
 // Opens an account from the list and returns its id
-async function openAccount(page: Page, name: RegExp): Promise<string> {
+async function openAccount(page: Page, name: string): Promise<string> {
   await page.goto("/accounts");
-  await accountLink(page, name).click();
+  await accountRows(page, name).click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   return page.url().split("/").pop() ?? "";
 }
 
-async function openFixBalance(page: Page, name: RegExp): Promise<string> {
+async function openFixBalance(page: Page, name: string): Promise<string> {
   const id = await openAccount(page, name);
   await page.getByRole("link", { name: en.accounts.fix.title }).click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${id}/fix-balance$`));
@@ -118,8 +115,8 @@ test("a transfer shows as one row in History and moves both balances", async ({
 
   await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, "Saved: BCEL → Cash ₭500,000")).toBeVisible();
-  await expect(accountLink(page, /^BCEL\b.*₭500,000/)).toBeVisible();
-  await expect(accountLink(page, /^Cash\b.*₭500,000/)).toBeVisible();
+  await expect(accountRows(page, "BCEL")).toContainText("₭500,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭500,000");
 
   await page.goto("/transactions");
   const day = page.getByRole("region", { name: en.transactions.today });
@@ -163,8 +160,8 @@ test("an exchange asks how much arrived and keeps both amounts", async ({
   await expect(
     notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,150,000"),
   ).toBeVisible();
-  await expect(accountLink(page, /^USD Cash\b.*\$100\.00/)).toBeVisible();
-  await expect(accountLink(page, /^Cash\b.*₭2,150,000/)).toBeVisible();
+  await expect(accountRows(page, "USD Cash")).toContainText("$100.00");
+  await expect(accountRows(page, "Cash")).toContainText("₭2,150,000");
 
   await page.goto("/transactions");
   const row = page.getByRole("link", { name: /USD Cash → Cash/ });
@@ -208,8 +205,8 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(1);
 
   await page.goto("/accounts");
-  await expect(accountLink(page, /^BCEL\b.*₭700,000/)).toBeVisible();
-  await expect(accountLink(page, /^Cash\b.*₭300,000/)).toBeVisible();
+  await expect(accountRows(page, "BCEL")).toContainText("₭700,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭300,000");
 
   await page.goto("/transactions");
   await page.getByRole("link", { name: /BCEL → Cash/ }).click();
@@ -230,8 +227,8 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(accountLink(page, /^BCEL\b.*₭1,000,000/)).toBeVisible();
-  await expect(accountLink(page, /^Cash\b.*₭0/)).toBeVisible();
+  await expect(accountRows(page, "BCEL")).toContainText("₭1,000,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭0");
 });
 
 test("an exchange can be edited and its arrived amount is prefilled", async ({
@@ -327,7 +324,7 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "1,000,000" });
 
-  await openFixBalance(page, /^Cash\b/);
+  await openFixBalance(page, "Cash");
   await expect(
     page.getByRole("heading", { level: 1, name: en.accounts.fix.title }),
   ).toBeVisible();
@@ -362,7 +359,7 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
   await expect(shown(day.getByText("-₭50,000"))).toBeVisible();
 
   // The same number again changes nothing
-  await openFixBalance(page, /^Cash\b/);
+  await openFixBalance(page, "Cash");
   await fixBox(page).fill("950,000");
   await fixSave(page).click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
@@ -384,7 +381,7 @@ test("Fix balance on a debt is typed as what you owe", async ({ page }) => {
     amount: "30",
   });
 
-  await openFixBalance(page, /^Visa\b/);
+  await openFixBalance(page, "Visa");
   await expect(
     page.getByRole("textbox", { name: en.accounts.fix.debtLabel }),
   ).toBeVisible();
@@ -464,7 +461,10 @@ test("the Transfer view and the Fix balance page fit every width", async ({
     await expectFits(page, "Transfer view", width);
   }
 
-  await openAccount(page, /^A very long account name/);
+  await openAccount(
+    page,
+    "A very long account name that keeps going and going",
+  );
   const fixHref = await page
     .getByRole("link", { name: en.accounts.fix.title })
     .getAttribute("href");

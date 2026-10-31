@@ -355,7 +355,9 @@ export const en = {
     add: "Add account",
     addFirst: "Add your first account",
     emptyTitle: "No accounts yet",
-    total: "Total",
+    totalsLabel: "Total in each currency",
+    otherCurrencies: "Other currencies in {name}",
+    addCurrency: "Add a currency to {name}",
     owed: "Owed {amount}",
     archivedTitle: "Archived",
     showArchived: "Show archived ({count})",
@@ -365,7 +367,7 @@ export const en = {
       saved: "Changes saved.",
       archived: "Account archived.",
       unarchive_name_taken:
-        "There's already an active account with this name. Rename one of them, then bring this one back.",
+        "There's already an active account with this name in this currency. Rename one of them, then bring this one back.",
       fixed: "Balance fixed.",
       nothing_to_fix: "Balance already matches.",
     },
@@ -385,7 +387,8 @@ export const en = {
       namePlaceholder: "e.g. BCEL, Cash, Visa",
       type: "Type",
       currency: "Currency",
-      currencyHint: "Can't be changed later.",
+      currencyHint:
+        "Can't be changed later. Already have this bank in another currency? Use the same name and it shows as one card.",
       currencyLocked:
         "The currency can't be changed after the account is created.",
       startingAmount: "How much is in it now?",
@@ -421,7 +424,8 @@ export const en = {
     errors: {
       name_required: "Give the account a name.",
       name_too_long: "Use 60 characters or fewer.",
-      name_taken: "You already have an account with this name.",
+      name_taken:
+        "You already have an account with this name in this currency.",
       invalid_type: "Choose a type from the list.",
       invalid_currency: "Choose one of the listed currencies.",
       amount_invalid: "Enter an amount like 1,500,000 or 12.50.",

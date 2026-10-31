@@ -1,6 +1,10 @@
-export { ACCOUNT_TYPES, isDebt } from "./domain/account-types";
+export { ACCOUNT_TYPES, isAccountType, isDebt } from "./domain/account-types";
 export type { AccountType } from "./domain/account-types";
-export { displayBalance, groupByCurrency } from "./domain/calculations";
+export {
+  displayBalance,
+  groupByCurrency,
+  sameNameOthers,
+} from "./domain/calculations";
 export type {
   Account,
   AccountFormState,
@@ -20,6 +24,7 @@ export { AccountList } from "./ui/account-list";
 export { AccountTypeIcon } from "./ui/account-type-icon";
 export { ArchiveButton } from "./ui/archive-button";
 export { balanceText } from "./ui/balance-text";
+export { CurrencyRow } from "./ui/currency-row";
 export { EmptyAccounts } from "./ui/empty-accounts";
 export { FixBalanceForm } from "./ui/fix-balance-form";
 export { Notice } from "./ui/notice";

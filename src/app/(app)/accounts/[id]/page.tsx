@@ -1,4 +1,4 @@
-import { Pencil, Scale } from "lucide-react";
+import { Pencil, Plus, Scale } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
@@ -13,11 +13,15 @@ import { en } from "@/messages/en";
 import {
   AccountTypeIcon,
   ArchiveButton,
+  CurrencyRow,
   Notice,
   UnarchiveButton,
   balanceText,
   getAccount,
+  listAccounts,
+  sameNameOthers,
 } from "@/modules/accounts";
+import { CURRENCY_CODES } from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
 import {
   HistoryList,
@@ -69,13 +73,18 @@ async function AccountDetail({
     deleted,
   } = await searchParams;
   const account = await getAccount(id);
-  const [profile, days] = await Promise.all([
+  const [profile, days, accounts] = await Promise.all([
     getProfile(),
     listTransactions(
       { ...baseFilters(null), accountId: account.id },
       RECENT_COUNT,
     ),
+    listAccounts(),
   ]);
+  const others = sameNameOthers(
+    account,
+    accounts.filter((other) => !other.archived),
+  );
 
   return (
     <div className="space-y-6">
@@ -149,6 +158,35 @@ async function AccountDetail({
             </Link>
           </Button>
         </div>
+      )}
+      {account.archived ? null : (
+        <section aria-labelledby="account-currencies" className="space-y-2">
+          <h2
+            id="account-currencies"
+            className="px-1 text-sm font-medium text-muted-foreground"
+          >
+            {en.accounts.otherCurrencies.replace("{name}", () => account.name)}
+          </h2>
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+            {others.map((other) => (
+              <CurrencyRow key={other.id} account={other} />
+            ))}
+            {others.length + 1 < CURRENCY_CODES.length ? (
+              <li>
+                <Link
+                  href={`/accounts/new?name=${encodeURIComponent(account.name)}&type=${account.type}`}
+                  className="flex min-h-14 items-center gap-2 px-4 py-3 font-medium text-primary hover:bg-muted"
+                >
+                  <Plus className="size-5" aria-hidden="true" />
+                  {en.accounts.addCurrency.replace(
+                    "{name}",
+                    () => account.name,
+                  )}
+                </Link>
+              </li>
+            ) : null}
+          </ul>
+        </section>
       )}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">
