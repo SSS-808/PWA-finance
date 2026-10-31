@@ -44,8 +44,21 @@ function countText(page: Page, message: string) {
   return shown(page.getByText(message, { exact: true }));
 }
 
+// The selects and the Apply and Clear buttons sit in a collapsed panel, so open it when it is closed
+async function openFilters(page: Page) {
+  const panel = shown(
+    page.locator("details", {
+      has: page.locator("summary", { hasText: text.filters }),
+    }),
+  );
+  if ((await panel.getAttribute("open")) === null) {
+    await panel.locator("summary").click();
+  }
+}
+
 // Sets every field (an unset one goes back to "all"), applies, and the caller then checks the new URL
 async function applyFilters(page: Page, filter: Filter) {
+  await openFilters(page);
   await selectBox(page, text.account).selectOption({
     label: filter.account ?? text.allAccounts,
   });
@@ -92,7 +105,7 @@ test("the account filter shows a transfer touching that account as one row", asy
   // The receiving account: its starting amount and the transfer
   await applyFilters(page, { account: "Cash" });
   await expect(page).toHaveURL(
-    new RegExp(`account=${UUID}&category=&type=&q=$`),
+    new RegExp(`q=&account=${UUID}&category=&type=$`),
   );
   await expect(countText(page, "2 transactions")).toBeVisible();
   await expect(row(page, /BCEL → Cash/)).toHaveCount(1);
@@ -143,7 +156,7 @@ test("type and category narrow the list together", async ({ page }) => {
   await expect(row(page, /Food/)).toHaveCount(0);
 
   await applyFilters(page, { category: "Food" });
-  await expect(page).toHaveURL(new RegExp(`category=${UUID}&type=&`));
+  await expect(page).toHaveURL(new RegExp(`category=${UUID}&type=$`));
   await expect(countText(page, "1 transaction")).toBeVisible();
   await expect(row(page, /Food/)).toHaveCount(1);
   await expect(row(page, /Transportation|Salary/)).toHaveCount(0);
@@ -193,25 +206,26 @@ test("search finds a note and Clear resets", async ({ page }) => {
 
   // The match ignores upper and lower case
   await applyFilters(page, { q: "taxi" });
-  await expect(page).toHaveURL(/q=taxi$/);
+  await expect(page).toHaveURL(/q=taxi&/);
   await expect(countText(page, "1 transaction")).toBeVisible();
   await expect(row(page, /Taxi to airport/)).toHaveCount(1);
   await expect(row(page, /Lunch/)).toHaveCount(0);
 
   // A % in the search is a plain character, not "anything"
   await applyFilters(page, { q: "50%" });
-  await expect(page).toHaveURL(/q=50%25$/);
+  await expect(page).toHaveURL(/q=50%25&/);
   await expect(countText(page, "1 transaction")).toBeVisible();
   await expect(row(page, /Lunch 50% off/)).toHaveCount(1);
   await applyFilters(page, { q: "%" });
-  await expect(page).toHaveURL(/q=%25$/);
+  await expect(page).toHaveURL(/q=%25&/);
   await expect(countText(page, "1 transaction")).toBeVisible();
   await expect(row(page, /Taxi/)).toHaveCount(0);
 
   await applyFilters(page, { q: "zzz" });
-  await expect(page).toHaveURL(/q=zzz$/);
+  await expect(page).toHaveURL(/q=zzz&/);
   await expect(page.getByRole("heading", { name: text.none })).toBeVisible();
 
+  await openFilters(page);
   await page.getByRole("link", { name: text.clear }).first().click();
   await expect(page).toHaveURL(/\/transactions\?month=\d{4}-\d{2}$/);
   await expect(countText(page, "3 transactions")).toBeVisible();
@@ -249,6 +263,7 @@ test("an account page lists its transactions and links to the filtered History",
     new RegExp(`/transactions\\?account=${accountId}&month=all$`),
   );
   await expect(countText(page, "2 transactions")).toBeVisible();
+  await openFilters(page);
   await expect(selectBox(page, text.account)).toHaveValue(accountId);
   await expect(
     shown(page.getByText(text.allMonths, { exact: true })),

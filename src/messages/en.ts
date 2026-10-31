@@ -483,6 +483,7 @@ export const en = {
       allTypes: "All types",
       typeOther: "Starting amounts and fixes",
       search: "Search notes",
+      filters: "Filters",
       apply: "Apply",
       clear: "Clear",
       count: "{n} transactions",
