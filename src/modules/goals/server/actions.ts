@@ -3,6 +3,7 @@
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { listAccounts } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
 import { isCurrencyCode } from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
@@ -174,6 +175,23 @@ export async function unarchiveGoal(id: string): Promise<void> {
   redirect(`${LIST_PATH}/${id}?notice=saved`);
 }
 
+// The account must be one of the person's active accounts in the goal's currency; an empty value means no account
+async function readAccountId(
+  value: string,
+  currency: string,
+): Promise<{ ok: true; id: string | null } | { ok: false }> {
+  if (value === "") return { ok: true, id: null };
+  if (!idSchema.safeParse(value).success) return { ok: false };
+  const accounts = await listAccounts();
+  const account = accounts.find(
+    (candidate) =>
+      candidate.id === value &&
+      !candidate.archived &&
+      candidate.currency === currency,
+  );
+  return account ? { ok: true, id: account.id } : { ok: false };
+}
+
 // Money set aside for a goal; the currency comes from the goal and the date from the server, never from the browser
 export async function addContribution(
   goalId: string,
@@ -182,7 +200,10 @@ export async function addContribution(
 ): Promise<ContributionFormState> {
   await requireUser();
   const goal = await readGoal(goalId);
-  const values = { amount: textField(formData, "amount") };
+  const values = {
+    amount: textField(formData, "amount"),
+    account: textField(formData, "account"),
+  };
   if (goal.archived) return { status: "error", error: "not_found", values };
 
   const parsed = contributionSchema.safeParse({
@@ -198,6 +219,9 @@ export async function addContribution(
     };
   }
 
+  const account = await readAccountId(values.account, goal.currency);
+  if (!account.ok) return { status: "error", error: "not_found", values };
+
   const profile = await getProfile();
   const supabase = await createClient();
   const { error } = await supabase.from("goal_contributions").insert({
@@ -205,13 +229,17 @@ export async function addContribution(
     currency: parsed.data.currency,
     amount_minor: parsed.data.amount.minor,
     contributed_on: todayIn(profile.timeZone),
+    account_id: account.id,
   });
   if (error) {
-    // 23514 is the check that the saved amount never goes below zero
+    // 23514 is the check that what a goal holds, in an account or outside any, never goes below zero
     if (error.code === "23514") {
       return {
         status: "error",
-        fieldErrors: { amount: "not_enough_saved" },
+        fieldErrors: {
+          amount:
+            account.id === null ? "not_enough_saved" : "not_enough_in_account",
+        },
         values,
       };
     }
@@ -224,4 +252,30 @@ export async function addContribution(
   redirect(
     `${LIST_PATH}/${goalId}?notice=${parsed.data.amount.minor < 0 ? "money_taken" : "money_added"}`,
   );
+}
+
+// Takes out the goal money an account no longer holds; the database works out the amount, never the browser
+export async function takeOutMissing(
+  goalId: string,
+  accountId: string,
+): Promise<void> {
+  await requireUser();
+  const goal = await readGoal(goalId);
+  if (!idSchema.safeParse(accountId).success || goal.archived) notFound();
+
+  const profile = await getProfile();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("release_goal_shortfall", {
+    p_account_id: accountId,
+    p_goal_id: goalId,
+    p_on: todayIn(profile.timeZone),
+  });
+  // P0002 is raised when the account isn't there or isn't the person's
+  if (error?.code === "P0002") notFound();
+  if (error) {
+    logDatabaseError("Could not take out the missing money", error);
+    throw new Error("Could not take out the missing money", { cause: error });
+  }
+
+  redirect(`${LIST_PATH}/${goalId}?notice=missing_taken`);
 }

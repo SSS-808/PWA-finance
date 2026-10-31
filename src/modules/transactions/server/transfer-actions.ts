@@ -14,6 +14,7 @@ import {
 import type { TransferFieldName, TransferFormState } from "../domain/types";
 import { rememberAccount } from "./last-account";
 import { getTransfer } from "./queries";
+import { releaseGoalMoney } from "./release-goals";
 import { savedTarget, withParam } from "./saved-target";
 
 type TransferArgs = {
@@ -136,6 +137,7 @@ export async function createTransfer(
   if (error) return databaseErrorState(error);
 
   await rememberAccount(built.args.p_from_account);
+  await releaseGoalMoney(formData, built.args.p_from_account);
   redirect(withParam(savedTarget(returnTo), "saved_transfer", data));
 }
 
@@ -164,6 +166,7 @@ export async function updateTransfer(
   });
   if (error) return databaseErrorState(error);
 
+  await releaseGoalMoney(formData, built.args.p_from_account);
   redirect(`/transactions?saved_transfer=${transferId}`);
 }
 

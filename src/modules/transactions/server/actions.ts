@@ -18,6 +18,7 @@ import {
 } from "../domain/types";
 import { rememberAccount } from "./last-account";
 import { getEntry } from "./queries";
+import { releaseGoalMoney } from "./release-goals";
 import { savedTarget, withParam } from "./saved-target";
 
 type EntryRow = {
@@ -139,6 +140,9 @@ export async function createEntry(
   if (error) return databaseErrorState(error);
 
   await rememberAccount(built.row.account_id);
+  if (built.row.kind === "expense") {
+    await releaseGoalMoney(formData, built.row.account_id);
+  }
   redirect(withParam(savedTarget(returnTo), "saved", data.id));
 }
 
@@ -167,6 +171,9 @@ export async function updateEntry(
   if (error) return databaseErrorState(error);
   if (data.length === 0) return { status: "error", error: "not_found" };
 
+  if (built.row.kind === "expense") {
+    await releaseGoalMoney(formData, built.row.account_id);
+  }
   redirect(`/transactions?saved=${id}`);
 }
 

@@ -165,7 +165,20 @@ export const en = {
       submitting: "Saving…",
       cancel: "Cancel",
     },
-    money: { amount: "Amount", add: "Add money", take: "Take out" },
+    money: {
+      amount: "Amount",
+      add: "Add money",
+      take: "Take out",
+      from: "From account",
+      fromHint:
+        "The money stays in this account, so its balance still matches the bank. Its free to spend goes down by this amount, and Take out gives it back.",
+      noAccount: "Not in an account",
+      option: "{account} (free {free})",
+    },
+    where: "Set aside in {account}",
+    short: "{account} holds only {held} of the {aside} set aside here.",
+    takeMissing: "Take out the missing {missing}",
+    historyFrom: "from {account}",
     archive: "Archive",
     archiveConfirm: "Archive this goal? Its history is kept.",
     archiveYes: "Yes, archive",
@@ -176,6 +189,7 @@ export const en = {
       archived: "Goal archived.",
       money_added: "Money added.",
       money_taken: "Money taken out.",
+      missing_taken: "The missing money was taken out.",
       unarchive_name_taken:
         "There's already an active goal with this name. Rename one of them, then bring this one back.",
     },
@@ -191,6 +205,7 @@ export const en = {
       amount_too_large: "That amount is too large.",
       invalid_date: "Enter a real date between 2000 and 2100.",
       not_enough_saved: "There isn't that much saved in this goal.",
+      not_enough_in_account: "That account holds less than this for this goal.",
       not_found: "This goal doesn't exist or isn't yours.",
       unknown: "Something went wrong. Please try again.",
     },
@@ -406,6 +421,7 @@ export const en = {
     detail: {
       balance: "Balance",
       minimum: "Minimum the bank keeps",
+      setAside: "Set aside for goals",
       free: "Free to spend",
       recent: "Recent",
       edit: "Edit",
@@ -471,6 +487,12 @@ export const en = {
     overspend: {
       title: "More than free to spend",
       body: "Only {free} is free to spend in {account}. The bank keeps {minimum}.",
+      bodyGoals:
+        "Only {free} is free to spend in {account}. The bank keeps {minimum} and {aside} is set aside for goals.",
+      bodyGoalsOnly:
+        "Only {free} is free to spend in {account}. {aside} is set aside for goals.",
+      takeFromGoal: "Save and take it from {goal}",
+      takeFromGoals: "Save and take it from goals",
       saveAnyway: "Save anyway",
       goBack: "Go back",
     },

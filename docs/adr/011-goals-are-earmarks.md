@@ -1,6 +1,6 @@
 # ADR-011: A savings goal is an earmark, not a transfer
 
-**Status:** Accepted · 2026-10-12
+**Status:** Accepted · 2026-10-12 · Partly replaced by [ADR-012](012-goal-money-sits-in-an-account.md) (goal money now sits in an account)
 
 ## In plain words
 Think of labelled jars on a shelf: "New laptop", "Japan trip". Adding money to a goal is writing a note on a jar, "₭1,000,000 of my savings is for this". The money itself stays in whatever account it's in. The app doesn't move anything, so your account balances never change because of a goal.

@@ -22,7 +22,9 @@ import {
   getAccount,
   listAccounts,
   sameNameOthers,
+  showsFree,
 } from "@/modules/accounts";
+import { listGoalMoneyByAccount } from "@/modules/goals";
 import {
   CURRENCY_CODES,
   formatMoney,
@@ -80,21 +82,27 @@ async function AccountDetail({
     deleted,
   } = await searchParams;
   const account = await getAccount(id);
-  const [profile, days, accounts] = await Promise.all([
+  const [profile, days, accounts, goalMoney] = await Promise.all([
     getProfile(),
     listTransactions(
       { ...baseFilters(null), accountId: account.id },
       RECENT_COUNT,
     ),
     listAccounts(),
+    listGoalMoneyByAccount(),
   ]);
   const others = sameNameOthers(
     account,
     accounts.filter((other) => !other.archived),
   );
-  const free = isZero(account.minimum)
-    ? null
-    : freeToSpend(account.balance, account.minimum);
+  const free = showsFree(account)
+    ? freeToSpend(account.balance, account.minimum, account.setAside)
+    : null;
+  // The goals holding money here, largest first
+  const goalNames = goalMoney
+    .filter((item) => item.accountId === account.id)
+    .map((item) => item.goalName)
+    .join(", ");
 
   return (
     <div className="space-y-6">
@@ -133,12 +141,29 @@ async function AccountDetail({
       </section>
       {free ? (
         <dl className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="flex items-baseline justify-between gap-3 px-4 py-3">
-            <dt className="text-base">{en.accounts.detail.minimum}</dt>
-            <dd className="text-base tabular-nums">
-              {formatMoney(account.minimum)}
-            </dd>
-          </div>
+          {isZero(account.minimum) ? null : (
+            <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+              <dt className="text-base">{en.accounts.detail.minimum}</dt>
+              <dd className="text-base tabular-nums">
+                {formatMoney(account.minimum)}
+              </dd>
+            </div>
+          )}
+          {isZero(account.setAside) ? null : (
+            <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+              <dt className="min-w-0 text-base">
+                {en.accounts.detail.setAside}
+                {goalNames ? (
+                  <span className="block text-sm break-words text-muted-foreground">
+                    {goalNames}
+                  </span>
+                ) : null}
+              </dt>
+              <dd className="shrink-0 text-base tabular-nums">
+                {formatMoney(account.setAside)}
+              </dd>
+            </div>
+          )}
           <div className="flex items-baseline justify-between gap-3 px-4 py-3">
             <dt className="text-base font-semibold">
               {en.accounts.detail.free}

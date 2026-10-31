@@ -9,19 +9,26 @@ import {
 } from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
+import { freeToSpend, listAccounts, showsFree } from "@/modules/accounts";
 import {
   ArchiveButton,
   ContributionForm,
   ContributionHistory,
+  GoalAccountShares,
   GoalIcon,
   GoalNotice,
   GoalPercent,
   GoalProgress,
+  GoalShortWarning,
   UnarchiveButton,
+  accountShortfall,
   getGoal,
   goalProgress,
+  goalShortInAccount,
 } from "@/modules/goals";
+import { subtract } from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
+import { accountLabel } from "@/modules/transactions";
 
 export default function GoalPage({
   params,
@@ -54,9 +61,41 @@ async function GoalDetail({
 }) {
   const { id } = await params;
   const { notice } = await searchParams;
-  const [goal, profile] = await Promise.all([getGoal(id), getProfile()]);
+  const [goal, profile, accounts] = await Promise.all([
+    getGoal(id),
+    getProfile(),
+    listAccounts(),
+  ]);
   const today = todayIn(profile.timeZone);
   const progress = goalProgress(goal, today);
+  const currency = goal.target.currency;
+  const labels = new Map(
+    accounts.map((account) => [account.id, accountLabel(account, accounts)]),
+  );
+  // The accounts that can take this goal's money: active, in the goal's currency
+  const choices = accounts
+    .filter((account) => !account.archived && account.currency === currency)
+    .map((account) => ({
+      id: account.id,
+      label: accountLabel(account, accounts),
+      free: showsFree(account)
+        ? freeToSpend(account.balance, account.minimum, account.setAside)
+        : null,
+    }));
+  // An archived goal frees its money, so it has no shares or warnings to show
+  const held = goal.archived
+    ? []
+    : goal.shares.flatMap((share) => {
+        const account = accounts.find((other) => other.id === share.accountId);
+        if (!account) return [];
+        const shortfall = accountShortfall(
+          account.balance,
+          account.minimum,
+          account.setAside,
+        );
+        const missing = goalShortInAccount(share.amount, shortfall);
+        return [{ account, share: share.amount, missing }];
+      });
 
   return (
     <div className="space-y-6">
@@ -70,11 +109,39 @@ async function GoalDetail({
           <GoalPercent percent={progress.percent} reached={progress.reached} />
         </div>
         <GoalProgress goal={goal} today={today} />
+        <GoalAccountShares
+          shares={held.map(({ account, share }) => ({
+            id: account.id,
+            label: labels.get(account.id) ?? account.name,
+            amount: share,
+          }))}
+        />
       </div>
-      {goal.archived ? null : (
-        <ContributionForm goalId={goal.id} currency={goal.target.currency} />
+      {held.map(({ account, share, missing }) =>
+        missing.minor > 0 ? (
+          <GoalShortWarning
+            key={account.id}
+            goalId={goal.id}
+            accountId={account.id}
+            account={labels.get(account.id) ?? account.name}
+            held={subtract(share, missing)}
+            aside={share}
+            missing={missing}
+          />
+        ) : null,
       )}
-      <ContributionHistory contributions={goal.contributions} />
+      {goal.archived ? null : (
+        <ContributionForm
+          goalId={goal.id}
+          currency={currency}
+          accounts={choices}
+          hasUnassigned={goal.shares.some((share) => share.accountId === null)}
+        />
+      )}
+      <ContributionHistory
+        contributions={goal.contributions}
+        accountLabels={labels}
+      />
       <div className="space-y-3">
         <Button
           asChild

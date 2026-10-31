@@ -9,6 +9,8 @@ const bcelKip: AccountOption = {
   currency: "LAK",
   free: money(6950000, "LAK"),
   minimum: money(50000, "LAK"),
+  setAside: null,
+  goals: [],
 };
 const bcelUsd: AccountOption = {
   id: "2",
@@ -16,6 +18,8 @@ const bcelUsd: AccountOption = {
   currency: "USD",
   free: money(990, "USD"),
   minimum: money(1000, "USD"),
+  setAside: null,
+  goals: [],
 };
 const cash: AccountOption = {
   id: "3",
@@ -23,6 +27,17 @@ const cash: AccountOption = {
   currency: "LAK",
   free: null,
   minimum: null,
+  setAside: null,
+  goals: [],
+};
+const withGoals: AccountOption = {
+  id: "4",
+  name: "KBank",
+  currency: "LAK",
+  free: money(5000000, "LAK"),
+  minimum: money(50000, "LAK"),
+  setAside: money(2000000, "LAK"),
+  goals: [{ name: "Laptop" }, { name: "Trip" }],
 };
 
 describe("overspendWarning", () => {
@@ -31,6 +46,8 @@ describe("overspendWarning", () => {
       free: money(6950000, "LAK"),
       minimum: money(50000, "LAK"),
       account: "BCEL",
+      aside: null,
+      goals: [],
     });
   });
 
@@ -48,13 +65,8 @@ describe("overspendWarning", () => {
     expect(overspendWarning(bcelKip, money(6950000, "LAK"), null)).toBeNull();
   });
 
-  it("gives nothing for an account without a minimum", () => {
+  it("gives nothing for an account that shows no free to spend", () => {
     expect(overspendWarning(cash, money(9999999, "LAK"), null)).toBeNull();
-  });
-
-  it("gives nothing when only the minimum is missing", () => {
-    const odd = { ...bcelKip, minimum: null };
-    expect(overspendWarning(odd, money(9999999, "LAK"), null)).toBeNull();
   });
 
   it("adds the old amount of an edited entry back before comparing", () => {
@@ -64,6 +76,40 @@ describe("overspendWarning", () => {
       free: money(7050000, "LAK"),
       minimum: money(50000, "LAK"),
       account: "BCEL",
+      aside: null,
+      goals: [],
     });
+  });
+
+  it("adds the money set aside and the goals holding it", () => {
+    expect(overspendWarning(withGoals, money(5000001, "LAK"), null)).toEqual({
+      free: money(5000000, "LAK"),
+      minimum: money(50000, "LAK"),
+      account: "KBank",
+      aside: money(2000000, "LAK"),
+      goals: ["Laptop", "Trip"],
+    });
+  });
+
+  it("warns for an account that only has goal money, with a minimum of 0", () => {
+    const onlyGoals: AccountOption = {
+      ...withGoals,
+      minimum: null,
+      goals: [{ name: "Laptop" }],
+    };
+    expect(overspendWarning(onlyGoals, money(5000001, "LAK"), null)).toEqual({
+      free: money(5000000, "LAK"),
+      minimum: money(0, "LAK"),
+      account: "KBank",
+      aside: money(2000000, "LAK"),
+      goals: ["Laptop"],
+    });
+  });
+
+  it("gives no set-aside amount when it is 0", () => {
+    const empty: AccountOption = { ...bcelKip, setAside: money(0, "LAK") };
+    expect(
+      overspendWarning(empty, money(7000000, "LAK"), null)?.aside,
+    ).toBeNull();
   });
 });

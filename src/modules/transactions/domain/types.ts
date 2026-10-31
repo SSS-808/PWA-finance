@@ -54,13 +54,15 @@ export type EntryFormState = {
   fieldErrors?: Partial<Record<EntryFieldName, TransactionErrorKey>>;
 };
 
-// free and minimum are null for an account that has no minimum
+// free is null for an account with neither a minimum nor goal money; minimum and setAside are null when there is none; goals hold money in it, largest first
 export type AccountOption = {
   id: string;
   name: string;
   currency: CurrencyCode;
   free: Money | null;
   minimum: Money | null;
+  setAside: Money | null;
+  goals: { name: string }[];
 };
 
 export type CategoryOption = {

@@ -5,6 +5,7 @@ export {
   freeToSpend,
   groupByCurrency,
   sameNameOthers,
+  showsFree,
 } from "./domain/calculations";
 export type {
   Account,

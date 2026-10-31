@@ -7,6 +7,7 @@ import {
   groupByCurrency,
   groupByName,
   sameNameOthers,
+  showsFree,
 } from "./calculations";
 
 describe("displayBalance", () => {
@@ -191,26 +192,68 @@ describe("defaultMinimum", () => {
 
 describe("freeToSpend", () => {
   it("takes the minimum off the balance", () => {
-    expect(freeToSpend(money(7000000, "LAK"), money(50000, "LAK"))).toEqual(
-      money(6950000, "LAK"),
-    );
+    expect(
+      freeToSpend(money(7000000, "LAK"), money(50000, "LAK"), money(0, "LAK")),
+    ).toEqual(money(6950000, "LAK"));
+  });
+
+  it("also takes off the money set aside for goals", () => {
+    expect(
+      freeToSpend(
+        money(7000000, "LAK"),
+        money(50000, "LAK"),
+        money(1000000, "LAK"),
+      ),
+    ).toEqual(money(5950000, "LAK"));
   });
 
   it("is 0 when the balance is the minimum", () => {
-    expect(freeToSpend(money(1000, "USD"), money(1000, "USD"))).toEqual(
-      money(0, "USD"),
-    );
+    expect(
+      freeToSpend(money(1000, "USD"), money(1000, "USD"), money(0, "USD")),
+    ).toEqual(money(0, "USD"));
   });
 
   it("goes below 0 when the balance is under the minimum", () => {
-    expect(freeToSpend(money(300, "USD"), money(1000, "USD"))).toEqual(
-      money(-700, "USD"),
-    );
+    expect(
+      freeToSpend(money(300, "USD"), money(1000, "USD"), money(0, "USD")),
+    ).toEqual(money(-700, "USD"));
   });
 
-  it("is the balance when there is no minimum", () => {
-    expect(freeToSpend(money(500, "THB"), money(0, "THB"))).toEqual(
-      money(500, "THB"),
-    );
+  it("goes below 0 when goals hold more than the balance leaves", () => {
+    expect(
+      freeToSpend(money(5000, "THB"), money(0, "THB"), money(8000, "THB")),
+    ).toEqual(money(-3000, "THB"));
+  });
+
+  it("is the balance when there is no minimum and nothing set aside", () => {
+    expect(
+      freeToSpend(money(500, "THB"), money(0, "THB"), money(0, "THB")),
+    ).toEqual(money(500, "THB"));
+  });
+});
+
+describe("showsFree", () => {
+  it("is true when the account has a minimum", () => {
+    expect(
+      showsFree({ minimum: money(50000, "LAK"), setAside: money(0, "LAK") }),
+    ).toBe(true);
+  });
+
+  it("is true when money is set aside for goals", () => {
+    expect(
+      showsFree({ minimum: money(0, "LAK"), setAside: money(1000, "LAK") }),
+    ).toBe(true);
+  });
+
+  it("is true when both are above 0", () => {
+    expect(
+      showsFree({ minimum: money(1000, "USD"), setAside: money(500, "USD") }),
+    ).toBe(true);
+  });
+
+  it("is false when there is neither", () => {
+    expect(
+      showsFree({ minimum: money(0, "USD"), setAside: money(0, "USD") }),
+    ).toBe(false);
   });
 });

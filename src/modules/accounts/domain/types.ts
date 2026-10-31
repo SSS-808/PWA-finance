@@ -49,4 +49,5 @@ export type Account = {
   archived: boolean;
   balance: Money;
   minimum: Money;
+  setAside: Money;
 };
