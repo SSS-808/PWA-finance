@@ -9,6 +9,7 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
+import { accountLabel } from "../domain/account-label";
 import {
   MAX_SEARCH_LENGTH,
   TYPE_FILTERS,
@@ -18,7 +19,7 @@ import {
   previousMonth,
   type HistoryFilters,
 } from "../domain/filters";
-import type { CategoryOption } from "../domain/types";
+import type { AccountOption, CategoryOption } from "../domain/types";
 
 const selectClass =
   "h-12 w-full rounded-lg border border-input bg-card px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
@@ -111,7 +112,7 @@ export function HistoryFilterBar({
   filters: HistoryFilters;
   today: string;
   count: number;
-  accounts: readonly { id: string; name: string }[];
+  accounts: readonly AccountOption[];
   expenseCategories: readonly CategoryOption[];
   incomeCategories: readonly CategoryOption[];
 }) {
@@ -171,7 +172,7 @@ export function HistoryFilterBar({
                   <option value="">{text.allAccounts}</option>
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
-                      {account.name}
+                      {accountLabel(account, accounts)}
                     </option>
                   ))}
                 </select>

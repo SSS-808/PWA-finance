@@ -7,6 +7,7 @@ import {
 import { en } from "../../src/messages/en";
 import {
   accountBox,
+  accountRows,
   addAccount,
   addEntry,
   amountBox,
@@ -78,9 +79,7 @@ test("adding an expense from Accounts comes back with a note and moves the balan
 
   await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, "Saved: Food ₭45,000")).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: /Cash.*₭1,455,000/ }),
-  ).toBeVisible();
+  await expect(accountRows(page, "Cash")).toContainText("₭1,455,000");
 });
 
 test("saving after opening Add from Settings lands on History, where the note shows", async ({
@@ -150,9 +149,7 @@ test("an entry can be edited and then deleted in two steps", async ({
   await expect(chip(page, "Food")).toBeChecked();
 
   await page.goto("/accounts");
-  await expect(
-    page.getByRole("link", { name: /Cash.*₭1,450,000/ }),
-  ).toBeVisible();
+  await expect(accountRows(page, "Cash")).toContainText("₭1,450,000");
 
   await page.goto("/transactions");
   await page.getByRole("link", { name: /Food.*-₭50,000/ }).click();
@@ -173,9 +170,7 @@ test("an entry can be edited and then deleted in two steps", async ({
   await expect(page.getByRole("link", { name: /Food/ })).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(
-    page.getByRole("link", { name: /Cash.*₭1,500,000/ }),
-  ).toBeVisible();
+  await expect(accountRows(page, "Cash")).toContainText("₭1,500,000");
 });
 
 test("income shows a plus sign, and switching the kind swaps the categories", async ({

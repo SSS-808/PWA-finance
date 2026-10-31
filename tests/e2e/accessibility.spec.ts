@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect as baseExpect, test, type Page } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { addAccount, addEntry, signUpAndConfirm } from "./helpers";
+import { accountRows, addAccount, addEntry, signUpAndConfirm } from "./helpers";
 
 test.describe.configure({ timeout: 300_000 });
 
@@ -43,7 +43,7 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
   await addEntry(page, { amount: "45,000", category: "Food" });
 
   await page.goto("/accounts");
-  await page.getByRole("link", { name: /Cash/ }).click();
+  await accountRows(page, "Cash").click();
   await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
   const accountPath = new URL(page.url()).pathname;
 

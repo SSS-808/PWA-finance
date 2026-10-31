@@ -27,7 +27,12 @@ import type {
 import { createAccount, updateAccount } from "../server/actions";
 
 type AccountFormProps = { title: string } & (
-  | { mode: "create" }
+  | {
+      mode: "create";
+      name?: string;
+      type?: AccountType;
+      currency?: CurrencyCode;
+    }
   | {
       mode: "edit";
       id: string;
@@ -62,9 +67,9 @@ function startValues(props: AccountFormProps): AccountFormValues {
     };
   }
   return {
-    name: "",
-    type: ACCOUNT_TYPES[0],
-    currency: CURRENCY_CODES[0],
+    name: props.name ?? "",
+    type: props.type ?? ACCOUNT_TYPES[0],
+    currency: props.currency ?? CURRENCY_CODES[0],
     startingAmount: "",
   };
 }

@@ -152,7 +152,8 @@ create table public.accounts (
   updated_at timestamptz not null default now(),
   unique (id, user_id, currency)  -- target for the composite foreign key below
 );
-create unique index accounts_active_name_uq on public.accounts (user_id, lower(name)) where archived_at is null;
+-- One name once per currency (since 2026-10-31), so "BCEL" can be kip, dollars and baht, shown as one card
+create unique index accounts_active_name_uq on public.accounts (user_id, lower(name), currency) where archived_at is null;
 
 create table public.categories (
   id uuid primary key default gen_random_uuid(),

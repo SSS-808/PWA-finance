@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { currencySymbol, groupAmountInput } from "@/modules/money";
+import { accountLabel } from "../domain/account-label";
 import {
   type EntryInput,
   type EntryOutput,
@@ -227,7 +228,7 @@ export function EntryForm(props: EntryFormProps) {
           >
             {props.accounts.map((account) => (
               <option key={account.id} value={account.id}>
-                {account.name}
+                {accountLabel(account, props.accounts)}
               </option>
             ))}
           </select>

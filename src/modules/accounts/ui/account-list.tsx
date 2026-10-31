@@ -2,15 +2,13 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { formatMoney } from "@/modules/money";
-import { groupByCurrency } from "../domain/calculations";
+import { groupByCurrency, groupByName } from "../domain/calculations";
 import type { Account } from "../domain/types";
 import { AccountTypeIcon } from "./account-type-icon";
 import { balanceText } from "./balance-text";
+import { CurrencyRow } from "./currency-row";
 
-const cardClass =
-  "divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card";
-
-function AccountRow({ account }: { account: Account }) {
+function ArchivedRow({ account }: { account: Account }) {
   const { text, owed } = balanceText(account.type, account.balance);
   return (
     <li>
@@ -25,7 +23,8 @@ function AccountRow({ account }: { account: Account }) {
               {account.name}
             </span>
             <span className="block text-sm text-muted-foreground">
-              {en.accounts.types[account.type]}
+              {en.accounts.types[account.type]} ·{" "}
+              {en.currencies[account.currency]}
             </span>
           </span>
         </span>
@@ -42,7 +41,7 @@ function AccountRow({ account }: { account: Account }) {
   );
 }
 
-// Active accounts come grouped by currency with a total; archived ones are a plain list
+// Active accounts show a total per currency, then one card per name with a row per currency; archived ones are a plain list
 export function AccountList({
   accounts,
   archived = false,
@@ -59,9 +58,9 @@ export function AccountList({
         >
           {en.accounts.archivedTitle}
         </h2>
-        <ul className={cardClass}>
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
           {accounts.map((account) => (
-            <AccountRow key={account.id} account={account} />
+            <ArchivedRow key={account.id} account={account} />
           ))}
         </ul>
       </section>
@@ -70,31 +69,55 @@ export function AccountList({
 
   return (
     <div className="space-y-6">
-      {groupByCurrency(accounts).map((group) => (
-        <section
-          key={group.currency}
-          aria-labelledby={`accounts-${group.currency}`}
-          className="space-y-2"
+      <section aria-labelledby="accounts-totals" className="space-y-2">
+        <h2
+          id="accounts-totals"
+          className="px-1 text-sm font-medium text-muted-foreground"
         >
-          <div className="flex items-baseline justify-between gap-3 px-1">
-            <h2
-              id={`accounts-${group.currency}`}
-              className="text-sm font-medium text-muted-foreground"
+          {en.accounts.totalsLabel}
+        </h2>
+        <ul className="flex flex-wrap gap-2">
+          {groupByCurrency(accounts).map((group) => (
+            <li
+              key={group.currency}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-base font-semibold tabular-nums"
             >
-              {en.currencies[group.currency]}
-            </h2>
-            <p className="text-base font-semibold tabular-nums">
-              <span className="sr-only">{en.accounts.total} </span>
               {formatMoney(group.total)}
-            </p>
-          </div>
-          <ul className={cardClass}>
-            {group.accounts.map((account) => (
-              <AccountRow key={account.id} account={account} />
-            ))}
-          </ul>
-        </section>
-      ))}
+            </li>
+          ))}
+        </ul>
+      </section>
+      {groupByName(accounts).map((group) => {
+        const first = group.accounts[0];
+        const headingId = `account-card-${first.id}`;
+        return (
+          <section
+            key={first.id}
+            aria-labelledby={headingId}
+            className="overflow-hidden rounded-2xl border border-border bg-card"
+          >
+            <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+              <AccountTypeIcon type={first.type} />
+              <div className="min-w-0">
+                <h2
+                  id={headingId}
+                  className="text-base font-semibold break-words"
+                >
+                  {group.name}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {en.accounts.types[first.type]}
+                </p>
+              </div>
+            </div>
+            <ul className="divide-y divide-border border-t border-border">
+              {group.accounts.map((account) => (
+                <CurrencyRow key={account.id} account={account} />
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }
