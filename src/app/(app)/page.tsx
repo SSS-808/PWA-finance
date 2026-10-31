@@ -125,7 +125,7 @@ async function HomeContent({
               </Link>
             </div>
             {recent.length > 0 ? (
-              <HistoryList days={recent} today={today} />
+              <HistoryList days={recent} today={today} headingLevel={3} />
             ) : (
               <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
                 <h3 className="text-xl font-semibold">

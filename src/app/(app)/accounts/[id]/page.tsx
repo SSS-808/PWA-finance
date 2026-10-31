@@ -167,7 +167,11 @@ async function AccountDetail({
             {en.accounts.detail.noTransactions}
           </p>
         ) : (
-          <HistoryList days={days} today={todayIn(profile.timeZone)} />
+          <HistoryList
+            days={days}
+            today={todayIn(profile.timeZone)}
+            headingLevel={3}
+          />
         )}
       </div>
       {account.archived ? null : <ArchiveButton id={account.id} />}

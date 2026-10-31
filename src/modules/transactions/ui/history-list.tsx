@@ -180,10 +180,13 @@ function Row({ item }: { item: HistoryItem }) {
 export function HistoryList({
   days,
   today,
+  headingLevel = 2,
 }: {
   days: readonly DayGroup[];
   today: string;
+  headingLevel?: 2 | 3;
 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   return (
     <div className="space-y-5">
       {days.map((day) => (
@@ -192,12 +195,12 @@ export function HistoryList({
           aria-labelledby={`history-${day.date}`}
           className="space-y-2"
         >
-          <h2
+          <Heading
             id={`history-${day.date}`}
             className="px-1 text-sm font-medium text-muted-foreground"
           >
             {dayLabel(day.date, today)}
-          </h2>
+          </Heading>
           <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {day.items.map((item) => (
               <Row key={item.id} item={item} />
