@@ -280,6 +280,108 @@ test("the same bank in other currencies shows as one card, added from the accoun
   ).toHaveCount(1);
 });
 
+function minimumBox(page: Page) {
+  return page.getByRole("textbox", {
+    name: en.accounts.form.minimum,
+    exact: true,
+  });
+}
+
+test("a bank account starts with the usual minimum, and its page shows what is free to spend", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await page.goto("/accounts/new");
+  await nameBox(page).fill("BCEL");
+  // Retry the choice, in case it was made before the page was ready for it
+  await expect(async () => {
+    await typeBox(page).selectOption("cash");
+    await typeBox(page).selectOption("bank");
+    await expect(minimumBox(page)).toHaveValue("50,000", { timeout: 1000 });
+  }).toPass();
+
+  // The default follows the currency until the person types their own
+  await currencyBox(page).selectOption("USD");
+  await expect(minimumBox(page)).toHaveValue("10.00");
+  await currencyBox(page).selectOption("THB");
+  await expect(minimumBox(page)).toHaveValue("500.00");
+  await currencyBox(page).selectOption("LAK");
+  await expect(minimumBox(page)).toHaveValue("50,000");
+  await minimumBox(page).fill("100,000");
+  await currencyBox(page).selectOption("USD");
+  await expect(minimumBox(page)).toHaveValue("100,000");
+  await currencyBox(page).selectOption("LAK");
+  await minimumBox(page).fill("50,000");
+
+  await amountBox(page).fill("7,000,000");
+  await submitNew(page).click();
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+  await expect(currencyRow(page, "BCEL")).toContainText(
+    en.accounts.freeLine.replace("{amount}", "₭6,950,000"),
+  );
+
+  await openAccount(page, "BCEL");
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toBeVisible();
+  await expect(shown(page.getByText("₭50,000", { exact: true }))).toBeVisible();
+  await expect(
+    shown(page.getByText(en.accounts.detail.free, { exact: true })),
+  ).toBeVisible();
+  await expect(
+    shown(page.getByText("₭6,950,000", { exact: true })),
+  ).toBeVisible();
+
+  // The edit form is prefilled, a minus sign is refused, and 0 takes the minimum away
+  await page.getByRole("link", { name: en.accounts.detail.edit }).click();
+  await expect(page).toHaveURL(/\/edit$/);
+  await expect(minimumBox(page)).toHaveValue("50,000");
+  await minimumBox(page).fill("-5");
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
+  await expect(
+    shown(page.getByText(en.accounts.errors.minimum_negative)),
+  ).toBeVisible();
+  await expect(minimumBox(page)).toHaveValue("-5");
+  await minimumBox(page).fill("0");
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
+  await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
+  await expect(notice(page, en.accounts.notices.saved)).toBeVisible();
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toHaveCount(0);
+});
+
+test("a credit card has no minimum box and shows no free to spend", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await page.goto("/accounts/new");
+  await nameBox(page).fill("Visa");
+  await currencyBox(page).selectOption("USD");
+  await expect(async () => {
+    await typeBox(page).selectOption("bank");
+    await expect(minimumBox(page)).toBeVisible({ timeout: 1000 });
+    await typeBox(page).selectOption("credit_card");
+    await expect(minimumBox(page)).toBeHidden({ timeout: 1000 });
+  }).toPass();
+  await amountBox(page).fill("30");
+  await submitNew(page).click();
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+
+  await expect(currencyRow(page, "Visa", "USD")).toContainText("Owed $30.00");
+  await expect(currencyRow(page, "Visa", "USD")).not.toContainText(
+    en.accounts.detail.free,
+  );
+  await openAccount(page, "Visa", "USD");
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: en.accounts.detail.edit }).click();
+  await expect(page).toHaveURL(/\/edit$/);
+  await expect(page.getByLabel(en.accounts.form.startingOwed)).toBeVisible();
+  await expect(minimumBox(page)).toBeHidden();
+});
+
 test("the form shows the server's messages for a bad name and a bad amount", async ({
   page,
 }) => {

@@ -8,7 +8,7 @@ insert into auth.users (id, email) values
 
 select is((select base_currency::text from public.profiles where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 'LAK', 'the new profile has base currency LAK');
 select is((select timezone from public.profiles where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 'Asia/Vientiane', 'the new profile has time zone Asia/Vientiane');
-select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and kind = 'expense'), 9::bigint, 'the new user gets 9 expense categories');
+select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and kind = 'expense'), 10::bigint, 'the new user gets 10 expense categories');
 select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and kind = 'income'), 6::bigint, 'the new user gets 6 income categories');
 
 insert into public.accounts (id, user_id, name, type, currency) values

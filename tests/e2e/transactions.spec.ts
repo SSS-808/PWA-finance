@@ -14,8 +14,10 @@ import {
   chip,
   dateBox,
   fillEntry,
+  fillTransfer,
   noteBox,
   openAddForm,
+  openTransferForm,
   saveButton,
   signUpAndConfirm,
   waitForSaved,
@@ -214,7 +216,8 @@ test("a past date and a note are saved and listed under Yesterday", async ({
     note: "Lunch with Sai",
   });
 
-  await page.goto("/transactions");
+  // All months, because on the 1st of a month yesterday is in the month before
+  await page.goto("/transactions?month=all");
   const yesterday = page.getByRole("region", {
     name: en.transactions.yesterday,
   });
@@ -263,7 +266,9 @@ test("the most-used category comes first", async ({ page }) => {
 
   await openAddForm(page);
   // Without any history the chips are in alphabetical order
-  await expect(page.getByRole("radio").first()).toHaveAccessibleName("Bills");
+  await expect(page.getByRole("radio").first()).toHaveAccessibleName(
+    "Bank fees",
+  );
 
   await addEntry(page, { amount: "1,000", category: "Transportation" });
   await addEntry(page, { amount: "2,000", category: "Transportation" });
@@ -276,7 +281,7 @@ test("the most-used category comes first", async ({ page }) => {
     .evaluateAll((inputs) =>
       inputs.map((input) => input.closest("label")?.textContent ?? ""),
     );
-  expect(names.slice(0, 3)).toEqual(["Transportation", "Food", "Bills"]);
+  expect(names.slice(0, 3)).toEqual(["Transportation", "Food", "Bank fees"]);
 });
 
 test("Save sits above the amount box and stays in view at the bottom of the form", async ({
@@ -322,7 +327,7 @@ test("the category row shows four at a time, Show all opens the rest, and a hidd
   const group = page.getByRole("radiogroup", {
     name: en.transactions.form.category,
   });
-  await expect(group.getByRole("radio")).toHaveCount(9);
+  await expect(group.getByRole("radio")).toHaveCount(10);
   await expect.poll(() => radiosInsideRow(group)).toBe(4);
 
   await page
@@ -332,9 +337,9 @@ test("the category row shows four at a time, Show all opens the rest, and a hidd
     name: en.transactions.form.showLess,
   });
   await expect(showLess).toHaveAttribute("aria-expanded", "true");
-  await expect.poll(() => radiosInsideRow(group)).toBe(9);
+  await expect.poll(() => radiosInsideRow(group)).toBe(10);
 
-  // Travel is the last of the nine, so it was outside the row before
+  // Travel is the last of the ten, so it was outside the row before
   await fillEntry(page, { amount: "1,000", category: "Travel" });
   await waitForSaved(page);
   await page.goto("/transactions");
@@ -402,6 +407,142 @@ test("the form answers before it calls the server, and the server still checks",
   await expect(amountBox(page)).toHaveValue("1,000.5");
   await expect(chip(page, "Food")).toBeChecked();
   await expect(page).toHaveURL(/\/transactions\/new/);
+});
+
+function overspendDialog(page: Page) {
+  return page.getByRole("dialog", { name: en.transactions.overspend.title });
+}
+
+function overspendBody(free: string, account: string, minimum: string) {
+  return en.transactions.overspend.body
+    .replace("{free}", free)
+    .replace("{minimum}", minimum)
+    .replace("{account}", account);
+}
+
+test("an expense above what is free to spend opens a pop-up: Go back saves nothing, Save anyway saves it", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, {
+    name: "BCEL",
+    type: "bank",
+    amount: "1,000,000",
+    minimum: "50,000",
+  });
+  await openAddForm(page);
+  await expect(
+    shown(
+      page.getByText(en.transactions.form.free.replace("{amount}", "₭950,000")),
+    ),
+  ).toBeVisible();
+
+  const dialog = overspendDialog(page);
+  await fillEntry(page, { amount: "960,000", category: "Food" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText(
+    overspendBody("₭950,000", "BCEL", "₭50,000"),
+  );
+  await expect(
+    dialog.getByRole("button", { name: en.transactions.overspend.saveAnyway }),
+  ).toBeFocused();
+
+  // Esc and Go back both close it and leave the form as it was
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(amountBox(page)).toHaveValue("960,000");
+  await saveButton(page).click();
+  await expect(dialog).toBeVisible();
+  await dialog
+    .getByRole("button", { name: en.transactions.overspend.goBack })
+    .click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/transactions\/new/);
+
+  // Nothing is saved yet
+  const other = await page.context().newPage();
+  await other.goto("/accounts");
+  await expect(accountRows(other, "BCEL")).toContainText("₭1,000,000");
+  await other.close();
+
+  await saveButton(page).click();
+  await dialog
+    .getByRole("button", { name: en.transactions.overspend.saveAnyway })
+    .click();
+  await waitForSaved(page);
+  await page.goto("/accounts");
+  await expect(accountRows(page, "BCEL")).toContainText("₭40,000");
+  await expect(accountRows(page, "BCEL")).toContainText(
+    en.accounts.freeLine.replace("{amount}", "-₭10,000"),
+  );
+});
+
+test("editing an expense counts its old amount as free, so only a bigger overspend asks", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, {
+    name: "BCEL",
+    type: "bank",
+    amount: "1,000,000",
+    minimum: "50,000",
+  });
+  await addEntry(page, { amount: "900,000", category: "Food" });
+
+  await page.goto("/transactions");
+  await page.getByRole("link", { name: /Food.*-₭900,000/ }).click();
+  await expect(amountBox(page)).toHaveValue("900,000");
+  // ₭50,000 is free now, but this entry's own ₭900,000 comes back while it is edited
+  await amountBox(page).fill("940,000");
+  await saveButton(page).click();
+  await expect(page).toHaveURL(/\/transactions$/);
+  await expect(notice(page, "Saved: Food ₭940,000")).toBeVisible();
+
+  await page.getByRole("link", { name: /Food.*-₭940,000/ }).click();
+  await amountBox(page).fill("960,000");
+  await saveButton(page).click();
+  const dialog = overspendDialog(page);
+  await expect(dialog).toContainText(
+    overspendBody("₭950,000", "BCEL", "₭50,000"),
+  );
+  await dialog
+    .getByRole("button", { name: en.transactions.overspend.goBack })
+    .click();
+  await expect(dialog).toBeHidden();
+});
+
+test("a transfer above what the account has free to spend asks first too", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, {
+    name: "BCEL",
+    type: "bank",
+    amount: "1,000,000",
+    minimum: "50,000",
+  });
+  await addAccount(page, { name: "Cash" });
+  await openTransferForm(page);
+  await fillTransfer(page, { from: "BCEL", to: "Cash", amount: "960,000" });
+
+  const dialog = overspendDialog(page);
+  await expect(dialog).toContainText(
+    overspendBody("₭950,000", "BCEL", "₭50,000"),
+  );
+  await dialog
+    .getByRole("button", { name: en.transactions.overspend.goBack })
+    .click();
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(/\/transactions\/new/);
+
+  await saveButton(page).click();
+  await dialog
+    .getByRole("button", { name: en.transactions.overspend.saveAnyway })
+    .click();
+  await waitForSaved(page);
+  await page.goto("/accounts");
+  await expect(accountRows(page, "BCEL")).toContainText("₭40,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭960,000");
 });
 
 test("a user with no accounts is asked to add one first", async ({ page }) => {

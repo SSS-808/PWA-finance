@@ -10,8 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { en } from "@/messages/en";
-import { currencySymbol, groupAmountInput } from "@/modules/money";
+import {
+  type Money,
+  currencySymbol,
+  groupAmountInput,
+  parseMoney,
+} from "@/modules/money";
 import { accountLabel } from "../domain/account-label";
+import { type OverspendWarning, overspendWarning } from "../domain/overspend";
 import { MAX_DATE, MAX_NOTE_LENGTH, MIN_DATE } from "../domain/schemas";
 import {
   type TransferInput,
@@ -29,6 +35,7 @@ import {
 } from "../domain/types";
 import { createTransfer, updateTransfer } from "../server/transfer-actions";
 import { ADD_KINDS, KindSwitch } from "./kind-switch";
+import { OverspendDialog, useOverspend } from "./overspend-dialog";
 
 type TransferFormProps = {
   title: string;
@@ -93,6 +100,24 @@ function startValues(props: TransferFormProps): TransferFormValues {
   };
 }
 
+// The warning to show when the amount sent is more than the "from" account has free to spend
+function warningFor(
+  props: TransferFormProps,
+  values: TransferOutput,
+): OverspendWarning | null {
+  const from = props.accounts.find((a) => a.id === values.fromAccountId);
+  if (!from) return null;
+  const amount = parseMoney(values.amount, from.currency);
+  if (!amount.ok) return null;
+  let back: Money | null = null;
+  // An edited transfer from the same account is already counted in the balance
+  if (props.mode === "edit" && props.initial.fromAccountId === from.id) {
+    const original = parseMoney(props.initial.amount, from.currency);
+    if (original.ok) back = original.value;
+  }
+  return overspendWarning(from, amount.value, back);
+}
+
 function NeedTwoAccounts() {
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
@@ -141,6 +166,7 @@ function TransferFields(props: TransferFormProps) {
   const fromCurrency = accounts.find((a) => a.id === fromId)?.currency;
   const toCurrency = accounts.find((a) => a.id === toId)?.currency;
   const showArrived = differentCurrencies(accounts, fromId, toId);
+  const overspend = useOverspend();
 
   // The first message wins: the form's own check, then the server's
   function errorFor(name: TransferFieldName): string | undefined {
@@ -154,179 +180,192 @@ function TransferFields(props: TransferFormProps) {
   const noteError = errorFor("note");
 
   return (
-    <form
-      action={formAction}
-      noValidate
-      onSubmit={handleSubmit((_values, event) => {
-        const form = event?.target;
-        if (!(form instanceof HTMLFormElement)) return;
-        const data = new FormData(form);
-        startTransition(() => formAction(data));
-      })}
-      className="space-y-6"
-    >
-      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
-        <h1 className="text-3xl font-semibold tracking-tight">{props.title}</h1>
-        <SubmitButton
-          shape="pill"
-          label={en.transactions.form.submit}
-          pendingLabel={en.transactions.form.submitting}
-          pending={pending}
-        />
-      </div>
-      {state.error ? (
-        <p
-          role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-        >
-          {
-            en.transactions.errors[
-              isErrorKey(state.error) ? state.error : "unknown"
-            ]
+    <>
+      <form
+        action={formAction}
+        noValidate
+        onSubmit={handleSubmit((values, event) => {
+          const form = event?.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          const data = new FormData(form);
+          const warning = warningFor(props, values);
+          if (warning) {
+            overspend.ask({ data, ...warning });
+            return;
           }
-        </p>
-      ) : null}
-      {props.mode === "create" ? (
-        <KindSwitch
-          kinds={ADD_KINDS}
-          value="transfer"
-          onChange={(next) => {
-            if (next !== "transfer") props.onChooseEntry(next);
-          }}
-        />
-      ) : null}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor={`${uid}-from`} className="text-base">
-            {en.transactions.transfer.from}
-          </Label>
-          <select
-            id={`${uid}-from`}
-            aria-invalid={Boolean(fromError)}
-            aria-describedby={fromError ? `${uid}-from-error` : undefined}
-            className={selectClass}
-            defaultValue={initial.fromAccountId}
-            {...register("fromAccountId")}
-          >
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {accountLabel(account, accounts)}
-              </option>
-            ))}
-          </select>
-          <FieldMessage id={`${uid}-from-error`} error={fromError} />
-        </div>
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor={`${uid}-to`} className="text-base">
-            {en.transactions.transfer.to}
-          </Label>
-          <select
-            id={`${uid}-to`}
-            aria-invalid={Boolean(toError)}
-            aria-describedby={toError ? `${uid}-to-error` : undefined}
-            className={selectClass}
-            defaultValue={initial.toAccountId}
-            {...register("toAccountId")}
-          >
-            <option value="">{en.transactions.transfer.choose}</option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {accountLabel(account, accounts)}
-              </option>
-            ))}
-          </select>
-          <FieldMessage id={`${uid}-to-error`} error={toError} />
-        </div>
-      </div>
-      <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-        <Label
-          htmlFor={`${uid}-amount`}
-          className="text-sm font-normal text-muted-foreground"
-        >
-          {en.transactions.transfer.amount}
-        </Label>
-        <div className="flex items-baseline gap-2">
-          <span
-            aria-hidden="true"
-            className="text-3xl font-semibold text-muted-foreground"
-          >
-            {fromCurrency ? currencySymbol(fromCurrency) : null}
-          </span>
-          <AmountInput
-            id={`${uid}-amount`}
-            autoFocus
-            aria-invalid={Boolean(amountError)}
-            aria-describedby={amountError ? `${uid}-amount-error` : undefined}
-            className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
-            defaultValue={initial.amount}
-            {...register("amount")}
+          startTransition(() => formAction(data));
+        })}
+        className="space-y-6"
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-background py-2">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {props.title}
+          </h1>
+          <SubmitButton
+            shape="pill"
+            label={en.transactions.form.submit}
+            pendingLabel={en.transactions.form.submitting}
+            pending={pending}
           />
         </div>
-        <FieldMessage id={`${uid}-amount-error`} error={amountError} />
-      </div>
-      {showArrived ? (
+        {state.error ? (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+          >
+            {
+              en.transactions.errors[
+                isErrorKey(state.error) ? state.error : "unknown"
+              ]
+            }
+          </p>
+        ) : null}
+        {props.mode === "create" ? (
+          <KindSwitch
+            kinds={ADD_KINDS}
+            value="transfer"
+            onChange={(next) => {
+              if (next !== "transfer") props.onChooseEntry(next);
+            }}
+          />
+        ) : null}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${uid}-from`} className="text-base">
+              {en.transactions.transfer.from}
+            </Label>
+            <select
+              id={`${uid}-from`}
+              aria-invalid={Boolean(fromError)}
+              aria-describedby={fromError ? `${uid}-from-error` : undefined}
+              className={selectClass}
+              defaultValue={initial.fromAccountId}
+              {...register("fromAccountId")}
+            >
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {accountLabel(account, accounts)}
+                </option>
+              ))}
+            </select>
+            <FieldMessage id={`${uid}-from-error`} error={fromError} />
+          </div>
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${uid}-to`} className="text-base">
+              {en.transactions.transfer.to}
+            </Label>
+            <select
+              id={`${uid}-to`}
+              aria-invalid={Boolean(toError)}
+              aria-describedby={toError ? `${uid}-to-error` : undefined}
+              className={selectClass}
+              defaultValue={initial.toAccountId}
+              {...register("toAccountId")}
+            >
+              <option value="">{en.transactions.transfer.choose}</option>
+              {accounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {accountLabel(account, accounts)}
+                </option>
+              ))}
+            </select>
+            <FieldMessage id={`${uid}-to-error`} error={toError} />
+          </div>
+        </div>
         <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
           <Label
-            htmlFor={`${uid}-arrived`}
+            htmlFor={`${uid}-amount`}
             className="text-sm font-normal text-muted-foreground"
           >
-            {en.transactions.transfer.arrived}
+            {en.transactions.transfer.amount}
           </Label>
           <div className="flex items-baseline gap-2">
             <span
               aria-hidden="true"
               className="text-3xl font-semibold text-muted-foreground"
             >
-              {toCurrency ? currencySymbol(toCurrency) : null}
+              {fromCurrency ? currencySymbol(fromCurrency) : null}
             </span>
             <AmountInput
-              id={`${uid}-arrived`}
-              aria-invalid={Boolean(arrivedError)}
-              aria-describedby={
-                arrivedError ? `${uid}-arrived-error` : undefined
-              }
+              id={`${uid}-amount`}
+              autoFocus
+              aria-invalid={Boolean(amountError)}
+              aria-describedby={amountError ? `${uid}-amount-error` : undefined}
               className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
-              defaultValue={initial.arrived}
-              {...register("arrived")}
+              defaultValue={initial.amount}
+              {...register("amount")}
             />
           </div>
-          <FieldMessage id={`${uid}-arrived-error`} error={arrivedError} />
+          <FieldMessage id={`${uid}-amount-error`} error={amountError} />
         </div>
-      ) : null}
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-date`} className="text-base">
-          {en.transactions.form.date}
-        </Label>
-        <Input
-          id={`${uid}-date`}
-          type="date"
-          min={MIN_DATE}
-          max={MAX_DATE}
-          aria-invalid={Boolean(dateError)}
-          aria-describedby={dateError ? `${uid}-date-error` : undefined}
-          className="h-12 bg-card text-base dark:bg-card"
-          defaultValue={initial.date}
-          {...register("date")}
-        />
-        <FieldMessage id={`${uid}-date-error`} error={dateError} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor={`${uid}-note`} className="text-base">
-          {en.transactions.form.note}
-        </Label>
-        <Input
-          id={`${uid}-note`}
-          autoComplete="off"
-          maxLength={MAX_NOTE_LENGTH}
-          aria-invalid={Boolean(noteError)}
-          aria-describedby={noteError ? `${uid}-note-error` : undefined}
-          className="h-12 bg-card text-base dark:bg-card"
-          defaultValue={initial.note}
-          {...register("note")}
-        />
-        <FieldMessage id={`${uid}-note-error`} error={noteError} />
-      </div>
-    </form>
+        {showArrived ? (
+          <div className="space-y-1 rounded-2xl border border-border bg-card px-5 py-4 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+            <Label
+              htmlFor={`${uid}-arrived`}
+              className="text-sm font-normal text-muted-foreground"
+            >
+              {en.transactions.transfer.arrived}
+            </Label>
+            <div className="flex items-baseline gap-2">
+              <span
+                aria-hidden="true"
+                className="text-3xl font-semibold text-muted-foreground"
+              >
+                {toCurrency ? currencySymbol(toCurrency) : null}
+              </span>
+              <AmountInput
+                id={`${uid}-arrived`}
+                aria-invalid={Boolean(arrivedError)}
+                aria-describedby={
+                  arrivedError ? `${uid}-arrived-error` : undefined
+                }
+                className="h-auto rounded-none border-0 bg-transparent p-0 text-4xl font-semibold tracking-tight tabular-nums shadow-none focus-visible:border-0 focus-visible:ring-0 md:text-4xl dark:bg-transparent"
+                defaultValue={initial.arrived}
+                {...register("arrived")}
+              />
+            </div>
+            <FieldMessage id={`${uid}-arrived-error`} error={arrivedError} />
+          </div>
+        ) : null}
+        <div className="space-y-2">
+          <Label htmlFor={`${uid}-date`} className="text-base">
+            {en.transactions.form.date}
+          </Label>
+          <Input
+            id={`${uid}-date`}
+            type="date"
+            min={MIN_DATE}
+            max={MAX_DATE}
+            aria-invalid={Boolean(dateError)}
+            aria-describedby={dateError ? `${uid}-date-error` : undefined}
+            className="h-12 bg-card text-base dark:bg-card"
+            defaultValue={initial.date}
+            {...register("date")}
+          />
+          <FieldMessage id={`${uid}-date-error`} error={dateError} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor={`${uid}-note`} className="text-base">
+            {en.transactions.form.note}
+          </Label>
+          <Input
+            id={`${uid}-note`}
+            autoComplete="off"
+            maxLength={MAX_NOTE_LENGTH}
+            aria-invalid={Boolean(noteError)}
+            aria-describedby={noteError ? `${uid}-note-error` : undefined}
+            className="h-12 bg-card text-base dark:bg-card"
+            defaultValue={initial.note}
+            {...register("note")}
+          />
+          <FieldMessage id={`${uid}-note-error`} error={noteError} />
+        </div>
+      </form>
+      <OverspendDialog
+        control={overspend}
+        onSave={(data) => startTransition(() => formAction(data))}
+      />
+    </>
   );
 }
 

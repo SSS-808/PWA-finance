@@ -9,6 +9,7 @@ import {
   accountFieldsSchema,
   createAccountSchema,
   fieldErrorsFrom,
+  parseMinimum,
   parseStartingAmount,
 } from "../domain/schemas";
 import type {
@@ -29,6 +30,7 @@ function readValues(formData: FormData, currency?: string): AccountFormValues {
     type: textField(formData, "type"),
     currency: currency ?? textField(formData, "currency"),
     startingAmount: textField(formData, "startingAmount"),
+    minimum: textField(formData, "minimum"),
   };
 }
 
@@ -65,6 +67,18 @@ export async function createAccount(
       values,
     };
   }
+  const minimum = parseMinimum(
+    parsed.data.minimum,
+    parsed.data.type,
+    parsed.data.currency,
+  );
+  if (!minimum.ok) {
+    return {
+      status: "error",
+      fieldErrors: { minimum: minimum.error },
+      values,
+    };
+  }
 
   const profile = await getProfile();
   const supabase = await createClient();
@@ -74,6 +88,7 @@ export async function createAccount(
     p_currency: parsed.data.currency,
     p_opening_balance_minor: amount.value.minor,
     p_opened_on: todayIn(profile.timeZone),
+    p_minimum_minor: minimum.value.minor,
   });
   if (error) {
     // 23505 is the unique index on active account names
@@ -115,6 +130,18 @@ export async function updateAccount(
       values,
     };
   }
+  const minimum = parseMinimum(
+    parsed.data.minimum,
+    parsed.data.type,
+    account.currency,
+  );
+  if (!minimum.ok) {
+    return {
+      status: "error",
+      fieldErrors: { minimum: minimum.error },
+      values,
+    };
+  }
 
   const profile = await getProfile();
   const supabase = await createClient();
@@ -124,6 +151,7 @@ export async function updateAccount(
     p_type: parsed.data.type,
     p_opening_balance_minor: amount.value.minor,
     p_opened_on: todayIn(profile.timeZone),
+    p_minimum_minor: minimum.value.minor,
   });
   if (error) {
     if (error.code === "23505") {

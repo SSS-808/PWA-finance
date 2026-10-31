@@ -3,10 +3,20 @@ import {
   type CurrencyCode,
   type Money,
   isNegative,
+  money,
   negate,
+  subtract,
   sum,
+  zero,
 } from "@/modules/money";
 import { type AccountType, isDebt } from "./account-types";
+
+// The minimum a bank account starts with, in minor units: ₭50,000, $10.00 and ฿500.00
+const BANK_MINIMUM_MINOR: Record<CurrencyCode, number> = {
+  LAK: 50_000,
+  USD: 1_000,
+  THB: 50_000,
+};
 
 // A debt with a negative balance is shown as a positive amount that is owed
 export function displayBalance(
@@ -85,4 +95,18 @@ export function sameNameOthers<T extends { id: string; name: string }>(
   return accounts.filter(
     (other) => other.id !== account.id && other.name.toLowerCase() === key,
   );
+}
+
+// What the bank keeps by default: a bank account holds ₭50,000, $10 or ฿500, everything else nothing
+export function defaultMinimum(
+  type: AccountType,
+  currency: CurrencyCode,
+): Money {
+  if (type !== "bank") return zero(currency);
+  return money(BANK_MINIMUM_MINOR[currency], currency);
+}
+
+// The balance minus the minimum the bank keeps; it goes below 0 when the balance is under the minimum
+export function freeToSpend(balance: Money, minimum: Money): Money {
+  return subtract(balance, minimum);
 }

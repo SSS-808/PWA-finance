@@ -51,6 +51,7 @@ async function EditForm({
         startingAmount={
           isZero(account.openingBalance) ? "" : toDecimalString(amount)
         }
+        minimum={toDecimalString(account.minimum)}
       />
     </div>
   );

@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
-import { listAccounts } from "@/modules/accounts";
-import { toDecimalString } from "@/modules/money";
+import { freeToSpend, listAccounts } from "@/modules/accounts";
+import { isZero, toDecimalString } from "@/modules/money";
 import {
   DeleteTransferButton,
   TransferForm,
@@ -47,7 +47,13 @@ async function EditTransfer({
         account.id === transfer.from ||
         account.id === transfer.to,
     )
-    .map(({ id, name, currency }) => ({ id, name, currency }));
+    .map(({ id, name, currency, balance, minimum }) => ({
+      id,
+      name,
+      currency,
+      free: isZero(minimum) ? null : freeToSpend(balance, minimum),
+      minimum: isZero(minimum) ? null : minimum,
+    }));
   const exchange = transfer.fromAmount.currency !== transfer.toAmount.currency;
 
   return (

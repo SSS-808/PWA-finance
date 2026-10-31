@@ -15,9 +15,10 @@ type AccountRow = {
   type: string;
   currency: string;
   archived_at: string | null;
+  minimum_minor: number;
 };
 
-const ACCOUNT_COLUMNS = "id, name, type, currency, archived_at";
+const ACCOUNT_COLUMNS = "id, name, type, currency, archived_at, minimum_minor";
 
 const idSchema = z.uuid();
 
@@ -36,6 +37,7 @@ function toAccount(row: AccountRow, balanceMinor: number | null): Account {
     currency: row.currency,
     archived: row.archived_at !== null,
     balance: money(balanceMinor ?? 0, row.currency),
+    minimum: money(row.minimum_minor, row.currency),
   };
 }
 

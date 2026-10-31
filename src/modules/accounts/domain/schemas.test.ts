@@ -5,6 +5,7 @@ import {
   accountFieldsSchema,
   createAccountSchema,
   fieldErrorsFrom,
+  parseMinimum,
   parseStartingAmount,
 } from "./schemas";
 
@@ -12,6 +13,7 @@ const valid = {
   name: "Cash",
   type: "cash",
   startingAmount: "",
+  minimum: "",
   currency: "LAK",
 };
 
@@ -22,8 +24,14 @@ describe("accountFieldsSchema", () => {
         name: "Cash",
         type: "cash",
         startingAmount: "10",
+        minimum: "5",
       }),
-    ).toEqual({ name: "Cash", type: "cash", startingAmount: "10" });
+    ).toEqual({
+      name: "Cash",
+      type: "cash",
+      startingAmount: "10",
+      minimum: "5",
+    });
   });
 
   it.each(["", "   "])("requires a name, not %j", (name) => {
@@ -76,6 +84,7 @@ describe("fieldErrorsFrom", () => {
       name: "",
       type: "wallet",
       startingAmount: "",
+      minimum: "",
       currency: "EUR",
     });
     expect(result.error && fieldErrorsFrom(result.error)).toEqual({
@@ -152,4 +161,58 @@ describe("parseStartingAmount", () => {
       error: "amount_negative",
     });
   });
+});
+
+describe("parseMinimum", () => {
+  it.each(["", "   "])("treats %j as 0", (input) => {
+    expect(parseMinimum(input, "bank", "USD")).toEqual({
+      ok: true,
+      value: money(0, "USD"),
+    });
+  });
+
+  it("reads a kip amount with commas", () => {
+    expect(parseMinimum("50,000", "bank", "LAK")).toEqual({
+      ok: true,
+      value: money(50000, "LAK"),
+    });
+  });
+
+  it("reads a dollar amount in cents", () => {
+    expect(parseMinimum("10", "bank", "USD")).toEqual({
+      ok: true,
+      value: money(1000, "USD"),
+    });
+  });
+
+  it("keeps 0 as 0", () => {
+    expect(parseMinimum("0", "savings", "THB")).toEqual({
+      ok: true,
+      value: money(0, "THB"),
+    });
+  });
+
+  it.each([
+    ["-5", "minimum_negative"],
+    ["1.005", "amount_too_many_decimals"],
+    ["99999999999999", "amount_too_large"],
+    ["abc", "amount_invalid"],
+    [".", "amount_invalid"],
+  ])("refuses %j with %s", (input, error) => {
+    expect(parseMinimum(input, "bank", "USD")).toEqual({ ok: false, error });
+  });
+
+  it.each(["credit_card", "loan"] as const)(
+    "forces 0 on %s, whatever was typed",
+    (type) => {
+      expect(parseMinimum("50", type, "USD")).toEqual({
+        ok: true,
+        value: money(0, "USD"),
+      });
+      expect(parseMinimum("abc", type, "USD")).toEqual({
+        ok: true,
+        value: money(0, "USD"),
+      });
+    },
+  );
 });

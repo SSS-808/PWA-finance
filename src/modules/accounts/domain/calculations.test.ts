@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { money } from "@/modules/money";
 import {
+  defaultMinimum,
   displayBalance,
+  freeToSpend,
   groupByCurrency,
   groupByName,
   sameNameOthers,
@@ -163,5 +165,52 @@ describe("sameNameOthers", () => {
 
   it("returns nothing when no account shares the name", () => {
     expect(sameNameOthers(cash, [])).toEqual([]);
+  });
+});
+
+describe("defaultMinimum", () => {
+  it.each([
+    ["LAK", 50000],
+    ["USD", 1000],
+    ["THB", 50000],
+  ] as const)("gives a bank account the usual %s amount", (currency, minor) => {
+    expect(defaultMinimum("bank", currency)).toEqual(money(minor, currency));
+  });
+
+  it.each([
+    "cash",
+    "savings",
+    "credit_card",
+    "loan",
+    "investment",
+    "other",
+  ] as const)("gives %s nothing", (type) => {
+    expect(defaultMinimum(type, "USD")).toEqual(money(0, "USD"));
+  });
+});
+
+describe("freeToSpend", () => {
+  it("takes the minimum off the balance", () => {
+    expect(freeToSpend(money(7000000, "LAK"), money(50000, "LAK"))).toEqual(
+      money(6950000, "LAK"),
+    );
+  });
+
+  it("is 0 when the balance is the minimum", () => {
+    expect(freeToSpend(money(1000, "USD"), money(1000, "USD"))).toEqual(
+      money(0, "USD"),
+    );
+  });
+
+  it("goes below 0 when the balance is under the minimum", () => {
+    expect(freeToSpend(money(300, "USD"), money(1000, "USD"))).toEqual(
+      money(-700, "USD"),
+    );
+  });
+
+  it("is the balance when there is no minimum", () => {
+    expect(freeToSpend(money(500, "THB"), money(0, "THB"))).toEqual(
+      money(500, "THB"),
+    );
   });
 });
