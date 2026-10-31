@@ -391,14 +391,16 @@ test("Fix balance on a debt is typed as what you owe", async ({ page }) => {
   await expect(shown(page.getByText(en.accounts.fix.assetLabel))).toHaveCount(
     0,
   );
-  await expect(shown(page.getByText(/\$30\.00/))).toContainText(
-    en.accounts.owed,
+  await expect(shown(page.getByText(/\$30\.00/))).toHaveText(
+    en.accounts.owed.replace("{amount}", "$30.00"),
   );
 
   await fixBox(page).fill("45");
   await fixSave(page).click();
   await expect(notice(page, en.accounts.notices.fixed)).toBeVisible();
-  await expect(shown(page.getByText(/\$45\.00/))).toContainText("$45.00 owed");
+  await expect(shown(page.getByText(/\$45\.00/))).toContainText(
+    en.accounts.owed.replace("{amount}", "$45.00"),
+  );
 });
 
 test("another person's transfer, and an id that is not a uuid, give not found", async ({

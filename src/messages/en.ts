@@ -2,6 +2,7 @@ export const en = {
   help: {
     about: "About {field}",
   },
+  common: { add: "Add" },
   app: {
     name: "Personal Wallet",
     tagline: "Track every kip, dollar and baht.",
@@ -355,7 +356,7 @@ export const en = {
     addFirst: "Add your first account",
     emptyTitle: "No accounts yet",
     total: "Total",
-    owed: "owed",
+    owed: "Owed {amount}",
     archivedTitle: "Archived",
     showArchived: "Show archived ({count})",
     hideArchived: "Hide archived",
@@ -390,14 +391,13 @@ export const en = {
       startingAmount: "How much is in it now?",
       startingOwed: "How much do you owe on it now?",
       startingPlaceholder: "0",
-      submitNew: "Add account",
-      submittingNew: "Adding…",
-      submitEdit: "Save changes",
-      submittingEdit: "Saving…",
+      save: "Save",
+      saving: "Saving…",
       cancel: "Cancel",
     },
     detail: {
       balance: "Balance",
+      recent: "Recent",
       edit: "Edit",
       archive: "Archive",
       archiveConfirm:
@@ -406,7 +406,7 @@ export const en = {
       unarchive: "Bring back",
       noTransactions: "No transactions yet.",
       seeAll: "See all in History",
-      back: "All accounts",
+      back: "Accounts",
     },
     fix: {
       title: "Fix balance",
