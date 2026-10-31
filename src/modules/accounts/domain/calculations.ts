@@ -3,6 +3,7 @@ import {
   type CurrencyCode,
   type Money,
   isNegative,
+  isZero,
   money,
   negate,
   subtract,
@@ -106,7 +107,19 @@ export function defaultMinimum(
   return money(BANK_MINIMUM_MINOR[currency], currency);
 }
 
-// The balance minus the minimum the bank keeps; it goes below 0 when the balance is under the minimum
-export function freeToSpend(balance: Money, minimum: Money): Money {
-  return subtract(balance, minimum);
+// The balance minus the minimum the bank keeps and the money set aside for goals; it goes below 0 when those add up to more
+export function freeToSpend(
+  balance: Money,
+  minimum: Money,
+  setAside: Money,
+): Money {
+  return subtract(subtract(balance, minimum), setAside);
+}
+
+// Free to spend is shown only for an account with a minimum or money set aside for goals
+export function showsFree(account: {
+  minimum: Money;
+  setAside: Money;
+}): boolean {
+  return !isZero(account.minimum) || !isZero(account.setAside);
 }

@@ -86,6 +86,8 @@ async function HistoryContent({
           currency,
           free: null,
           minimum: null,
+          setAside: null,
+          goals: [],
         }))}
         expenseCategories={categories.filter(
           (category) => category.kind === "expense",

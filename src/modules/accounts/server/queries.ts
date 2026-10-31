@@ -22,7 +22,11 @@ const ACCOUNT_COLUMNS = "id, name, type, currency, archived_at, minimum_minor";
 
 const idSchema = z.uuid();
 
-function toAccount(row: AccountRow, balanceMinor: number | null): Account {
+function toAccount(
+  row: AccountRow,
+  balanceMinor: number | null,
+  setAsideMinor: number | null,
+): Account {
   // The database checks these values, so anything else is a bug
   if (!isAccountType(row.type)) {
     throw new Error(`Unexpected account type: ${row.type}`);
@@ -38,16 +42,18 @@ function toAccount(row: AccountRow, balanceMinor: number | null): Account {
     archived: row.archived_at !== null,
     balance: money(balanceMinor ?? 0, row.currency),
     minimum: money(row.minimum_minor, row.currency),
+    setAside: money(setAsideMinor ?? 0, row.currency),
   };
 }
 
-// Active and archived accounts with their balances; the view can't be embedded, so they are merged here
+// Active and archived accounts with their balances and goal money; the views can't be embedded, so they are merged here
 export async function listAccounts(): Promise<Account[]> {
   await requireUser();
   const supabase = await createClient();
-  const [accounts, balances] = await Promise.all([
+  const [accounts, balances, setAside] = await Promise.all([
     supabase.from("accounts").select(ACCOUNT_COLUMNS).order("name"),
     supabase.from("account_balances").select("account_id, balance_minor"),
+    supabase.from("account_set_aside").select("account_id, set_aside_minor"),
   ]);
   if (accounts.error) {
     throw new Error("Could not load the accounts", { cause: accounts.error });
@@ -55,11 +61,23 @@ export async function listAccounts(): Promise<Account[]> {
   if (balances.error) {
     throw new Error("Could not load the balances", { cause: balances.error });
   }
+  if (setAside.error) {
+    throw new Error("Could not load the money set aside", {
+      cause: setAside.error,
+    });
+  }
   const balanceById = new Map(
     balances.data.map((row) => [row.account_id, row.balance_minor]),
   );
+  const setAsideById = new Map(
+    setAside.data.map((row) => [row.account_id, row.set_aside_minor]),
+  );
   return accounts.data.map((row) =>
-    toAccount(row, balanceById.get(row.id) ?? null),
+    toAccount(
+      row,
+      balanceById.get(row.id) ?? null,
+      setAsideById.get(row.id) ?? null,
+    ),
   );
 }
 
@@ -69,7 +87,7 @@ export async function getAccount(id: string): Promise<AccountDetail> {
   if (!idSchema.safeParse(id).success) notFound();
 
   const supabase = await createClient();
-  const [account, balance, opening] = await Promise.all([
+  const [account, balance, setAside, opening] = await Promise.all([
     supabase
       .from("accounts")
       .select(ACCOUNT_COLUMNS)
@@ -78,6 +96,11 @@ export async function getAccount(id: string): Promise<AccountDetail> {
     supabase
       .from("account_balances")
       .select("balance_minor")
+      .eq("account_id", id)
+      .maybeSingle(),
+    supabase
+      .from("account_set_aside")
+      .select("set_aside_minor")
       .eq("account_id", id)
       .maybeSingle(),
     supabase
@@ -94,6 +117,11 @@ export async function getAccount(id: string): Promise<AccountDetail> {
   if (balance.error) {
     throw new Error("Could not load the balance", { cause: balance.error });
   }
+  if (setAside.error) {
+    throw new Error("Could not load the money set aside", {
+      cause: setAside.error,
+    });
+  }
   if (opening.error) {
     throw new Error("Could not load the starting amount", {
       cause: opening.error,
@@ -101,7 +129,11 @@ export async function getAccount(id: string): Promise<AccountDetail> {
   }
   if (!account.data) notFound();
 
-  const detail = toAccount(account.data, balance.data?.balance_minor ?? null);
+  const detail = toAccount(
+    account.data,
+    balance.data?.balance_minor ?? null,
+    setAside.data?.set_aside_minor ?? null,
+  );
   return {
     ...detail,
     openingBalance: money(opening.data?.amount_minor ?? 0, detail.currency),

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { money } from "@/modules/money";
-import { type Goal, goalProgress, sortGoals } from "./calculations";
+import {
+  type Goal,
+  accountShortfall,
+  contributionShares,
+  goalProgress,
+  goalShortInAccount,
+  sortGoals,
+} from "./calculations";
 
 const TODAY = "2026-10-12";
 
@@ -210,5 +217,114 @@ describe("sortGoals", () => {
     const list = [goal({ id: "2", name: "B" }), goal({ id: "1", name: "A" })];
     sortGoals(list);
     expect(list.map((item) => item.id)).toEqual(["2", "1"]);
+  });
+});
+
+describe("contributionShares", () => {
+  const bcel = "11111111-1111-4111-8111-111111111111";
+  const cash = "22222222-2222-4222-8222-222222222222";
+
+  it("adds up what each account holds, in order of first appearance", () => {
+    expect(
+      contributionShares([
+        { accountId: cash, amount: money(300, "LAK") },
+        { accountId: bcel, amount: money(1_000, "LAK") },
+        { accountId: cash, amount: money(200, "LAK") },
+      ]),
+    ).toEqual([
+      { accountId: cash, amount: money(500, "LAK") },
+      { accountId: bcel, amount: money(1_000, "LAK") },
+    ]);
+  });
+
+  it("keeps money that is not in an account under null", () => {
+    expect(
+      contributionShares([
+        { accountId: null, amount: money(700, "LAK") },
+        { accountId: bcel, amount: money(100, "LAK") },
+      ]),
+    ).toEqual([
+      { accountId: null, amount: money(700, "LAK") },
+      { accountId: bcel, amount: money(100, "LAK") },
+    ]);
+  });
+
+  it("subtracts what was taken out and drops a share that nets to 0", () => {
+    expect(
+      contributionShares([
+        { accountId: bcel, amount: money(1_000, "LAK") },
+        { accountId: bcel, amount: money(-1_000, "LAK") },
+        { accountId: cash, amount: money(400, "LAK") },
+        { accountId: cash, amount: money(-100, "LAK") },
+      ]),
+    ).toEqual([{ accountId: cash, amount: money(300, "LAK") }]);
+  });
+
+  it("returns nothing for no contributions", () => {
+    expect(contributionShares([])).toEqual([]);
+  });
+});
+
+describe("accountShortfall", () => {
+  const lak = (minor: number) => money(minor, "LAK");
+
+  it("is 0 when the account holds everything set aside", () => {
+    expect(
+      accountShortfall(lak(7_000_000), lak(50_000), lak(1_000_000)),
+    ).toEqual(lak(0));
+  });
+
+  it("is 0 when what is above the minimum is exactly what is set aside", () => {
+    expect(
+      accountShortfall(lak(1_050_000), lak(50_000), lak(1_000_000)),
+    ).toEqual(lak(0));
+  });
+
+  it("is what the account is short of the set aside amount", () => {
+    expect(accountShortfall(lak(600_000), lak(50_000), lak(1_000_000))).toEqual(
+      lak(450_000),
+    );
+  });
+
+  it("is everything set aside when the balance is under the minimum", () => {
+    expect(accountShortfall(lak(20_000), lak(50_000), lak(300_000))).toEqual(
+      lak(300_000),
+    );
+  });
+
+  it("is 0 when nothing is set aside, even under the minimum", () => {
+    expect(accountShortfall(lak(20_000), lak(50_000), lak(0))).toEqual(lak(0));
+  });
+
+  it("keeps the currency", () => {
+    expect(
+      accountShortfall(money(500, "USD"), money(0, "USD"), money(800, "USD")),
+    ).toEqual(money(300, "USD"));
+  });
+});
+
+describe("goalShortInAccount", () => {
+  it("is the whole shortfall when the goal holds more than that", () => {
+    expect(goalShortInAccount(money(900, "LAK"), money(400, "LAK"))).toEqual(
+      money(400, "LAK"),
+    );
+  });
+
+  it("is the goal's share when the shortfall is bigger", () => {
+    expect(goalShortInAccount(money(300, "LAK"), money(400, "LAK"))).toEqual(
+      money(300, "LAK"),
+    );
+  });
+
+  it("is the same amount when both are equal", () => {
+    expect(goalShortInAccount(money(400, "LAK"), money(400, "LAK"))).toEqual(
+      money(400, "LAK"),
+    );
+  });
+
+  it("is 0 when there is no shortfall", () => {
+    expect(goalShortInAccount(money(300, "LAK"), money(0, "LAK"))).toEqual(
+      money(0, "LAK"),
+    );
   });
 });

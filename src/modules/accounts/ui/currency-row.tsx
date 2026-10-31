@@ -2,17 +2,17 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
-import { formatMoney, isNegative, isZero } from "@/modules/money";
-import { freeToSpend } from "../domain/calculations";
+import { formatMoney, isNegative } from "@/modules/money";
+import { freeToSpend, showsFree } from "../domain/calculations";
 import type { Account } from "../domain/types";
 import { balanceText } from "./balance-text";
 
 // One currency of an account name: the currency, its balance and a link to that account
 export function CurrencyRow({ account }: { account: Account }) {
   const { text, owed } = balanceText(account.type, account.balance);
-  const free = isZero(account.minimum)
-    ? null
-    : freeToSpend(account.balance, account.minimum);
+  const free = showsFree(account)
+    ? freeToSpend(account.balance, account.minimum, account.setAside)
+    : null;
   return (
     <li>
       <Link

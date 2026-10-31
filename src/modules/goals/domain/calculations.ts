@@ -1,4 +1,12 @@
-import { type Money, money, subtract, zero } from "@/modules/money";
+import {
+  type Money,
+  add,
+  isNegative,
+  isZero,
+  money,
+  subtract,
+  zero,
+} from "@/modules/money";
 
 // deadline is "YYYY-MM-DD"
 export type Goal = {
@@ -69,4 +77,38 @@ export function sortGoals(goals: readonly Goal[]): Goal[] {
       a.name.localeCompare(b.name, "en") ||
       a.id.localeCompare(b.id),
   );
+}
+
+// The money a goal holds in one account; accountId is null for money that is not in any account
+export type AccountShare = { accountId: string | null; amount: Money };
+
+// What a goal holds in each account (null: not in an account), in order of first appearance; shares that net to 0 are dropped
+export function contributionShares(
+  contributions: readonly AccountShare[],
+): AccountShare[] {
+  const totals = new Map<string | null, Money>();
+  for (const { accountId, amount } of contributions) {
+    const total = totals.get(accountId);
+    totals.set(accountId, total ? add(total, amount) : amount);
+  }
+  return [...totals]
+    .filter(([, amount]) => !isZero(amount))
+    .map(([accountId, amount]) => ({ accountId, amount }));
+}
+
+// How much of what is set aside the account no longer holds: set aside minus what is above the minimum, never below 0
+export function accountShortfall(
+  balance: Money,
+  minimum: Money,
+  setAside: Money,
+): Money {
+  const above = subtract(balance, minimum);
+  const held = isNegative(above) ? zero(above.currency) : above;
+  const short = subtract(setAside, held);
+  return isNegative(short) ? zero(short.currency) : short;
+}
+
+// The part of the account's shortfall that one goal has to give back: at most what it holds there
+export function goalShortInAccount(share: Money, shortfall: Money): Money {
+  return share.minor < shortfall.minor ? share : shortfall;
 }

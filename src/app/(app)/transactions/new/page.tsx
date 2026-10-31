@@ -1,12 +1,16 @@
 import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
-import { EmptyAccounts, freeToSpend, listAccounts } from "@/modules/accounts";
+import { EmptyAccounts, listAccounts } from "@/modules/accounts";
 import { safeNextPath } from "@/modules/auth";
 import { listCategories } from "@/modules/categories";
-import { isZero } from "@/modules/money";
+import { listGoalMoneyByAccount } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
-import { AddForm, readLastAccountId } from "@/modules/transactions";
+import {
+  AddForm,
+  readLastAccountId,
+  toAccountOptions,
+} from "@/modules/transactions";
 
 export default function NewTransactionPage({
   searchParams,
@@ -33,14 +37,21 @@ async function NewEntry({
   searchParams: PageProps<"/transactions/new">["searchParams"];
 }) {
   const { from, kind } = await searchParams;
-  const [profile, accounts, expenseCategories, incomeCategories, lastId] =
-    await Promise.all([
-      getProfile(),
-      listAccounts(),
-      listCategories("expense"),
-      listCategories("income"),
-      readLastAccountId(),
-    ]);
+  const [
+    profile,
+    accounts,
+    expenseCategories,
+    incomeCategories,
+    lastId,
+    goalMoney,
+  ] = await Promise.all([
+    getProfile(),
+    listAccounts(),
+    listCategories("expense"),
+    listCategories("income"),
+    readLastAccountId(),
+    listGoalMoneyByAccount(),
+  ]);
   const active = accounts.filter((account) => !account.archived);
   const first = active[0];
   if (!first) {
@@ -66,13 +77,7 @@ async function NewEntry({
       key={crypto.randomUUID()}
       returnTo={safeNextPath(typeof from === "string" ? from : null)}
       initialKind={kind === "income" ? "income" : "expense"}
-      accounts={active.map(({ id, name, currency, balance, minimum }) => ({
-        id,
-        name,
-        currency,
-        free: isZero(minimum) ? null : freeToSpend(balance, minimum),
-        minimum: isZero(minimum) ? null : minimum,
-      }))}
+      accounts={toAccountOptions(active, goalMoney)}
       expenseCategories={expenseCategories}
       incomeCategories={incomeCategories}
       defaultAccountId={defaultAccountId}

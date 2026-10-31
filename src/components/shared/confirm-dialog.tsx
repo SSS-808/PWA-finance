@@ -11,6 +11,7 @@ export function ConfirmDialog({
   children,
   confirmLabel,
   cancelLabel,
+  extra,
   onConfirm,
   onCancel,
 }: {
@@ -19,6 +20,8 @@ export function ConfirmDialog({
   children: ReactNode;
   confirmLabel: string;
   cancelLabel: string;
+  // A second action between confirm and cancel
+  extra?: { label: string; onClick: () => void };
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -76,6 +79,15 @@ export function ConfirmDialog({
           >
             {confirmLabel}
           </Button>
+          {extra ? (
+            <Button
+              type="button"
+              className="h-12 w-full text-base"
+              onClick={extra.onClick}
+            >
+              {extra.label}
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"

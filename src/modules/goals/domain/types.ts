@@ -10,6 +10,7 @@ export const GOAL_ERROR_KEYS = [
   "amount_too_large",
   "invalid_date",
   "not_enough_saved",
+  "not_enough_in_account",
   "not_found",
   "unknown",
 ] as const;
@@ -24,7 +25,7 @@ export type GoalFormValues = Record<
   string
 >;
 
-export type ContributionFormValues = { amount: string };
+export type ContributionFormValues = { amount: string; account: string };
 
 export type GoalFormState = {
   status: "idle" | "error";

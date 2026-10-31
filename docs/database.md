@@ -457,6 +457,7 @@ Decision: [ADR-011](adr/011-goals-are-earmarks.md). Migration: `supabase/migrati
 - A trigger refuses any contribution that would bring a goal's saved total below 0.
 - The view `goal_totals (goal_id, user_id, currency, saved_minor)` adds up the contributions. It runs with the reader's own access (`security_invoker`), so RLS still applies.
 - A contribution does **not** move money between accounts. It's a label on money you already have.
+- Since 2026-10-31 ([ADR-012](adr/012-goal-money-sits-in-an-account.md)): `goal_contributions.account_id` names the account the money sits in (foreign key `(account_id, user_id, currency)`: same user, the goal's currency). The trigger checks each account's share of a goal, so none goes below 0. The view `account_set_aside (account_id, user_id, set_aside_minor)` adds up the money set aside per account for goals that aren't archived. Free to spend = balance − minimum − set aside. The function `release_goal_shortfall(p_account_id, p_goal_id, p_on)` takes out the goal money an account no longer holds (balance − minimum below what is set aside): the goal with the most there gives first, or only `p_goal_id` when given. It returns how much it took.
 
 ### Still a sketch
 
