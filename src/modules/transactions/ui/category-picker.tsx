@@ -93,7 +93,7 @@ export function CategoryPicker({
               defaultChecked={category.id === initialId}
               {...register("categoryId")}
             />
-            <span className="flex flex-col items-center gap-1.5 rounded-2xl px-0.5 py-2 text-xs text-muted-foreground peer-checked:bg-muted peer-checked:font-semibold peer-checked:text-foreground peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
+            <span className="flex flex-col items-center gap-1.5 rounded-2xl px-0.5 py-2 text-xs text-muted-foreground peer-checked:bg-muted peer-checked:text-foreground peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50">
               <CategoryIcon
                 icon={category.icon}
                 color={category.color}
