@@ -2,6 +2,7 @@ import { ChevronRight, Download, KeyRound, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { InstallApp } from "@/components/shared/install-app";
 import {
   FormSkeleton,
   LoadingStatus,
@@ -84,6 +85,18 @@ export default function SettingsPage() {
           <a href="/settings/export" download className={rowClass}>
             <SettingsRow icon={Download} label={en.settings.data.download} />
           </a>
+        </div>
+      </section>
+      {/* Hidden inside the installed app, where there is nothing left to install */}
+      <section
+        aria-labelledby="settings-app"
+        className="space-y-2 [@media(display-mode:standalone)]:hidden"
+      >
+        <h2 id="settings-app" className={headingClass}>
+          {en.settings.app.title}
+        </h2>
+        <div className={cardClass}>
+          <InstallApp className={rowClass} />
         </div>
       </section>
       <section aria-labelledby="settings-account" className="space-y-2">

@@ -5,6 +5,7 @@ export const en = {
   common: { add: "Add", loading: "Loading…" },
   app: {
     name: "Personal Wallet",
+    shortName: "Wallet",
     tagline: "Track every kip, dollar and baht.",
     description: "A personal finance app for accounts, spending and savings.",
   },
@@ -251,6 +252,15 @@ export const en = {
     data: {
       title: "Your data",
       download: "Download my data",
+    },
+    app: {
+      title: "App",
+      install: "Install the app",
+      addToHome: "Add to Home Screen",
+      iosSteps:
+        "In Safari, tap Share (the square with an arrow), then Add to Home Screen, then Add. Log in once inside the new app.",
+      otherSteps:
+        "Open your browser's menu and choose Install app or Add to Home Screen.",
     },
     account: {
       title: "Account",
