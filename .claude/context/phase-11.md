@@ -35,15 +35,15 @@ The app can sit on the iPhone's home screen with its own icon (a cloud-shaped wa
   - Known limit: a page still saving at the moment of log-out could land after the wipe; the next log-out removes it.
   - Phase 12's security headers must allow `worker-src 'self'` and `manifest-src 'self'`.
 
-## Release checklist
-1. No migrations: nothing goes to the production database.
-2. The owner tries the practice site in Safari, with the VPN on:
-   - log in and open Home only, then wait about 10 seconds;
-   - turn the VPN off, then tap Budgets (never opened): its saved copy and the banner appear within about 4 s;
+## Release (done 2026-11-02, PR #42)
+1. No migrations: nothing went to the production database.
+2. The owner chose to skip the practice-site test and to try it on the live site instead.
+3. `dev` was merged into `main` with merge commit `d765e70`. App and Database checks on #42 were green; Browser tests were still running, but the identical code had passed them on #43. `dev` was then brought level with `main`.
+4. Still for the owner, on the live site in Safari:
+   - with the VPN on, choose Share → Add to Home Screen, open the app, log in, and wait a few seconds;
+   - turn the VPN off and open the app: Home appears within about 4 s with the banner, and Budgets and the other main pages work too;
    - tap ＋: the "You're offline" page appears;
    - turn the VPN back on: the banner goes away and the numbers refresh.
-3. On "release": merge `dev` into `main` with a merge commit, then bring `dev` level with `main`.
-4. After the release, on the live site: Safari → Share → Add to Home Screen → open the app → log in → wait a few seconds → try it with the VPN off.
 
 ## Next
 Phase 10, Analytics, after 2–3 months of data (see the roadmap's "Order from here"). The own domain is still on hold.
