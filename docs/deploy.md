@@ -99,3 +99,4 @@ Good to know: internet providers in Laos block every address ending in `.vercel.
 - [ ] Vercel → project → Domains: buy or add the domain. Bought inside Vercel, it connects itself.
 - [ ] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://<your-domain>` and add `https://<your-domain>/auth/confirm` to the Redirect URLs.
 - [ ] Open the site without a VPN, then test "Forgot password" once, because its email link uses the Site URL.
+- [ ] The installed app belongs to the old address. Delete it from the home screen, open the new address in Safari, choose Share → Add to Home Screen, and log in once inside the new app.
