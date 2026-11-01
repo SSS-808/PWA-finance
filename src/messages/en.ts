@@ -87,6 +87,8 @@ export const en = {
     spending: "Spending",
     saved: "Saved",
     savingsRate: "Savings rate",
+    balances: "Balances",
+    showCard: "Show {currency}",
     whereMoneyWent: "Where your money went",
     other: "Other",
     noSpending: "No spending recorded in {month} yet.",

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { en } from "@/messages/en";
 import { BudgetSummary, getBudgetMonth } from "@/modules/budgets";
 import {
+  BalanceCarousel,
   CurrencyCard,
   DashboardMonthBar,
   MoneyButtons,
@@ -68,7 +69,6 @@ async function HomeContent({
     listGoals(),
   ]);
   const ordered = mainFirst(cards, profile.baseCurrency);
-  const [main, ...others] = ordered;
   const withSpending = ordered.filter(
     (card) => card.summary.byCategory.length > 0,
   );
@@ -82,7 +82,7 @@ async function HomeContent({
         savedTransfer={savedTransfer}
         deleted={deleted}
       />
-      {main === undefined ? (
+      {ordered.length === 0 ? (
         <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
           <h2 className="text-xl font-semibold">{en.home.startTitle}</h2>
           <Button asChild className="h-12 w-full text-base">
@@ -92,11 +92,14 @@ async function HomeContent({
       ) : (
         <>
           <DashboardMonthBar month={month} currentMonth={currentMonth} />
-          <CurrencyCard card={main} main />
+          <BalanceCarousel
+            labels={ordered.map((card) => en.currencies[card.currency])}
+          >
+            {ordered.map((card) => (
+              <CurrencyCard key={card.currency} card={card} />
+            ))}
+          </BalanceCarousel>
           <MoneyButtons />
-          {others.map((card) => (
-            <CurrencyCard key={card.currency} card={card} main={false} />
-          ))}
           {withSpending.length > 0 ? (
             withSpending.map((card) => (
               <SpendingCard key={card.currency} card={card} month={month} />
