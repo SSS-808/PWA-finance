@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { CategoryIcon } from "@/components/shared/category-icon";
 import { en } from "@/messages/en";
 import type { ManagedCategory } from "../domain/types";
@@ -13,30 +12,19 @@ function CategoryRow({ category }: { category: ManagedCategory }) {
           <span className="block text-base font-medium break-words">
             {category.name}
           </span>
-          {category.hidden ? (
-            <span className="block text-sm text-muted-foreground">
-              {en.categories.kinds[category.kind]}
-            </span>
-          ) : null}
+          <span className="block text-sm text-muted-foreground">
+            {en.categories.kinds[category.kind]}
+          </span>
         </span>
       </span>
-      {category.hidden ? (
-        <div className="w-36 shrink-0">
-          <ShowButton id={category.id} />
-        </div>
-      ) : (
-        <Link
-          href={`/settings/categories/${category.id}`}
-          className="inline-flex min-h-12 shrink-0 items-center text-base underline underline-offset-4"
-        >
-          {en.categories.edit}
-        </Link>
-      )}
+      <div className="w-36 shrink-0">
+        <ShowButton id={category.id} />
+      </div>
     </li>
   );
 }
 
-// A titled list of categories; active ones link to Edit, hidden ones have Show again
+// The Hidden list: each category shows its kind and has Show again
 export function CategoryList({
   id,
   title,

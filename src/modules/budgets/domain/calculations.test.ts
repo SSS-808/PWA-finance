@@ -259,8 +259,8 @@ describe("budgetGroups", () => {
       "2026-10",
     );
     expect(group?.lines.map((line) => [line.icon, line.color])).toEqual([
-      ["zap", "blue"],
       ["utensils", "orange"],
+      ["zap", "blue"],
     ]);
   });
 
@@ -275,11 +275,11 @@ describe("budgetGroups", () => {
     ).toEqual([]);
   });
 
-  it("sorts lines by name, then by id when names match", () => {
-    const twins: BudgetCategory[] = [
-      { id: BILLS, name: "Food", hidden: true, icon: "tag", color: "gray" },
+  it("keeps the order of the categories list", () => {
+    const ordered: BudgetCategory[] = [
+      { id: GAMES, name: "Games", hidden: false, icon: "tag", color: "gray" },
+      { id: BILLS, name: "Bills", hidden: true, icon: "tag", color: "gray" },
       { id: FOOD, name: "Food", hidden: false, icon: "tag", color: "gray" },
-      { id: GAMES, name: "Bills", hidden: false, icon: "tag", color: "gray" },
     ];
     const [group] = budgetGroups(
       [
@@ -288,13 +288,13 @@ describe("budgetGroups", () => {
         change(GAMES, "2026-10", 1),
       ],
       [],
-      twins,
+      ordered,
       "2026-10",
     );
     expect(group?.lines.map((line) => line.categoryId)).toEqual([
       GAMES,
-      FOOD,
       BILLS,
+      FOOD,
     ]);
   });
 
@@ -305,7 +305,7 @@ describe("budgetGroups", () => {
       categories,
       "2026-10",
     );
-    expect(group?.lines.map((line) => line.name)).toEqual(["Bills", "Food"]);
+    expect(group?.lines.map((line) => line.name)).toEqual(["Food", "Bills"]);
     expect(group?.budget).toEqual(money(4_000, "LAK"));
     expect(group?.spent).toEqual(money(2_000, "LAK"));
     expect(group?.left).toEqual(money(2_000, "LAK"));

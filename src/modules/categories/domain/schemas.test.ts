@@ -7,6 +7,7 @@ import {
   isCategoryColor,
   isCategoryIcon,
   isCategoryKind,
+  reorderCategoriesSchema,
 } from "./schemas";
 
 const valid = {
@@ -78,6 +79,59 @@ describe("createCategorySchema", () => {
   it.each(["", "Expense", "transfer"])("rejects the kind %j", (kind) => {
     const result = createCategorySchema.safeParse({ ...valid, kind });
     expect(result.error?.issues[0]?.message).toBe("invalid_kind");
+  });
+});
+
+describe("reorderCategoriesSchema", () => {
+  const idA = "3f2b8c1e-9a4d-4e6b-8c1a-2d7e5f9a0b11";
+  const idB = "7c1d4a9e-2b6f-4d3a-9e8c-5a0b1c2d3e4f";
+
+  it("accepts a valid list and an empty list", () => {
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "expense", ids: [idA, idB] })
+        .success,
+    ).toBe(true);
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "income", ids: [] }).success,
+    ).toBe(true);
+  });
+
+  it("refuses an unknown kind", () => {
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "transfer", ids: [idA] })
+        .success,
+    ).toBe(false);
+  });
+
+  it("refuses an id that is not a uuid", () => {
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "expense", ids: ["nope"] })
+        .success,
+    ).toBe(false);
+  });
+
+  it("refuses a repeated id", () => {
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "expense", ids: [idA, idA] })
+        .success,
+    ).toBe(false);
+  });
+
+  it("refuses more than 200 ids", () => {
+    const ids = Array.from(
+      { length: 201 },
+      (_, index) =>
+        `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    );
+    expect(
+      reorderCategoriesSchema.safeParse({ kind: "expense", ids }).success,
+    ).toBe(false);
+    expect(
+      reorderCategoriesSchema.safeParse({
+        kind: "expense",
+        ids: ids.slice(0, 200),
+      }).success,
+    ).toBe(true);
   });
 });
 
