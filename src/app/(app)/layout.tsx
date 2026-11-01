@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { AppNav, AppNavFrame } from "@/components/shared/app-nav";
+import { OfflineBanner } from "@/components/shared/offline";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -9,6 +10,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         <AppNav />
       </Suspense>
       <main className="flex-1 px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:px-8 lg:pb-8">
+        <OfflineBanner />
         {children}
       </main>
     </div>

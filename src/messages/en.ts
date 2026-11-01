@@ -226,6 +226,14 @@ export const en = {
     goHome: "Go to Home",
     code: "Error code: {code}",
   },
+  offline: {
+    banner: "Offline. Saved copy from {time}.",
+    bannerNoTime: "Offline. This is a saved copy.",
+    helpLabel: "the saved copy",
+    help: "The server can't be reached, so this is what your phone saved last time. Check your internet or VPN. Adding and changing need a connection; the page updates by itself once you're back.",
+    title: "You're offline",
+    body: "This page isn't saved on your phone. Pages you've opened before still work offline: Home, Accounts, History, Budgets and Goals.",
+  },
   currencies: {
     LAK: "Lao kip (₭)",
     USD: "US dollar ($)",
