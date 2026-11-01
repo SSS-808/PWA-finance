@@ -2,11 +2,13 @@ import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
+import { listGoalMoneyByAccount } from "@/modules/goals";
 import { toDecimalString } from "@/modules/money";
 import {
   DeleteTransferButton,
   TransferForm,
   getTransfer,
+  toAccountOptions,
 } from "@/modules/transactions";
 
 export default function EditTransferPage({
@@ -38,16 +40,20 @@ async function EditTransfer({
 }) {
   const { transferId } = await params;
   const transfer = await getTransfer(transferId);
-  const accounts = await listAccounts();
+  const [accounts, goalMoney] = await Promise.all([
+    listAccounts(),
+    listGoalMoneyByAccount(),
+  ]);
   // The transfer's own accounts stay in the lists even if archived since; saving then asks for another one
-  const options = accounts
-    .filter(
+  const options = toAccountOptions(
+    accounts.filter(
       (account) =>
         !account.archived ||
         account.id === transfer.from ||
         account.id === transfer.to,
-    )
-    .map(({ id, name, currency }) => ({ id, name, currency }));
+    ),
+    goalMoney,
+  );
   const exchange = transfer.fromAmount.currency !== transfer.toAmount.currency;
 
   return (

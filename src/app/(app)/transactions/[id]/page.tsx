@@ -3,8 +3,14 @@ import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { listCategories } from "@/modules/categories";
+import { listGoalMoneyByAccount } from "@/modules/goals";
 import { isNegative, negate, toDecimalString } from "@/modules/money";
-import { DeleteEntryButton, EntryForm, getEntry } from "@/modules/transactions";
+import {
+  DeleteEntryButton,
+  EntryForm,
+  getEntry,
+  toAccountOptions,
+} from "@/modules/transactions";
 
 export default function EditTransactionPage({
   params,
@@ -32,19 +38,20 @@ async function EditEntry({
 }) {
   const { id } = await params;
   const entry = await getEntry(id);
-  const [accounts, expenseCategories, incomeCategories] = await Promise.all([
-    listAccounts(),
-    listCategories("expense", entry.categoryId),
-    listCategories("income", entry.categoryId),
-  ]);
+  const [accounts, expenseCategories, incomeCategories, goalMoney] =
+    await Promise.all([
+      listAccounts(),
+      listCategories("expense", entry.categoryId),
+      listCategories("income", entry.categoryId),
+      listGoalMoneyByAccount(),
+    ]);
   // The entry's own account stays in the list even if it was archived since
-  const options = accounts
-    .filter((account) => !account.archived || account.id === entry.accountId)
-    .map(({ id: accountId, name, currency }) => ({
-      id: accountId,
-      name,
-      currency,
-    }));
+  const options = toAccountOptions(
+    accounts.filter(
+      (account) => !account.archived || account.id === entry.accountId,
+    ),
+    goalMoney,
+  );
   // The form shows the amount without a sign; the Income/Expense switch carries the sign
   const size = isNegative(entry.amount) ? negate(entry.amount) : entry.amount;
 

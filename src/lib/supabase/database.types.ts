@@ -15,6 +15,7 @@ export type Database = {
           created_at: string;
           currency: string;
           id: string;
+          minimum_minor: number;
           name: string;
           type: string;
           updated_at: string;
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string;
           currency: string;
           id?: string;
+          minimum_minor?: number;
           name: string;
           type: string;
           updated_at?: string;
@@ -36,6 +38,7 @@ export type Database = {
           created_at?: string;
           currency?: string;
           id?: string;
+          minimum_minor?: number;
           name?: string;
           type?: string;
           updated_at?: string;
@@ -183,6 +186,7 @@ export type Database = {
       };
       goal_contributions: {
         Row: {
+          account_id: string | null;
           amount_minor: number;
           contributed_on: string;
           created_at: string;
@@ -194,6 +198,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          account_id?: string | null;
           amount_minor: number;
           contributed_on: string;
           created_at?: string;
@@ -204,6 +209,7 @@ export type Database = {
           user_id?: string;
         };
         Update: {
+          account_id?: string | null;
           amount_minor?: number;
           contributed_on?: string;
           created_at?: string;
@@ -214,6 +220,20 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "goal_contributions_account_fk";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "account_balances";
+            referencedColumns: ["account_id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "goal_contributions_account_fk";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id", "user_id", "currency"];
+          },
           {
             foreignKeyName: "goal_contributions_goal_id_user_id_currency_fkey";
             columns: ["goal_id", "user_id", "currency"];
@@ -469,6 +489,23 @@ export type Database = {
           },
         ];
       };
+      account_set_aside: {
+        Row: {
+          account_id: string | null;
+          set_aside_minor: number | null;
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "goal_contributions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       goal_totals: {
         Row: {
           currency: string | null;
@@ -499,6 +536,7 @@ export type Database = {
       create_account: {
         Args: {
           p_currency: string;
+          p_minimum_minor: number;
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;
@@ -518,6 +556,10 @@ export type Database = {
         Returns: string;
       };
       delete_transfer: { Args: { p_transfer_id: string }; Returns: undefined };
+      release_goal_shortfall: {
+        Args: { p_account_id: string; p_goal_id: string; p_on: string };
+        Returns: number;
+      };
       set_account_balance: {
         Args: {
           p_account_id: string;
@@ -530,6 +572,7 @@ export type Database = {
       update_account: {
         Args: {
           p_account_id: string;
+          p_minimum_minor: number;
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;

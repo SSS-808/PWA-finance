@@ -1,4 +1,4 @@
-import { Pencil, Scale } from "lucide-react";
+import { Pencil, Plus, Scale } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
@@ -9,15 +9,28 @@ import {
   Skeleton,
 } from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import {
   AccountTypeIcon,
   ArchiveButton,
+  CurrencyRow,
   Notice,
   UnarchiveButton,
   balanceText,
+  freeToSpend,
   getAccount,
+  listAccounts,
+  sameNameOthers,
+  showsFree,
 } from "@/modules/accounts";
+import { listGoalMoneyByAccount } from "@/modules/goals";
+import {
+  CURRENCY_CODES,
+  formatMoney,
+  isNegative,
+  isZero,
+} from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
 import {
   HistoryList,
@@ -69,13 +82,27 @@ async function AccountDetail({
     deleted,
   } = await searchParams;
   const account = await getAccount(id);
-  const [profile, days] = await Promise.all([
+  const [profile, days, accounts, goalMoney] = await Promise.all([
     getProfile(),
     listTransactions(
       { ...baseFilters(null), accountId: account.id },
       RECENT_COUNT,
     ),
+    listAccounts(),
+    listGoalMoneyByAccount(),
   ]);
+  const others = sameNameOthers(
+    account,
+    accounts.filter((other) => !other.archived),
+  );
+  const free = showsFree(account)
+    ? freeToSpend(account.balance, account.minimum, account.setAside)
+    : null;
+  // The goals holding money here, largest first
+  const goalNames = goalMoney
+    .filter((item) => item.accountId === account.id)
+    .map((item) => item.goalName)
+    .join(", ");
 
   return (
     <div className="space-y-6">
@@ -112,6 +139,46 @@ async function AccountDetail({
           {balanceText(account.type, account.balance).text}
         </p>
       </section>
+      {free ? (
+        <dl className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+          {isZero(account.minimum) ? null : (
+            <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+              <dt className="text-base">{en.accounts.detail.minimum}</dt>
+              <dd className="text-base tabular-nums">
+                {formatMoney(account.minimum)}
+              </dd>
+            </div>
+          )}
+          {isZero(account.setAside) ? null : (
+            <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+              <dt className="min-w-0 text-base">
+                {en.accounts.detail.setAside}
+                {goalNames ? (
+                  <span className="block text-sm break-words text-muted-foreground">
+                    {goalNames}
+                  </span>
+                ) : null}
+              </dt>
+              <dd className="shrink-0 text-base tabular-nums">
+                {formatMoney(account.setAside)}
+              </dd>
+            </div>
+          )}
+          <div className="flex items-baseline justify-between gap-3 px-4 py-3">
+            <dt className="text-base font-semibold">
+              {en.accounts.detail.free}
+            </dt>
+            <dd
+              className={cn(
+                "text-base font-semibold tabular-nums",
+                isNegative(free) ? "text-expense" : "text-income",
+              )}
+            >
+              {formatMoney(free)}
+            </dd>
+          </div>
+        </dl>
+      ) : null}
       {account.archived ? (
         <div className="space-y-3">
           <Button
@@ -149,6 +216,35 @@ async function AccountDetail({
             </Link>
           </Button>
         </div>
+      )}
+      {account.archived ? null : (
+        <section aria-labelledby="account-currencies" className="space-y-2">
+          <h2
+            id="account-currencies"
+            className="px-1 text-sm font-medium text-muted-foreground"
+          >
+            {en.accounts.otherCurrencies.replace("{name}", () => account.name)}
+          </h2>
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+            {others.map((other) => (
+              <CurrencyRow key={other.id} account={other} />
+            ))}
+            {others.length + 1 < CURRENCY_CODES.length ? (
+              <li>
+                <Link
+                  href={`/accounts/new?name=${encodeURIComponent(account.name)}&type=${account.type}`}
+                  className="flex min-h-14 items-center gap-2 px-4 py-3 font-medium text-primary hover:bg-muted"
+                >
+                  <Plus className="size-5" aria-hidden="true" />
+                  {en.accounts.addCurrency.replace(
+                    "{name}",
+                    () => account.name,
+                  )}
+                </Link>
+              </li>
+            ) : null}
+          </ul>
+        </section>
       )}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3">

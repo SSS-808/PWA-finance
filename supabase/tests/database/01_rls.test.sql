@@ -22,7 +22,7 @@ set local request.jwt.claim.sub = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 select is((select count(*) from public.accounts where id = 'aaaaaaaa-0000-4000-8000-000000000001'), 1::bigint, 'A sees their own account');
 select is((select count(*) from public.transactions where id = 'aaaaaaaa-1111-4111-8111-000000000001'), 1::bigint, 'A sees their own transaction');
-select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 15::bigint, 'A sees their own 15 categories');
+select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 16::bigint, 'A sees their own 16 categories');
 select is((select count(*) from public.profiles where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 1::bigint, 'A sees their own profile');
 select is((select count(*) from public.account_balances where account_id = 'aaaaaaaa-0000-4000-8000-000000000001'), 1::bigint, 'A sees their own account_balances row');
 select is((select count(*) from public.transaction_audit where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 1::bigint, 'A sees their own audit row');
@@ -32,7 +32,7 @@ select is((select count(*) from public.currencies), 3::bigint, 'A sees the 3 cur
 set local request.jwt.claim.sub = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 select is((select count(*) from public.accounts where id = 'bbbbbbbb-0000-4000-8000-000000000001'), 1::bigint, 'B sees their own account');
-select is((select count(*) from public.categories where user_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'), 15::bigint, 'B sees their own 15 categories');
+select is((select count(*) from public.categories where user_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'), 16::bigint, 'B sees their own 16 categories');
 select is((select count(*) from public.profiles where id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'), 1::bigint, 'B sees their own profile');
 
 select is((select count(*) from public.accounts where id = 'aaaaaaaa-0000-4000-8000-000000000001'), 0::bigint, 'B cannot see A''s account');

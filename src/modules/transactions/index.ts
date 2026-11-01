@@ -1,6 +1,7 @@
 export { entrySchema, parseEntryAmount } from "./domain/schemas";
 export { groupByDay, toHistoryItems } from "./domain/history";
 export type { DayGroup, HistoryItem } from "./domain/history";
+export { accountLabel } from "./domain/account-label";
 export { transactionsToCsv } from "./domain/export";
 export type { ExportLabels } from "./domain/export";
 export {
@@ -32,6 +33,7 @@ export {
   listTransactions,
 } from "./server/queries";
 export { readLastAccountId } from "./server/last-account";
+export { toAccountOptions } from "./server/account-options";
 export { createEntry, deleteEntry, updateEntry } from "./server/actions";
 export {
   createTransfer,

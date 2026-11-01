@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { signUpAndConfirm } from "./helpers";
+import { accountBox, accountRows, signUpAndConfirm } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -67,15 +67,26 @@ async function addAccount(page: Page, account: NewAccount) {
   await expect(page).toHaveURL(/\/accounts$/);
 }
 
-function accountLink(scope: Page | Locator, name: string | RegExp) {
-  return scope.getByRole("link", { name });
+function accountCard(page: Page, name: string) {
+  return page.getByRole("region", { name, exact: true });
 }
 
-// Opens an account from the list and returns its id
-async function openAccount(page: Page, name: RegExp): Promise<string> {
-  await accountLink(page, name).click();
+// The row of one currency inside the card named after the account
+function currencyRow(page: Page, name: string, currency = "LAK") {
+  const currencyName = en.currencies[currency as keyof typeof en.currencies];
+  return accountRows(page, name).filter({ hasText: currencyName });
+}
+
+// Follows a link to an account and returns its id
+async function followToAccount(page: Page, link: Locator): Promise<string> {
+  await link.click();
   await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
   return page.url().split("/").pop() ?? "";
+}
+
+// Opens an account from its card on the list and returns its id
+function openAccount(page: Page, name: string, currency = "LAK") {
+  return followToAccount(page, currencyRow(page, name, currency));
 }
 
 test("a new user sees the empty state on Home and on Accounts", async ({
@@ -111,19 +122,19 @@ test("a new user sees the empty state on Home and on Accounts", async ({
   await expect(page).toHaveURL(/\/accounts\/new$/);
 });
 
-test("accounts are grouped by currency with a total, and a debt shows as owed", async ({
+test("accounts show a total per currency and one card per name, and a debt shows as owed", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
 
   await addAccount(page, { name: "Cash", amount: "1,500,000" });
   await expect(notice(page, en.accounts.notices.added)).toBeVisible();
-  const kip = page.getByRole("region", { name: en.currencies.LAK });
-  await expect(kip.getByRole("heading", { level: 2 })).toBeVisible();
-  await expect(accountLink(kip, /Cash.*₭1,500,000/)).toBeVisible();
-  await expect(kip.getByText(en.accounts.total).locator("..")).toHaveText(
-    /^Total\s*₭1,500,000$/,
-  );
+  const totals = page.getByRole("region", { name: en.accounts.totalsLabel });
+  await expect(totals.getByText("₭1,500,000", { exact: true })).toBeVisible();
+  await expect(
+    accountCard(page, "Cash").getByRole("heading", { level: 2 }),
+  ).toHaveText("Cash");
+  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000");
 
   // Home stops asking for a first account once there is one
   await page.goto("/");
@@ -149,16 +160,13 @@ test("accounts are grouped by currency with a total, and a debt shows as owed", 
   await expect(notice(page, en.accounts.notices.added)).toBeVisible();
   await expect(page).toHaveURL(/\/accounts$/);
 
-  const dollars = page.getByRole("region", { name: en.currencies.USD });
-  await expect(accountLink(dollars, /Visa.*Owed \$30\.00/)).toBeVisible();
-  await expect(dollars.getByText(en.accounts.total).locator("..")).toHaveText(
-    /^Total\s*-\$30\.00$/,
-  );
-  // Kip comes before dollars, whatever the order they were added in
+  await expect(totals.getByText("-$30.00", { exact: true })).toBeVisible();
+  await expect(currencyRow(page, "Visa", "USD")).toContainText("Owed $30.00");
+  // The totals come first, then one card per name in name order
   const headings = await page
     .getByRole("heading", { level: 2 })
     .allTextContents();
-  expect(headings).toEqual([en.currencies.LAK, en.currencies.USD]);
+  expect(headings).toEqual([en.accounts.totalsLabel, "Cash", "Visa"]);
 });
 
 test("editing changes the name and starting amount, and a taken name is refused", async ({
@@ -167,7 +175,7 @@ test("editing changes the name and starting amount, and a taken name is refused"
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "1,500,000" });
 
-  await openAccount(page, /Cash.*₭1,500,000/);
+  await openAccount(page, "Cash");
   await expect(
     page.getByRole("heading", { level: 1, name: "Cash" }),
   ).toBeVisible();
@@ -202,11 +210,11 @@ test("editing changes the name and starting amount, and a taken name is refused"
     shown(page.getByText("₭2,000,000", { exact: true })),
   ).toBeVisible();
 
-  // The same name in other letters is still taken, and what was typed stays
+  // The same name in other letters and the same currency is still taken, and what was typed stays
   await page.goto("/accounts/new");
   await nameBox(page).fill("wallet cash");
   await typeBox(page).selectOption("bank");
-  await currencyBox(page).selectOption("USD");
+  await currencyBox(page).selectOption("LAK");
   await amountBox(page).fill("5");
   await submitNew(page).click();
   await expect(
@@ -214,8 +222,164 @@ test("editing changes the name and starting amount, and a taken name is refused"
   ).toBeVisible();
   await expect(nameBox(page)).toHaveValue("wallet cash");
   await expect(typeBox(page)).toHaveValue("bank");
-  await expect(currencyBox(page)).toHaveValue("USD");
+  await expect(currencyBox(page)).toHaveValue("LAK");
   await expect(amountBox(page)).toHaveValue("5");
+});
+
+test("the same bank in other currencies shows as one card, added from the account page", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "BCEL", type: "bank", amount: "1,000,000" });
+  await openAccount(page, "BCEL");
+
+  const otherCurrencies = page.getByRole("region", {
+    name: en.accounts.otherCurrencies.replace("{name}", "BCEL"),
+  });
+  await expect(otherCurrencies.getByRole("link")).toHaveText([
+    en.accounts.addCurrency.replace("{name}", "BCEL"),
+  ]);
+  await otherCurrencies.getByRole("link").click();
+
+  // The add form starts with the name and type filled in, on a currency not used yet
+  await expect(page).toHaveURL(/\/accounts\/new\?/);
+  await expect(nameBox(page)).toHaveValue("BCEL");
+  await expect(typeBox(page)).toHaveValue("bank");
+  await expect(currencyBox(page)).not.toHaveValue("LAK");
+  await currencyBox(page).selectOption("USD");
+  await amountBox(page).fill("250");
+  await submitNew(page).click();
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+  await expect(page).toHaveURL(/\/accounts$/);
+
+  // One card with a row per currency
+  const card = accountCard(page, "BCEL");
+  await expect(card).toHaveCount(1);
+  await expect(card.getByRole("link")).toContainText([
+    en.currencies.LAK,
+    en.currencies.USD,
+  ]);
+  const totals = page.getByRole("region", { name: en.accounts.totalsLabel });
+  await expect(totals.getByText("₭1,000,000", { exact: true })).toBeVisible();
+  await expect(totals.getByText("$250.00", { exact: true })).toBeVisible();
+
+  // The kip account lists the dollar account, and still offers the third currency
+  await openAccount(page, "BCEL");
+  await expect(otherCurrencies.getByRole("link")).toContainText([
+    en.currencies.USD,
+    en.accounts.addCurrency.replace("{name}", "BCEL"),
+  ]);
+
+  // Where an account is picked, the shared name carries the currency
+  await page.goto("/transactions/new");
+  await expect(
+    accountBox(page).locator("option", { hasText: "BCEL · ₭" }),
+  ).toHaveCount(1);
+  await expect(
+    accountBox(page).locator("option", { hasText: "BCEL · $" }),
+  ).toHaveCount(1);
+});
+
+function minimumBox(page: Page) {
+  return page.getByRole("textbox", {
+    name: en.accounts.form.minimum,
+    exact: true,
+  });
+}
+
+test("a bank account starts with the usual minimum, and its page shows what is free to spend", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await page.goto("/accounts/new");
+  await nameBox(page).fill("BCEL");
+  // Retry the choice, in case it was made before the page was ready for it
+  await expect(async () => {
+    await typeBox(page).selectOption("cash");
+    await typeBox(page).selectOption("bank");
+    await expect(minimumBox(page)).toHaveValue("50,000", { timeout: 1000 });
+  }).toPass();
+
+  // The default follows the currency until the person types their own
+  await currencyBox(page).selectOption("USD");
+  await expect(minimumBox(page)).toHaveValue("10.00");
+  await currencyBox(page).selectOption("THB");
+  await expect(minimumBox(page)).toHaveValue("500.00");
+  await currencyBox(page).selectOption("LAK");
+  await expect(minimumBox(page)).toHaveValue("50,000");
+  await minimumBox(page).fill("100,000");
+  await currencyBox(page).selectOption("USD");
+  await expect(minimumBox(page)).toHaveValue("100,000");
+  await currencyBox(page).selectOption("LAK");
+  await minimumBox(page).fill("50,000");
+
+  await amountBox(page).fill("7,000,000");
+  await submitNew(page).click();
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+  await expect(currencyRow(page, "BCEL")).toContainText(
+    en.accounts.freeLine.replace("{amount}", "₭6,950,000"),
+  );
+
+  await openAccount(page, "BCEL");
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toBeVisible();
+  await expect(shown(page.getByText("₭50,000", { exact: true }))).toBeVisible();
+  await expect(
+    shown(page.getByText(en.accounts.detail.free, { exact: true })),
+  ).toBeVisible();
+  await expect(
+    shown(page.getByText("₭6,950,000", { exact: true })),
+  ).toBeVisible();
+
+  // The edit form is prefilled, a minus sign is refused, and 0 takes the minimum away
+  await page.getByRole("link", { name: en.accounts.detail.edit }).click();
+  await expect(page).toHaveURL(/\/edit$/);
+  await expect(minimumBox(page)).toHaveValue("50,000");
+  await minimumBox(page).fill("-5");
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
+  await expect(
+    shown(page.getByText(en.accounts.errors.minimum_negative)),
+  ).toBeVisible();
+  await expect(minimumBox(page)).toHaveValue("-5");
+  await minimumBox(page).fill("0");
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
+  await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
+  await expect(notice(page, en.accounts.notices.saved)).toBeVisible();
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toHaveCount(0);
+});
+
+test("a credit card has no minimum box and shows no free to spend", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await page.goto("/accounts/new");
+  await nameBox(page).fill("Visa");
+  await currencyBox(page).selectOption("USD");
+  await expect(async () => {
+    await typeBox(page).selectOption("bank");
+    await expect(minimumBox(page)).toBeVisible({ timeout: 1000 });
+    await typeBox(page).selectOption("credit_card");
+    await expect(minimumBox(page)).toBeHidden({ timeout: 1000 });
+  }).toPass();
+  await amountBox(page).fill("30");
+  await submitNew(page).click();
+  await expect(notice(page, en.accounts.notices.added)).toBeVisible();
+
+  await expect(currencyRow(page, "Visa", "USD")).toContainText("Owed $30.00");
+  await expect(currencyRow(page, "Visa", "USD")).not.toContainText(
+    en.accounts.detail.free,
+  );
+  await openAccount(page, "Visa", "USD");
+  await expect(
+    shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: en.accounts.detail.edit }).click();
+  await expect(page).toHaveURL(/\/edit$/);
+  await expect(page.getByLabel(en.accounts.form.startingOwed)).toBeVisible();
+  await expect(minimumBox(page)).toBeHidden();
 });
 
 test("the form shows the server's messages for a bad name and a bad amount", async ({
@@ -254,7 +418,7 @@ test("an account can be archived in two steps and brought back", async ({
 }) => {
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "1,500,000" });
-  await openAccount(page, /Cash.*₭1,500,000/);
+  await openAccount(page, "Cash");
 
   // Cancelling the confirmation changes nothing
   await page.getByRole("button", { name: en.accounts.detail.archive }).click();
@@ -272,7 +436,7 @@ test("an account can be archived in two steps and brought back", async ({
     .click();
   await expect(page).toHaveURL(/\/accounts$/);
   await expect(notice(page, en.accounts.notices.archived)).toBeVisible();
-  await expect(accountLink(page, /Cash/)).toHaveCount(0);
+  await expect(accountCard(page, "Cash")).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: en.accounts.emptyTitle }),
   ).toBeVisible();
@@ -286,7 +450,12 @@ test("an account can be archived in two steps and brought back", async ({
   await expect(
     page.getByRole("heading", { level: 2, name: en.accounts.archivedTitle }),
   ).toBeVisible();
-  await openAccount(page, /Cash.*₭1,500,000/);
+  await followToAccount(
+    page,
+    page
+      .getByRole("region", { name: en.accounts.archivedTitle })
+      .getByRole("link", { name: /Cash.*₭1,500,000/ }),
+  );
 
   await page
     .getByRole("button", { name: en.accounts.detail.unarchive })
@@ -300,7 +469,7 @@ test("an account can be archived in two steps and brought back", async ({
   ).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(accountLink(page, /Cash.*₭1,500,000/)).toBeVisible();
+  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000");
   await expect(page.getByRole("link", { name: /^Show archived/ })).toHaveCount(
     0,
   );
@@ -311,7 +480,7 @@ test("bringing back an account whose name is now taken explains what to do", asy
 }) => {
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "100" });
-  const oldId = await openAccount(page, /Cash.*₭100/);
+  const oldId = await openAccount(page, "Cash");
   await page.getByRole("button", { name: en.accounts.detail.archive }).click();
   await page
     .getByRole("button", { name: en.accounts.detail.archiveYes })
@@ -340,7 +509,7 @@ test("another person's account, and an id that is not a uuid, give not found", a
 }) => {
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash", amount: "1,500,000" });
-  const id = await openAccount(page, /Cash.*₭1,500,000/);
+  const id = await openAccount(page, "Cash");
 
   const other = await browser.newContext({
     baseURL: test.info().project.use.baseURL,
@@ -388,7 +557,7 @@ test("the accounts pages fit every width and the nav never covers the last eleme
   const paths = [
     {
       path: "/accounts",
-      ready: () => page.getByText(en.accounts.total).first(),
+      ready: () => page.getByText(en.accounts.totalsLabel).first(),
     },
     { path: "/accounts/new", ready: () => submitNew(page) },
   ];

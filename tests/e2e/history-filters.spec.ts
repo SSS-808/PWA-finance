@@ -5,7 +5,13 @@ import {
   type Page,
 } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { addAccount, addEntry, addTransfer, signUpAndConfirm } from "./helpers";
+import {
+  accountRows,
+  addAccount,
+  addEntry,
+  addTransfer,
+  signUpAndConfirm,
+} from "./helpers";
 
 test.describe.configure({ timeout: 120_000 });
 
@@ -246,7 +252,7 @@ test("an account page lists its transactions and links to the filtered History",
   });
 
   await page.goto("/accounts");
-  await page.getByRole("link", { name: /^Cash/ }).click();
+  await accountRows(page, "Cash").click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   const accountId = page.url().split("/").pop() ?? "";
   await expect(row(page, /Food.*-₭10,000/)).toBeVisible();

@@ -147,12 +147,16 @@ create table public.accounts (
   name text not null check (char_length(name) between 1 and 60),
   type text not null check (type in ('cash', 'bank', 'savings', 'credit_card', 'loan', 'investment', 'other')),
   currency char(3) not null references public.currencies (code),
+  -- What the bank keeps (since 2026-10-31): free to spend = balance − this; debts have none
+  minimum_minor bigint not null default 0 check (minimum_minor >= 0),
   archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (id, user_id, currency)  -- target for the composite foreign key below
+  unique (id, user_id, currency),  -- target for the composite foreign key below
+  check (minimum_minor = 0 or type not in ('credit_card', 'loan'))
 );
-create unique index accounts_active_name_uq on public.accounts (user_id, lower(name)) where archived_at is null;
+-- One name once per currency (since 2026-10-31), so "BCEL" can be kip, dollars and baht, shown as one card
+create unique index accounts_active_name_uq on public.accounts (user_id, lower(name), currency) where archived_at is null;
 
 create table public.categories (
   id uuid primary key default gen_random_uuid(),
@@ -363,7 +367,7 @@ begin
   from (values
     ('Food', 'expense'), ('Transportation', 'expense'), ('Education', 'expense'),
     ('Entertainment', 'expense'), ('Shopping', 'expense'), ('Bills', 'expense'),
-    ('Healthcare', 'expense'), ('Travel', 'expense'), ('Other', 'expense'),
+    ('Healthcare', 'expense'), ('Travel', 'expense'), ('Bank fees', 'expense'), ('Other', 'expense'),  -- Bank fees since 2026-10-31
     ('Salary', 'income'), ('Freelance', 'income'), ('Business', 'income'),
     ('Investment', 'income'), ('Gift', 'income'), ('Other', 'income')
   ) as c (name, kind);
@@ -453,6 +457,7 @@ Decision: [ADR-011](adr/011-goals-are-earmarks.md). Migration: `supabase/migrati
 - A trigger refuses any contribution that would bring a goal's saved total below 0.
 - The view `goal_totals (goal_id, user_id, currency, saved_minor)` adds up the contributions. It runs with the reader's own access (`security_invoker`), so RLS still applies.
 - A contribution does **not** move money between accounts. It's a label on money you already have.
+- Since 2026-10-31 ([ADR-012](adr/012-goal-money-sits-in-an-account.md)): `goal_contributions.account_id` names the account the money sits in (foreign key `(account_id, user_id, currency)`: same user, the goal's currency). The trigger checks each account's share of a goal, so none goes below 0. The view `account_set_aside (account_id, user_id, set_aside_minor)` adds up the money set aside per account for goals that aren't archived. Free to spend = balance − minimum − set aside. The function `release_goal_shortfall(p_account_id, p_goal_id, p_on)` takes out the goal money an account no longer holds (balance − minimum below what is set aside): the goal with the most there gives first, or only `p_goal_id` when given. It returns how much it took.
 
 ### Still a sketch
 

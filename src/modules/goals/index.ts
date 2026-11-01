@@ -1,15 +1,21 @@
-export type { Goal } from "./domain/calculations";
-export { goalProgress } from "./domain/calculations";
+export type { AccountShare, Goal } from "./domain/calculations";
+export {
+  accountShortfall,
+  goalProgress,
+  goalShortInAccount,
+} from "./domain/calculations";
 export type { GoalErrorKey, GoalFormState } from "./domain/types";
-export { getGoal, listGoals } from "./server/queries";
-export type { Contribution, GoalDetail } from "./server/queries";
+export { getGoal, listGoalMoneyByAccount, listGoals } from "./server/queries";
+export type { Contribution, GoalDetail, GoalMoney } from "./server/queries";
 export {
   addContribution,
   archiveGoal,
   createGoal,
+  takeOutMissing,
   unarchiveGoal,
   updateGoal,
 } from "./server/actions";
+export { GoalAccountShares, GoalShortWarning } from "./ui/account-shares";
 export { ArchiveButton } from "./ui/archive-button";
 export { ContributionForm } from "./ui/contribution-form";
 export { ContributionHistory } from "./ui/contribution-history";
