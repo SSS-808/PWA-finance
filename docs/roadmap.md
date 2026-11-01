@@ -16,11 +16,21 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 6 | Budgets | M | Done (2026-10-12) |
 | 7 | Savings goals | M | Done: released to the live site on 2026-10-12 |
 | 7.5 | Design: the new look | L | Done: released to the live site on 2026-10-31 (look A on every screen, category icons and colours, loading screens, an accessibility checker, measured at 6 widths). Plan and results: [design-brief.md](../.claude/context/design-brief.md) |
-| 8 | Net worth and exchange rates | M | |
-| 9 | Investments | L | |
-| 10 | Analytics | M | |
-| 11 | PWA and offline | M | |
-| 12 | Production hardening | M | |
+| 7.6 | Fixes: one card per bank, the bank's minimum, goal money in accounts | M | Done: released to the live site on 2026-11-02 (PRs #34–#36, [ADR-012](adr/012-goal-money-sits-in-an-account.md)) |
+| 8 | Net worth and exchange rates | M | 4th in the new order |
+| 9 | Investments | L | Last: only once the owner invests |
+| 10 | Analytics | M | 3rd in the new order |
+| 11 | PWA and offline | M | **Next** |
+| 12 | Production hardening | M | 5th in the new order (small parts may come earlier) |
+
+## Order from here (owner, 2026-11-02)
+The owner is a student in Laos, so the order now follows what helps daily use most:
+1. **Own domain** (removes the VPN; `.vercel.app` is blocked in Laos, see [deploy.md](deploy.md) §7). **On hold:** the owner can't buy one yet. Do it as soon as possible; it's a setup step, not a phase.
+2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out.
+3. **Phase 10, Analytics:** best after 2–3 months of real data.
+4. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
+5. **Phase 12, Production hardening.**
+6. **Phase 9, Investments:** only when the owner invests.
 
 ## MVP
 
