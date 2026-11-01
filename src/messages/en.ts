@@ -5,6 +5,7 @@ export const en = {
   common: { add: "Add", loading: "Loading…" },
   app: {
     name: "Personal Wallet",
+    shortName: "Wallet",
     tagline: "Track every kip, dollar and baht.",
     description: "A personal finance app for accounts, spending and savings.",
   },
@@ -225,6 +226,14 @@ export const en = {
     goHome: "Go to Home",
     code: "Error code: {code}",
   },
+  offline: {
+    banner: "Offline. Saved copy from {time}.",
+    bannerNoTime: "Offline. This is a saved copy.",
+    helpLabel: "the saved copy",
+    help: "The server can't be reached, so this is what your phone saved last time. Check your internet or VPN. Adding and changing need a connection; the page updates by itself once you're back.",
+    title: "You're offline",
+    body: "This page isn't saved on your phone. Pages you've opened before still work offline: Home, Accounts, History, Budgets and Goals.",
+  },
   currencies: {
     LAK: "Lao kip (₭)",
     USD: "US dollar ($)",
@@ -251,6 +260,15 @@ export const en = {
     data: {
       title: "Your data",
       download: "Download my data",
+    },
+    app: {
+      title: "App",
+      install: "Install the app",
+      addToHome: "Add to Home Screen",
+      iosSteps:
+        "In Safari, tap Share (the square with an arrow), then Add to Home Screen, then Add. Log in once inside the new app.",
+      otherSteps:
+        "Open your browser's menu and choose Install app or Add to Home Screen.",
     },
     account: {
       title: "Account",

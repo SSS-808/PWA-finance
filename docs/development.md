@@ -79,6 +79,7 @@ Analogy: local is a flight simulator, production is the real plane. Migrations a
 - Sign up → confirm through the local email inbox → create an account with an opening balance → quick-add an expense → transfer → the dashboard shows the right numbers.
 - A logged-out visitor gets redirected.
 - Runs at 390 px wide and at desktop width.
+- The offline helper only runs in a built app. Every test blocks it except `offline.spec.ts`, which is skipped under `pnpm dev`. To run it locally: `CI=1 pnpm test:e2e tests/e2e/offline.spec.ts` (builds and starts the app on port 3000, so stop `pnpm dev` first). GitHub runs it on every PR.
 
 ### Coverage
 All branches covered in `modules/money` and every `domain/calculations.ts`. No target elsewhere: test what the code does, not how many lines it touches.

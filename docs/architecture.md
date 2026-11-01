@@ -6,6 +6,7 @@ Phase 0 · 2026-10-09 · Decisions: [ADR-002 Modular monolith](adr/002-modular-m
 
 ```
 Phone / desktop browser (installable PWA)
+  └─ public/sw.js       offline helper: keeps copies of view pages, shows them when the server can't be reached (ADR-013)
         │  HTTPS
         ▼
 Next.js app on Vercel  ── one deployable app, split into modules
@@ -118,6 +119,7 @@ Changes from the brief's suggested structure, and why:
 - **Writes:** Server Actions in `server/actions.ts`. Each one does: check the user → Zod → database → revalidate → return a typed result.
 - **State:** filters, month and sort order live in the URL (`?month=2026-10&account=…`). Form state lives in React. There is no global store (no Zustand) in the MVP.
 - **Errors:** actions return `{ ok: true, data } | { ok: false, error: { message, fieldErrors? } }`. Raw database errors are logged on the server and never sent to the browser.
+- **Offline (Phase 11):** the helper in `public/sw.js` tries the server first. If there's no answer within 4 seconds, it shows the last saved copy of a view page (the five main pages are also saved in the background whenever the app is online), and `OfflineBanner` (`src/components/shared/offline.tsx`) says so and refreshes the data once the server answers. Pages it hasn't saved get `/offline`. Nothing can be added or changed offline yet. See [ADR-013](adr/013-saved-copies-on-the-phone.md).
 - **Dates:** transaction dates are plain `YYYY-MM-DD` strings. "Today" is worked out in your time zone with `Intl.DateTimeFormat`. No date library in the MVP.
 
 ## 7. Where calculations run
@@ -134,6 +136,7 @@ If a TypeScript calculation ever gets slow, it moves to SQL, and the TypeScript 
 
 - On phones, a bottom nav; from 1024 px it becomes a sidebar that stays pinned while you scroll (`src/components/shared/app-nav.tsx`). It only shows pages that exist: today Home · Settings. Later: Home · Transactions · **+** · Accounts · Settings.
 - Dark mode follows the phone's setting (CSS `prefers-color-scheme` in `globals.css`). A manual switch waits until after the MVP.
+- Installed on a phone (Phase 11), the app opens full-screen. `viewport-fit=cover` plus `env(safe-area-inset-*)` padding keeps content and the bottom menu clear of the iPhone's notch and home bar. The manifest is `src/app/manifest.ts`; the icon's source is `src/app/icon.svg`.
 - **+** opens a bottom sheet with the amount field already focused and the number keyboard showing (`inputmode="decimal"`). Below it are category chips (most-used first) and Save. Account and date are filled in already; tap them to change. Target: 2 taps plus typing.
 - A switch at the top of the sheet picks Expense, Income or Transfer. Expense is the default.
 
