@@ -8,7 +8,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       <Suspense fallback={<AppNavFrame pathname={null} />}>
         <AppNav />
       </Suspense>
-      <main className="flex-1 px-4 pt-6 pb-28 lg:px-8 lg:pb-8">{children}</main>
+      <main className="flex-1 px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:px-8 lg:pb-8">
+        {children}
+      </main>
     </div>
   );
 }
