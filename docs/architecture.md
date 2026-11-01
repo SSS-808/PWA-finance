@@ -119,7 +119,7 @@ Changes from the brief's suggested structure, and why:
 - **Writes:** Server Actions in `server/actions.ts`. Each one does: check the user → Zod → database → revalidate → return a typed result.
 - **State:** filters, month and sort order live in the URL (`?month=2026-10&account=…`). Form state lives in React. There is no global store (no Zustand) in the MVP.
 - **Errors:** actions return `{ ok: true, data } | { ok: false, error: { message, fieldErrors? } }`. Raw database errors are logged on the server and never sent to the browser.
-- **Offline (Phase 11):** the helper in `public/sw.js` tries the server first. If there's no answer within 4 seconds, it shows the last saved copy of a view page, and `OfflineBanner` (`src/components/shared/offline.tsx`) says so and refreshes the data once the server answers. Pages it hasn't saved get `/offline`. Nothing can be added or changed offline yet. See [ADR-013](adr/013-saved-copies-on-the-phone.md).
+- **Offline (Phase 11):** the helper in `public/sw.js` tries the server first. If there's no answer within 4 seconds, it shows the last saved copy of a view page (the five main pages are also saved in the background whenever the app is online), and `OfflineBanner` (`src/components/shared/offline.tsx`) says so and refreshes the data once the server answers. Pages it hasn't saved get `/offline`. Nothing can be added or changed offline yet. See [ADR-013](adr/013-saved-copies-on-the-phone.md).
 - **Dates:** transaction dates are plain `YYYY-MM-DD` strings. "Today" is worked out in your time zone with `Intl.DateTimeFormat`. No date library in the MVP.
 
 ## 7. Where calculations run

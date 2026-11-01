@@ -21,6 +21,7 @@ phone ──► helper (public/sw.js) ──► internet ──► server
 - **A hand-written service worker** (`public/sw.js`), under 200 lines, no library. It only runs in a built app, not under `pnpm dev`.
 - **Page loads: internet first.** If the server fails or hasn't answered within **4 seconds**, show the saved copy. After one miss it waits only 1 second for the next 30 seconds. A page with no copy waits for the server as long as it takes, then shows `/offline`.
 - **Only view pages are kept:** Home, Accounts and each account, History, Budgets, Goals and each goal. At most 50 copies; the oldest go first. Forms, Settings, the CSV download and login pages are never kept.
+- **The five main pages are saved in the background** (Home, Accounts, History, Budgets, Goals). Whenever a page loads from the server, the helper fetches each one whose copy is older than 30 minutes, one at a time, so one online visit is enough for all five to work offline. It stops at the first failure. A single account or goal still has to be opened once.
 - **The pages' code files** (`/_next/static/…`) are kept as well. Their names change whenever their content changes, so a kept file is never out of date.
 - **In-app links** that get no answer within the wait are failed on purpose. Next.js then loads the page normally, and the helper serves the copy. Background prefetches are left alone.
 - **The banner trusts the helper:** the page asks the helper whether it got a saved copy, instead of guessing from the connection.
@@ -34,6 +35,7 @@ phone ──► helper (public/sw.js) ──► internet ──► server
 
 ## Consequences
 - ✅ The installed app opens with the last balances, even with no internet or with the VPN off. Fresh numbers replace them by themselves.
+- ⚠️ The background saving costs the server up to 5 extra page loads per half hour of use, and the phone a little data.
 - ⚠️ **Personal data is stored on the phone** until the next log-out or login screen. If the session expires while offline, the copies stay until the app is next online and shows the login screen. The phone's own lock is what protects them.
 - ⚠️ A page loaded at the very moment of log-out could be saved after the wipe. The next log-out deletes it.
 - ⚠️ Changing the web address (a new domain) means installing the app again. Each address has its own helper and copies.
