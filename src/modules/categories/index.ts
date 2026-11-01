@@ -9,10 +9,10 @@ export type {
   ManagedCategory,
 } from "./domain/types";
 export { isCategoryColor, isCategoryIcon } from "./domain/schemas";
-export { countUsage, sortByUsage } from "./domain/usage";
 export {
   createCategory,
   hideCategory,
+  reorderCategories,
   showCategory,
   updateCategory,
 } from "./server/actions";
@@ -26,3 +26,4 @@ export { CategoryList } from "./ui/category-list";
 export { HideButton } from "./ui/hide-button";
 export { CategoryNotice } from "./ui/notice";
 export { ShowButton } from "./ui/show-button";
+export { SortableCategoryList } from "./ui/sortable-category-list";

@@ -87,6 +87,8 @@ export const en = {
     spending: "Spending",
     saved: "Saved",
     savingsRate: "Savings rate",
+    balances: "Balances",
+    showCard: "Show {currency}",
     whereMoneyWent: "Where your money went",
     other: "Other",
     noSpending: "No spending recorded in {month} yet.",
@@ -308,6 +310,18 @@ export const en = {
     edit: "Edit",
     showAgain: "Show again",
     kinds: { expense: "Expense", income: "Income" },
+    order: {
+      help: "Drag a category by its handle (⋮⋮) to change the order. The Add form, the filters and Budgets use this order.",
+      move: "Move {name}",
+      instructions:
+        "To move a category, press Space to pick it up, use the up and down arrow keys, then press Space again to drop it. Press Escape to cancel.",
+      pickedUp: "Picked up {name}. It is in place {position} of {count}.",
+      movedTo: "{name} moved to place {position} of {count}.",
+      droppedAt: "{name} dropped in place {position} of {count}.",
+      noTarget: "{name} is not over a place.",
+      cancelled: "Moving cancelled. {name} is back in its place.",
+      saveFailed: "Could not save the new order. Please try again.",
+    },
     icons: {
       tag: "Tag",
       utensils: "Food",

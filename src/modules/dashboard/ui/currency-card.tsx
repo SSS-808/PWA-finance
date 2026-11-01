@@ -12,26 +12,13 @@ import type { DashboardCard } from "../domain/types";
 
 const rowClass = "flex min-h-12 items-center gap-3 rounded-lg px-3 py-2";
 
-function HeroStat({
-  label,
-  value,
-  main,
-}: {
-  label: string;
-  value: string;
-  main: boolean;
-}) {
+function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <dt className="text-xs font-medium tracking-wider text-hero-muted uppercase">
         {label}
       </dt>
-      <dd
-        className={cn(
-          "font-semibold break-words tabular-nums",
-          main ? "text-lg" : "text-base",
-        )}
-      >
+      <dd className="text-lg font-semibold break-words tabular-nums">
         {value}
       </dd>
     </div>
@@ -106,23 +93,14 @@ function SpendingRow({
   );
 }
 
-// One currency in solid emerald: the total balance and the month's numbers; the main currency is bigger
-export function CurrencyCard({
-  card,
-  main,
-}: {
-  card: DashboardCard;
-  main: boolean;
-}) {
+// One currency in solid emerald: the total balance and the month's numbers
+export function CurrencyCard({ card }: { card: DashboardCard }) {
   const { currency, balance, summary } = card;
   const text = en.dashboard;
   return (
     <section
       aria-labelledby={`dashboard-${currency}`}
-      className={cn(
-        "rounded-2xl bg-hero text-hero-foreground",
-        main ? "space-y-4 p-5" : "space-y-3 px-5 py-4",
-      )}
+      className="space-y-4 rounded-2xl bg-hero p-5 text-hero-foreground"
     >
       <div className="space-y-1">
         <div className="flex flex-wrap items-baseline gap-x-1.5 text-sm text-hero-muted">
@@ -130,12 +108,7 @@ export function CurrencyCard({
           <span aria-hidden="true">·</span>
           <span>{text.totalBalance}</span>
         </div>
-        <p
-          className={cn(
-            "font-semibold tracking-tight break-words tabular-nums",
-            main ? "text-4xl" : "text-2xl",
-          )}
-        >
+        <p className="text-4xl font-semibold tracking-tight break-words tabular-nums">
           {formatMoney(balance)}
         </p>
       </div>
@@ -143,13 +116,8 @@ export function CurrencyCard({
         <HeroStat
           label={text.income}
           value={formatMoney(summary.income, { signDisplay: "exceptZero" })}
-          main={main}
         />
-        <HeroStat
-          label={text.spending}
-          value={formatMoney(summary.spending)}
-          main={main}
-        />
+        <HeroStat label={text.spending} value={formatMoney(summary.spending)} />
       </dl>
       <dl className="flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-hero-border pt-3 text-sm">
         <FooterStat label={text.saved} value={formatMoney(summary.saved)} />
