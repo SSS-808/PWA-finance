@@ -20,13 +20,13 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 8 | Net worth and exchange rates | M | 4th in the new order |
 | 9 | Investments | L | Last: only once the owner invests |
 | 10 | Analytics | M | 3rd in the new order |
-| 11 | PWA and offline | M | **Next** |
+| 11 | PWA and offline | M | **Built on `dev`, waiting for release:** install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)). Adding entries offline is a later step |
 | 12 | Production hardening | M | 5th in the new order (small parts may come earlier) |
 
 ## Order from here (owner, 2026-11-02)
 The owner is a student in Laos, so the order now follows what helps daily use most:
 1. **Own domain** (removes the VPN; `.vercel.app` is blocked in Laos, see [deploy.md](deploy.md) §7). **On hold:** the owner can't buy one yet. Do it as soon as possible; it's a setup step, not a phase.
-2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out.
+2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out. **Built 2026-11-02, waiting for release.**
 3. **Phase 10, Analytics:** best after 2–3 months of real data.
 4. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
 5. **Phase 12, Production hardening.**
