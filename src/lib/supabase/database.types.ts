@@ -129,6 +129,7 @@ export type Database = {
           id: string;
           kind: string;
           name: string;
+          position: number;
           updated_at: string;
           user_id: string;
         };
@@ -141,6 +142,7 @@ export type Database = {
           id?: string;
           kind: string;
           name: string;
+          position?: number;
           updated_at?: string;
           user_id?: string;
         };
@@ -152,6 +154,7 @@ export type Database = {
           id?: string;
           kind?: string;
           name?: string;
+          position?: number;
           updated_at?: string;
           user_id?: string;
         };
@@ -559,6 +562,10 @@ export type Database = {
       release_goal_shortfall: {
         Args: { p_account_id: string; p_goal_id: string; p_on: string };
         Returns: number;
+      };
+      reorder_categories: {
+        Args: { p_ids: string[]; p_kind: string };
+        Returns: undefined;
       };
       set_account_balance: {
         Args: {

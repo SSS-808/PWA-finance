@@ -27,6 +27,13 @@ export const createCategorySchema = categoryFieldsSchema.extend({
   kind: z.enum(CATEGORY_KINDS, { error: "invalid_kind" }),
 });
 
+export const reorderCategoriesSchema = z
+  .object({
+    kind: z.enum(CATEGORY_KINDS),
+    ids: z.array(z.uuid()).max(200),
+  })
+  .refine((value) => new Set(value.ids).size === value.ids.length);
+
 export function isCategoryKind(value: string): value is CategoryKind {
   return (CATEGORY_KINDS as readonly string[]).includes(value);
 }

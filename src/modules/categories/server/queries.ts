@@ -8,16 +8,13 @@ import {
   isCategoryIcon,
   isCategoryKind,
 } from "../domain/schemas";
-import { countUsage, sortByUsage } from "../domain/usage";
+import { sortByPosition } from "../domain/order";
 import type {
   Category,
   CategoryKind,
   CategoryLook,
   ManagedCategory,
 } from "../domain/types";
-
-// Usage is counted over the latest rows only, so old habits fade out
-const USAGE_SAMPLE = 500;
 
 const idSchema = z.uuid();
 
@@ -28,9 +25,10 @@ type CategoryRow = {
   icon: string;
   color: string;
   archived_at: string | null;
+  position: number;
 };
 
-const CATEGORY_COLUMNS = "id, name, kind, icon, color, archived_at";
+const CATEGORY_COLUMNS = "id, name, kind, icon, color, archived_at, position";
 
 // The database checks these values, so anything else is a bug
 function toLook(row: { icon: string; color: string }): CategoryLook {
@@ -57,7 +55,7 @@ function toManaged(row: CategoryRow): ManagedCategory {
   };
 }
 
-// Active categories of one kind, most-used first; includeId keeps one hidden category in the list
+// Active categories of one kind in the person's order; includeId keeps one hidden category in the list
 export async function listCategories(
   kind: CategoryKind,
   includeId?: string,
@@ -66,47 +64,26 @@ export async function listCategories(
   const supabase = await createClient();
   let query = supabase
     .from("categories")
-    .select("id, name, icon, color")
+    .select("id, name, icon, color, position")
     .eq("kind", kind);
   // Only a real uuid goes into the filter text
   query =
     includeId !== undefined && idSchema.safeParse(includeId).success
       ? query.or(`archived_at.is.null,id.eq.${includeId}`)
       : query.is("archived_at", null);
-  const [categories, recent] = await Promise.all([
-    query,
-    supabase
-      .from("transactions")
-      .select("category_id")
-      .eq("kind", kind)
-      .is("deleted_at", null)
-      .order("transaction_date", { ascending: false })
-      .order("created_at", { ascending: false })
-      .limit(USAGE_SAMPLE),
-  ]);
-  if (categories.error) {
-    throw new Error("Could not load the categories", {
-      cause: categories.error,
-    });
+  const { data, error } = await query;
+  if (error) {
+    throw new Error("Could not load the categories", { cause: error });
   }
-  if (recent.error) {
-    throw new Error("Could not load the category usage", {
-      cause: recent.error,
-    });
-  }
-  const usage = countUsage(recent.data.map((row) => row.category_id));
-  return sortByUsage(
-    categories.data.map((row) => ({
-      id: row.id,
-      name: row.name,
-      kind,
-      ...toLook(row),
-    })),
-    usage,
-  );
+  return sortByPosition(data).map((row) => ({
+    id: row.id,
+    name: row.name,
+    kind,
+    ...toLook(row),
+  }));
 }
 
-// Active and hidden categories of both kinds, sorted by name
+// Active and hidden categories of both kinds in the person's order
 export async function listAllCategories(): Promise<ManagedCategory[]> {
   await requireUser();
   const supabase = await createClient();
@@ -116,11 +93,7 @@ export async function listAllCategories(): Promise<ManagedCategory[]> {
   if (error) {
     throw new Error("Could not load the categories", { cause: error });
   }
-  return data
-    .map(toManaged)
-    .sort((a, b) =>
-      a.name.localeCompare(b.name, "en", { sensitivity: "base" }),
-    );
+  return sortByPosition(data).map(toManaged);
 }
 
 // One category; a bad id or someone else's category is a 404
