@@ -130,14 +130,15 @@ test("the main currency's card comes first, and Money In and Money Out open Add 
     amount: "1,234.50",
   });
 
-  async function top(currency: keyof typeof en.currencies) {
+  // The cards sit side by side, so the first one is the leftmost
+  async function left(currency: keyof typeof en.currencies) {
     const box = await card(page, currency).boundingBox();
-    return box?.y ?? Number.NaN;
+    return box?.x ?? Number.NaN;
   }
 
   await page.goto("/");
   await expect(card(page, "USD")).toBeVisible();
-  expect(await top("LAK")).toBeLessThan(await top("USD"));
+  expect(await left("LAK")).toBeLessThan(await left("USD"));
 
   await page.goto("/settings");
   await page
@@ -152,7 +153,7 @@ test("the main currency's card comes first, and Money In and Money Out open Add 
 
   await page.goto("/");
   await expect(card(page, "LAK")).toBeVisible();
-  expect(await top("USD")).toBeLessThan(await top("LAK"));
+  expect(await left("USD")).toBeLessThan(await left("LAK"));
 
   const pressed = (name: string) =>
     page.getByRole("button", { name, exact: true });
@@ -168,6 +169,68 @@ test("the main currency's card comes first, and Money In and Money Out open Add 
     "aria-pressed",
     "true",
   );
+});
+
+// The dot that brings one currency's card into view
+function dot(page: Page, currency: keyof typeof en.currencies) {
+  return shown(
+    page.getByRole("button", {
+      name: en.dashboard.showCard.replace(
+        "{currency}",
+        () => en.currencies[currency],
+      ),
+      exact: true,
+    }),
+  );
+}
+
+test("a dot or a swipe brings the other currency's card into view", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addAccount(page, {
+    name: "Dollars",
+    type: "bank",
+    currency: "USD",
+    amount: "1,234.50",
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  // Whole card on screen, give or take a pixel of rounding
+  async function inView(currency: keyof typeof en.currencies) {
+    const box = await card(page, currency).boundingBox();
+    return box !== null && box.x >= -1 && box.x + box.width <= 391;
+  }
+
+  await expect(dot(page, "LAK")).toHaveAttribute("aria-current", "true");
+  expect(await inView("LAK")).toBe(true);
+  expect(await inView("USD")).toBe(false);
+
+  await dot(page, "USD").click();
+  await expect.poll(() => inView("USD")).toBe(true);
+  await expect(dot(page, "USD")).toHaveAttribute("aria-current", "true");
+  await expect(dot(page, "LAK")).not.toHaveAttribute("aria-current");
+
+  // A swipe scrolls the row sideways, and the dots follow it
+  await shown(
+    page.getByRole("region", { name: en.dashboard.balances, exact: true }),
+  ).evaluate((row) => row.scrollTo({ left: 0 }));
+  await expect(dot(page, "LAK")).toHaveAttribute("aria-current", "true");
+  await expect.poll(() => inView("LAK")).toBe(true);
+});
+
+test("a single currency shows its card without dots", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await page.goto("/");
+
+  await expect(card(page, "LAK")).toBeVisible();
+  await expect(dot(page, "LAK")).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: en.dashboard.balances, exact: true }),
+  ).toHaveCount(0);
 });
 
 test("home fits every width and the nav never covers the last element", async ({
