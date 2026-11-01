@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
+import { HelpHint } from "@/components/shared/help-hint";
 import { CardListSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import {
   CategoryForm,
   CategoryList,
   CategoryNotice,
+  SortableCategoryList,
   listAllCategories,
 } from "@/modules/categories";
 
@@ -19,9 +21,14 @@ export default function CategoriesPage({
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/settings" label={en.categories.backToSettings} />
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {en.categories.title}
-      </h1>
+      <div className="flex items-center gap-1">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {en.categories.title}
+        </h1>
+        <HelpHint label={en.categories.title}>
+          {en.categories.order.help}
+        </HelpHint>
+      </div>
       <Suspense
         fallback={
           <>
@@ -61,14 +68,16 @@ async function CategoriesContent({
           <CategoryForm mode="create" />
         </div>
       </section>
-      <CategoryList
+      <SortableCategoryList
         id="categories-expense"
         title={en.categories.expenseTitle}
+        kind="expense"
         categories={active.filter((category) => category.kind === "expense")}
       />
-      <CategoryList
+      <SortableCategoryList
         id="categories-income"
         title={en.categories.incomeTitle}
+        kind="income"
         categories={active.filter((category) => category.kind === "income")}
       />
       {hidden.length > 0 ? (

@@ -97,7 +97,7 @@ export function mostUsedLines(
     .slice(0, limit);
 }
 
-// One group per currency (in the order of CURRENCY_CODES), lines sorted by name
+// One group per currency (in the order of CURRENCY_CODES), lines in the person's category order
 export function budgetGroups(
   changes: readonly BudgetChange[],
   expenses: readonly ExpenseRow[],
@@ -105,8 +105,11 @@ export function budgetGroups(
   month: string,
 ): BudgetGroup[] {
   const active = activeBudgets(changes, month);
-  const categoriesById = new Map(
-    categories.map((category) => [category.id, category]),
+  const activeByPair = new Map(
+    active.map((change) => [
+      pairKey(change.categoryId, change.currency),
+      change,
+    ]),
   );
   const spentByPair = new Map<string, Money>();
   for (const row of expenses) {
@@ -123,14 +126,14 @@ export function budgetGroups(
   const groups: BudgetGroup[] = [];
   for (const currency of CURRENCY_CODES) {
     const lines: BudgetLine[] = [];
-    for (const change of active) {
-      const category = categoriesById.get(change.categoryId);
-      if (change.currency !== currency || category === undefined) continue;
+    for (const category of categories) {
+      const change = activeByPair.get(pairKey(category.id, currency));
+      if (change === undefined) continue;
       const budget = money(change.amountMinor, currency);
       const spent =
-        spentByPair.get(pairKey(change.categoryId, currency)) ?? zero(currency);
+        spentByPair.get(pairKey(category.id, currency)) ?? zero(currency);
       lines.push({
-        categoryId: change.categoryId,
+        categoryId: category.id,
         name: category.name,
         hidden: category.hidden,
         icon: category.icon,
@@ -142,7 +145,6 @@ export function budgetGroups(
       });
     }
     if (lines.length === 0) continue;
-    lines.sort(byName);
     const budget = sum(
       lines.map((line) => line.budget),
       currency,

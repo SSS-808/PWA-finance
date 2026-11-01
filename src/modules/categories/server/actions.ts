@@ -1,5 +1,6 @@
 "use server";
 
+import { refresh } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -8,6 +9,7 @@ import {
   categoryFieldsSchema,
   createCategorySchema,
   fieldErrorsFrom,
+  reorderCategoriesSchema,
 } from "../domain/schemas";
 import type { CategoryFormState, CategoryFormValues } from "../domain/types";
 import { getCategory } from "./queries";
@@ -142,4 +144,27 @@ export async function showCategory(id: string): Promise<void> {
   redirect(
     `${LIST_PATH}?hidden=1&notice=${result === "name_taken" ? "show_name_taken" : "shown"}`,
   );
+}
+
+// Saves the new order of one list; false means nothing changed
+export async function reorderCategories(
+  kind: string,
+  ids: string[],
+): Promise<{ ok: boolean }> {
+  await requireUser();
+  const parsed = reorderCategoriesSchema.safeParse({ kind, ids });
+  if (!parsed.success) return { ok: false };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reorder_categories", {
+    p_kind: parsed.data.kind,
+    p_ids: parsed.data.ids,
+  });
+  if (error) {
+    logDatabaseError("Could not save the category order", error);
+    return { ok: false };
+  }
+
+  refresh();
+  return { ok: true };
 }

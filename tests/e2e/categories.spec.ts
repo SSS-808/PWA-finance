@@ -274,3 +274,129 @@ test("adding two categories in a row shows the toast both times", async ({
     await expect(toast).toHaveCount(0, { timeout: 6000 });
   }
 });
+
+function expenseList(page: Page) {
+  return page.getByRole("region", {
+    name: en.categories.expenseTitle,
+    exact: true,
+  });
+}
+
+function handle(page: Page, name: string) {
+  return page.getByRole("button", {
+    name: en.categories.order.move.replace("{name}", () => name),
+    exact: true,
+  });
+}
+
+// The names of the Expense list, top to bottom, read from the handles
+function expenseNames(page: Page): Promise<string[]> {
+  const prefix = en.categories.order.move.replace("{name}", () => "");
+  return expenseList(page)
+    .getByRole("button")
+    .evaluateAll(
+      (buttons, remove) =>
+        buttons.map((button) =>
+          (button.getAttribute("aria-label") ?? "").replace(remove, ""),
+        ),
+      prefix,
+    );
+}
+
+// The screen-reader message for one place of the Expense list (it starts with 10 categories)
+function said(page: Page, template: string, name: string, place: number) {
+  const text = template
+    .replace("{name}", () => name)
+    .replace("{position}", () => String(place))
+    .replace("{count}", () => "10");
+  return page.getByRole("status").filter({ hasText: text });
+}
+
+// The page that sends the new order is the one that answers with a Server Action reply
+function orderSaved(page: Page) {
+  return page.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      response.request().headers()["next-action"] !== undefined,
+  );
+}
+
+test("dragging a category by its handle changes the order on the Add form", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash" });
+  await page.setViewportSize({ width: 1280, height: 1600 });
+  await page.goto(LIST_URL);
+
+  const from = await handle(page, "Bills").boundingBox();
+  const to = await handle(page, "Food").boundingBox();
+  expect(from).not.toBeNull();
+  expect(to).not.toBeNull();
+  await page.mouse.move(
+    (from?.x ?? 0) + (from?.width ?? 0) / 2,
+    (from?.y ?? 0) + (from?.height ?? 0) / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    (to?.x ?? 0) + (to?.width ?? 0) / 2,
+    (to?.y ?? 0) + (to?.height ?? 0) / 2,
+    { steps: 10 },
+  );
+  const saved = orderSaved(page);
+  await page.mouse.up();
+  await saved;
+
+  await expect
+    .poll(async () => (await expenseNames(page)).slice(0, 2))
+    .toEqual(["Bills", "Food"]);
+  await page.reload();
+  await expect
+    .poll(async () => (await expenseNames(page)).slice(0, 2))
+    .toEqual(["Bills", "Food"]);
+
+  await openAddForm(page);
+  await expect(page.getByRole("radio").first()).toHaveAccessibleName("Bills");
+});
+
+test("the keyboard moves a category too", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await page.goto(LIST_URL);
+
+  const food = handle(page, "Food");
+  await food.focus();
+  await page.keyboard.press("Space");
+  // Each message shows the library took the key, so the next key is not sent too early
+  await expect(
+    said(page, en.categories.order.movedTo, "Food", 1),
+  ).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  await expect(
+    said(page, en.categories.order.movedTo, "Food", 2),
+  ).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  await expect(
+    said(page, en.categories.order.movedTo, "Food", 3),
+  ).toBeVisible();
+  const saved = orderSaved(page);
+  await page.keyboard.press("Space");
+  await saved;
+
+  await expect
+    .poll(async () => (await expenseNames(page)).indexOf("Food"))
+    .toBe(2);
+  await page.reload();
+  await expect
+    .poll(async () => (await expenseNames(page)).indexOf("Food"))
+    .toBe(2);
+});
+
+test("a new category goes to the end of its list", async ({ page }) => {
+  await signUpAndConfirm(page);
+  await addCategory(page, "Coffee");
+  await expect(notice(page, en.categories.notices.added)).toBeVisible();
+
+  await expect
+    .poll(async () => (await expenseNames(page)).at(-1))
+    .toBe("Coffee");
+});

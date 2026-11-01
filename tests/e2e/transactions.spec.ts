@@ -260,28 +260,29 @@ test("the account used last is preselected next time", async ({ page }) => {
   await expect(page.getByRole("radio", { checked: true })).toHaveCount(0);
 });
 
-test("the most-used category comes first", async ({ page }) => {
+test("a new user's chips start in the default order", async ({ page }) => {
   await signUpAndConfirm(page);
-  await addAccount(page, { name: "Cash", amount: "100" });
+  await addAccount(page, { name: "Cash", amount: "100,000" });
+
+  const firstThree = async () =>
+    (
+      await page
+        .getByRole("radio")
+        .evaluateAll((inputs) =>
+          inputs.map((input) => input.closest("label")?.textContent ?? ""),
+        )
+    ).slice(0, 3);
 
   await openAddForm(page);
-  // Without any history the chips are in alphabetical order
-  await expect(page.getByRole("radio").first()).toHaveAccessibleName(
-    "Bank fees",
-  );
+  expect(await firstThree()).toEqual(["Food", "Transportation", "Education"]);
 
-  await addEntry(page, { amount: "1,000", category: "Transportation" });
-  await addEntry(page, { amount: "2,000", category: "Transportation" });
-  await addEntry(page, { amount: "3,000", category: "Food" });
+  // Using a category does not move it
+  await addEntry(page, { amount: "1,000", category: "Bills" });
+  await addEntry(page, { amount: "2,000", category: "Bills" });
 
   await openAddForm(page);
-  await expect(chip(page, "Transportation")).toBeVisible();
-  const names = await page
-    .getByRole("radio")
-    .evaluateAll((inputs) =>
-      inputs.map((input) => input.closest("label")?.textContent ?? ""),
-    );
-  expect(names.slice(0, 3)).toEqual(["Transportation", "Food", "Bank fees"]);
+  await expect(chip(page, "Bills")).toBeVisible();
+  expect(await firstThree()).toEqual(["Food", "Transportation", "Education"]);
 });
 
 test("Save sits above the amount box and stays in view at the bottom of the form", async ({

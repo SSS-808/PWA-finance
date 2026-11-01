@@ -137,7 +137,7 @@ If a TypeScript calculation ever gets slow, it moves to SQL, and the TypeScript 
 - On phones, a bottom nav; from 1024 px it becomes a sidebar that stays pinned while you scroll (`src/components/shared/app-nav.tsx`). It only shows pages that exist: today Home · Settings. Later: Home · Transactions · **+** · Accounts · Settings.
 - Dark mode follows the phone's setting (CSS `prefers-color-scheme` in `globals.css`). A manual switch waits until after the MVP.
 - Installed on a phone (Phase 11), the app opens full-screen. `viewport-fit=cover` plus `env(safe-area-inset-*)` padding keeps content and the bottom menu clear of the iPhone's notch and home bar. The manifest is `src/app/manifest.ts`; the icon's source is `src/app/icon.svg`.
-- **+** opens a bottom sheet with the amount field already focused and the number keyboard showing (`inputmode="decimal"`). Below it are category chips (most-used first) and Save. Account and date are filled in already; tap them to change. Target: 2 taps plus typing.
+- **+** opens a bottom sheet with the amount field already focused and the number keyboard showing (`inputmode="decimal"`). Below it are category chips (in your own order, set by dragging in Settings → Categories) and Save. Account and date are filled in already; tap them to change. Target: 2 taps plus typing.
 - A switch at the top of the sheet picks Expense, Income or Transfer. Expense is the default.
 
 ## 9. Libraries

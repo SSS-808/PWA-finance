@@ -164,6 +164,7 @@ create table public.categories (
   name text not null check (char_length(name) between 1 and 40),
   kind text not null check (kind in ('income', 'expense')),
   archived_at timestamptz,
+  position integer not null default 0 check (position >= 0),  -- place in its list (since 2026-11-02); new ones go last (trigger categories_go_last)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (id, user_id, kind)  -- target for the composite foreign key below
@@ -299,6 +300,7 @@ Other MVP functions follow the same pattern (written in Phases 3–4):
 | `update_transfer(transfer_id, from_account, to_account, from_amount, to_amount, date, description)` ✅ Phase 4 | Changes both sides together, with the same rules as `create_transfer`; can turn a transfer into a currency exchange |
 | `delete_transfer(transfer_id)` ✅ Phase 4 | Soft-deletes both sides together |
 | `set_account_balance(account_id, target_balance_minor, date, description)` ✅ Phase 4 | Locks the account, works out the difference, inserts an `adjustment` row, and returns the difference (0 means nothing to fix) |
+| `reorder_categories(kind, ids)` ✅ 2026-11-02 | Saves a new order for one category list: the ids get places 0, 1, 2…, the rest follow in their old order |
 
 Accounts that are archived can't be used in a new or edited transfer or balance fix. Bring the account back first.
 
