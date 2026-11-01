@@ -7,7 +7,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
-  use: { baseURL: "http://localhost:3000", trace: "on-first-retry" },
+  use: {
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    // The offline helper stays off except in offline.spec.ts, so other tests always see the server
+    serviceWorkers: "block",
+  },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     // On GitHub the tests run against a built app, like the live site

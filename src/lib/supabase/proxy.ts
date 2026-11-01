@@ -2,7 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/auth/confirm"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/auth/confirm",
+  "/offline",
+];
 const GUEST_ONLY_PATHS = ["/login", "/signup", "/forgot-password"];
 
 function matches(pathname: string, paths: readonly string[]): boolean {
