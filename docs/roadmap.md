@@ -20,7 +20,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 8 | Net worth and exchange rates | M | 4th in the new order |
 | 9 | Investments | L | Last: only once the owner invests |
 | 10 | Analytics | M | 3rd in the new order |
-| 11 | PWA and offline | M | **Built on `dev`, waiting for release:** install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)). Adding entries offline is a later step |
+| 11 | PWA and offline | M | **Built on `dev`, waiting for release:** install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)), and the five main pages are saved in the background so they work offline without being opened first (11.4). Adding entries offline is a later step |
 | 12 | Production hardening | M | 5th in the new order (small parts may come earlier) |
 
 ## Order from here (owner, 2026-11-02)

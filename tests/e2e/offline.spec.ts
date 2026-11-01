@@ -13,7 +13,13 @@ function savedPageCount() {
     .then((names) => names.filter((name) => name.startsWith("pages-")).length);
 }
 
-test("pages opened online still open offline, and log-out forgets them", async ({
+function isSaved(path: string) {
+  return caches
+    .match(path, { ignoreVary: true })
+    .then((response) => Boolean(response));
+}
+
+test("main pages open offline even if never opened, and log-out forgets them", async ({
   context,
   page,
 }) => {
@@ -23,17 +29,19 @@ test("pages opened online still open offline, and log-out forgets them", async (
 
   await page.goto("/accounts");
   await expect(page.getByText("Offline cash").first()).toBeVisible();
-  await expect
-    .poll(() =>
-      page.evaluate(async () =>
-        Boolean(await caches.match("/accounts", { ignoreVary: true })),
-      ),
-    )
-    .toBe(true);
+  await expect.poll(() => page.evaluate(isSaved, "/accounts")).toBe(true);
+  // Budgets was never opened, so only the background saving can have kept it
+  await expect.poll(() => page.evaluate(isSaved, "/budgets")).toBe(true);
 
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByText("Offline cash").first()).toBeVisible();
+  await expect(page.getByText(/^Offline\. Saved copy from /)).toBeVisible();
+
+  await page.goto("/budgets");
+  await expect(
+    page.getByRole("heading", { name: en.budgets.title, level: 1 }),
+  ).toBeVisible();
   await expect(page.getByText(/^Offline\. Saved copy from /)).toBeVisible();
 
   // A form is never saved, so it shows the offline page instead

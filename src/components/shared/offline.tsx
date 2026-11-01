@@ -25,7 +25,7 @@ async function readSavedAt(): Promise<string | null> {
   return date ? savedAtFormat.format(new Date(date)) : null;
 }
 
-// Starts the offline helper, and says so when the page on screen is a saved copy
+// Starts the offline helper, tells it about each page load, and says so when the page on screen is a saved copy
 export function OfflineBanner() {
   const router = useRouter();
   const [copy, setCopy] = useState<{ savedAt: string | null } | null>(null);
@@ -46,7 +46,10 @@ export function OfflineBanner() {
     }
     worker.addEventListener("message", answer);
     worker.startMessages();
-    worker.controller?.postMessage("was-copy");
+    // Through "ready", so the first visit, before the helper controls the page, starts the background saving too
+    void worker.ready.then((registration) =>
+      registration.active?.postMessage("page-loaded"),
+    );
     return () => worker.removeEventListener("message", answer);
   }, []);
 

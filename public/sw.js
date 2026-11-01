@@ -16,6 +16,12 @@ const MISS_MEMORY_MS = 30000;
 const MAX_PAGES = 50;
 const MAX_FILES = 300;
 
+// Saved in the background whenever the app is online, so they work offline without being opened first
+const MAIN_PAGES = ["/", "/accounts", "/transactions", "/budgets", "/goals"];
+// A copy younger than this isn't fetched again, so the server sees at most 5 extra loads per half hour
+const FRESH_MS = 30 * 60 * 1000;
+const BACKGROUND_WAIT_MS = 15000;
+
 const ID = "[0-9a-f-]{36}";
 // Only pages that show data; forms, Settings, downloads and login pages are never kept
 const VIEW_PAGES = [
@@ -31,6 +37,7 @@ const VIEW_PAGES = [
 let missedAt = 0;
 // Open pages that were given a saved copy, so their banner can say so
 const servedCopies = new Set();
+let savingMainPages = null;
 
 function waitTime() {
   return Date.now() - missedAt < MISS_MEMORY_MS ? SHORT_WAIT_MS : WAIT_MS;
@@ -56,12 +63,36 @@ async function save(cacheName, request, response, max) {
   }
 }
 
+// A redirect means the login screen answered instead of the page, so it is never kept
 function isSavablePage(response) {
   return (
     response.ok &&
     response.type === "basic" &&
+    !response.redirected &&
     (response.headers.get("content-type") ?? "").includes("text/html")
   );
+}
+
+// One page at a time, so the page on screen isn't slowed down; stops at the first failure
+async function saveMainPages() {
+  for (const path of MAIN_PAGES) {
+    const url = new URL(path, self.location.origin).href;
+    const copy = await caches.match(url, {
+      cacheName: PAGES,
+      ignoreVary: true,
+    });
+    const savedAt = Date.parse(copy?.headers.get("date") ?? "");
+    if (Date.now() - savedAt < FRESH_MS) continue;
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(BACKGROUND_WAIT_MS),
+      });
+      if (!isSavablePage(response)) return;
+      await save(PAGES, url, response, MAX_PAGES);
+    } catch {
+      return;
+    }
+  }
 }
 
 // Keeps the offline page and the files it needs, so it shows even if it was never opened
@@ -172,12 +203,14 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
-// The banner asks whether its page came from a saved copy
+// Every page load says hello: a saved copy gets its banner, a fresh page starts the background saving
 self.addEventListener("message", (event) => {
-  if (event.data === "was-copy" && event.source) {
-    event.source.postMessage({
-      type: "was-copy",
-      value: servedCopies.has(event.source.id),
-    });
-  }
+  if (event.data !== "page-loaded" || !event.source) return;
+  const wasCopy = servedCopies.has(event.source.id);
+  event.source.postMessage({ type: "was-copy", value: wasCopy });
+  if (wasCopy) return;
+  savingMainPages ??= saveMainPages().finally(() => {
+    savingMainPages = null;
+  });
+  event.waitUntil(savingMainPages);
 });
