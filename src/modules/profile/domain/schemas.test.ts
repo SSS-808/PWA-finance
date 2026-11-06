@@ -46,7 +46,7 @@ describe("profileSchema", () => {
     );
   });
 
-  it.each(["EUR", "", "lak"])("rejects the currency %j", (baseCurrency) => {
+  it.each(["GBP", "", "lak"])("rejects the currency %j", (baseCurrency) => {
     const result = profileSchema.safeParse({ ...valid, baseCurrency });
     expect(result.error?.issues[0]?.message).toBe("invalid_currency");
   });
@@ -69,7 +69,7 @@ describe("fieldErrorsFrom", () => {
   it("maps each failing field to its error key", () => {
     const result = profileSchema.safeParse({
       displayName: "a".repeat(61),
-      baseCurrency: "EUR",
+      baseCurrency: "GBP",
       timeZone: "Mars/Base",
     });
     expect(result.error && fieldErrorsFrom(result.error)).toEqual({

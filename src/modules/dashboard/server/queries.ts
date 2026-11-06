@@ -11,13 +11,14 @@ import {
   monthRange,
 } from "@/modules/transactions";
 import {
+  HOME_CURRENCIES,
   type SummaryRow,
   emptySummary,
   monthSummary,
 } from "../domain/calculations";
 import type { DashboardCard } from "../domain/types";
 
-// No cards means no active accounts
+// No cards means no active accounts in a Home currency
 export type Dashboard = { cards: DashboardCard[]; recent: DayGroup[] };
 
 const RECENT_COUNT = 10;
@@ -60,7 +61,7 @@ async function loadMonthRows(month: string): Promise<SummaryRow[]> {
   }
 }
 
-// Everything Home shows for one month (YYYY-MM): a card per currency with active accounts, and the latest transactions
+// Everything Home shows for one month (YYYY-MM): a card per Home currency with active accounts, and the latest transactions
 export async function getDashboard(month: string): Promise<Dashboard> {
   await requireUser();
   const [accounts, categories, rows, recent] = await Promise.all([
@@ -79,7 +80,10 @@ export async function getDashboard(month: string): Promise<Dashboard> {
     ),
   );
   const cards = groupByCurrency(
-    accounts.filter((account) => !account.archived),
+    accounts.filter(
+      (account) =>
+        !account.archived && HOME_CURRENCIES.includes(account.currency),
+    ),
   ).map((group) => ({
     currency: group.currency,
     balance: group.total,

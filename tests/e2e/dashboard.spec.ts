@@ -233,6 +233,31 @@ test("a single currency shows its card without dots", async ({ page }) => {
   ).toHaveCount(0);
 });
 
+test("a travel currency keeps its decimals on Accounts but gets no Home card", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addAccount(page, {
+    name: "Dong",
+    currency: "VND",
+    amount: "50,000.50",
+  });
+  await addEntry(page, {
+    amount: "1,000.25",
+    category: "Food",
+    account: "Dong",
+  });
+
+  await page.goto("/accounts");
+  await expect(shown(page.getByText("₫49,000.25")).first()).toBeVisible();
+
+  await page.goto("/");
+  await expect(card(page, "LAK")).toBeVisible();
+  await expect(card(page, "VND")).toHaveCount(0);
+  await expect(spending(page, "VND")).toHaveCount(0);
+});
+
 test("home fits every width and the nav never covers the last element", async ({
   page,
 }) => {
