@@ -19,9 +19,9 @@ erDiagram
   TRANSACTIONS ||..o{ TRANSACTION_AUDIT : "change history"
 
   CURRENCIES {
-    char code PK "LAK, USD, THB"
+    char code PK "LAK, USD, THB + 13 travel currencies"
     text name
-    smallint minor_unit "LAK 0, USD 2, THB 2"
+    smallint minor_unit "LAK 0, all others 2"
   }
   PROFILES {
     uuid id PK "same as auth.users.id"
@@ -81,7 +81,7 @@ There is no `balance` column. A balance is the sum of the account's rows ([ADR-0
 ## 2. Money
 
 - Every amount is a `bigint` in the currency's smallest unit, stored next to a 3-letter currency code.
-- `currencies.minor_unit` says how many decimals a currency has: LAK 0, USD 2, THB 2. So 100,000 kip is stored as `100000`, and $12.50 as `1250`.
+- `currencies.minor_unit` says how many decimals a currency has: LAK 0, every other currency 2. So 100,000 kip is stored as `100000`, and $12.50 as `1250`.
 - Details and reasons: [ADR-003](adr/003-money-integer-minor-units.md).
 
 ## 3. The transaction model
