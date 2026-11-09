@@ -17,6 +17,7 @@ export type Database = {
           id: string;
           minimum_minor: number;
           name: string;
+          show_on_home: boolean;
           type: string;
           updated_at: string;
           user_id: string;
@@ -29,6 +30,7 @@ export type Database = {
           id?: string;
           minimum_minor?: number;
           name: string;
+          show_on_home?: boolean;
           type: string;
           updated_at?: string;
           user_id?: string;
@@ -40,6 +42,7 @@ export type Database = {
           id?: string;
           minimum_minor?: number;
           name?: string;
+          show_on_home?: boolean;
           type?: string;
           updated_at?: string;
           user_id?: string;
@@ -543,6 +546,7 @@ export type Database = {
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;
+          p_show_on_home?: boolean;
           p_type: string;
         };
         Returns: string;
@@ -583,6 +587,7 @@ export type Database = {
           p_name: string;
           p_opened_on: string;
           p_opening_balance_minor: number;
+          p_show_on_home?: boolean;
           p_type: string;
         };
         Returns: undefined;

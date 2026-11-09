@@ -26,7 +26,7 @@ select is((select count(*) from public.categories where user_id = 'aaaaaaaa-aaaa
 select is((select count(*) from public.profiles where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 1::bigint, 'A sees their own profile');
 select is((select count(*) from public.account_balances where account_id = 'aaaaaaaa-0000-4000-8000-000000000001'), 1::bigint, 'A sees their own account_balances row');
 select is((select count(*) from public.transaction_audit where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'), 1::bigint, 'A sees their own audit row');
-select is((select count(*) from public.currencies), 3::bigint, 'A sees the 3 currencies');
+select is((select count(*) from public.currencies), 16::bigint, 'A sees the 16 currencies');
 
 -- User B: positive controls, then A''s rows must be invisible
 set local request.jwt.claim.sub = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';

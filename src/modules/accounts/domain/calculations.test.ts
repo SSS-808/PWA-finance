@@ -178,6 +178,10 @@ describe("defaultMinimum", () => {
     expect(defaultMinimum("bank", currency)).toEqual(money(minor, currency));
   });
 
+  it("gives a bank account in a travel currency nothing", () => {
+    expect(defaultMinimum("bank", "VND")).toEqual(money(0, "VND"));
+  });
+
   it.each([
     "cash",
     "savings",

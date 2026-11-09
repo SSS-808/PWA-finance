@@ -57,7 +57,7 @@ describe("budgetSchema", () => {
     });
   });
 
-  it.each(["", "EUR", "lak"])("refuses the currency %j", (currency) => {
+  it.each(["", "GBP", "lak"])("refuses the currency %j", (currency) => {
     const result = budgetSchema.safeParse({ ...valid, currency });
     expect(result.error && fieldErrorsFrom(result.error)).toEqual({
       currency: "invalid_currency",

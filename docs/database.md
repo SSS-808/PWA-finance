@@ -19,9 +19,9 @@ erDiagram
   TRANSACTIONS ||..o{ TRANSACTION_AUDIT : "change history"
 
   CURRENCIES {
-    char code PK "LAK, USD, THB"
+    char code PK "LAK, USD, THB + 13 travel currencies"
     text name
-    smallint minor_unit "LAK 0, USD 2, THB 2"
+    smallint minor_unit "LAK 0, all others 2"
   }
   PROFILES {
     uuid id PK "same as auth.users.id"
@@ -37,6 +37,7 @@ erDiagram
     text name
     text type "cash, bank, savings, credit_card, loan, investment, other"
     char currency FK
+    boolean show_on_home
     timestamptz archived_at
     timestamptz created_at
     timestamptz updated_at
@@ -81,7 +82,7 @@ There is no `balance` column. A balance is the sum of the account's rows ([ADR-0
 ## 2. Money
 
 - Every amount is a `bigint` in the currency's smallest unit, stored next to a 3-letter currency code.
-- `currencies.minor_unit` says how many decimals a currency has: LAK 0, USD 2, THB 2. So 100,000 kip is stored as `100000`, and $12.50 as `1250`.
+- `currencies.minor_unit` says how many decimals a currency has: LAK 0, every other currency 2. So 100,000 kip is stored as `100000`, and $12.50 as `1250`.
 - Details and reasons: [ADR-003](adr/003-money-integer-minor-units.md).
 
 ## 3. The transaction model
@@ -149,6 +150,8 @@ create table public.accounts (
   currency char(3) not null references public.currencies (code),
   -- What the bank keeps (since 2026-10-31): free to spend = balance − this; debts have none
   minimum_minor bigint not null default 0 check (minimum_minor >= 0),
+  -- Whether the account counts on Home (since 2026-11-09); it always shows in Accounts and History
+  show_on_home boolean not null default true,
   archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

@@ -31,6 +31,7 @@ function readValues(formData: FormData, currency?: string): AccountFormValues {
     currency: currency ?? textField(formData, "currency"),
     startingAmount: textField(formData, "startingAmount"),
     minimum: textField(formData, "minimum"),
+    showOnHome: formData.get("showOnHome") === "on",
   };
 }
 
@@ -89,6 +90,7 @@ export async function createAccount(
     p_opening_balance_minor: amount.value.minor,
     p_opened_on: todayIn(profile.timeZone),
     p_minimum_minor: minimum.value.minor,
+    p_show_on_home: values.showOnHome,
   });
   if (error) {
     // 23505 is the unique index on active account names
@@ -152,6 +154,7 @@ export async function updateAccount(
     p_opening_balance_minor: amount.value.minor,
     p_opened_on: todayIn(profile.timeZone),
     p_minimum_minor: minimum.value.minor,
+    p_show_on_home: values.showOnHome,
   });
   if (error) {
     if (error.code === "23505") {

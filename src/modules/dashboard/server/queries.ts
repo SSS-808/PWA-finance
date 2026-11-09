@@ -17,27 +17,38 @@ import {
 } from "../domain/calculations";
 import type { DashboardCard } from "../domain/types";
 
-// No cards means no active accounts
-export type Dashboard = { cards: DashboardCard[]; recent: DayGroup[] };
+// No cards means no active accounts, or every active account is switched off (allSwitchedOff)
+export type Dashboard = {
+  cards: DashboardCard[];
+  recent: DayGroup[];
+  allSwitchedOff: boolean;
+};
 
 const RECENT_COUNT = 10;
 
 // Matches the API's row limit, so a longer month is read in pages
 const PAGE_SIZE = 1000;
 
-// Every non-deleted income and expense of the month, whatever the account
-async function loadMonthRows(month: string): Promise<SummaryRow[]> {
+// Every non-deleted income and expense of the month, except on accounts switched off for Home
+async function loadMonthRows(
+  month: string,
+  hiddenAccountIds: readonly string[],
+): Promise<SummaryRow[]> {
   const supabase = await createClient();
   const { from, to } = monthRange(month);
   const rows: SummaryRow[] = [];
   for (let start = 0; ; start += PAGE_SIZE) {
-    const { data, error } = await supabase
+    let query = supabase
       .from("transactions")
       .select("kind, amount_minor, currency, category_id")
       .in("kind", ["income", "expense"])
       .is("deleted_at", null)
       .gte("transaction_date", from)
-      .lt("transaction_date", to)
+      .lt("transaction_date", to);
+    if (hiddenAccountIds.length > 0) {
+      query = query.not("account_id", "in", `(${hiddenAccountIds.join(",")})`);
+    }
+    const { data, error } = await query
       .order("id")
       .range(start, start + PAGE_SIZE - 1);
     if (error) {
@@ -60,14 +71,17 @@ async function loadMonthRows(month: string): Promise<SummaryRow[]> {
   }
 }
 
-// Everything Home shows for one month (YYYY-MM): a card per currency with active accounts, and the latest transactions
+// Everything Home shows for one month (YYYY-MM): a card per currency with accounts switched on, and the latest transactions
 export async function getDashboard(month: string): Promise<Dashboard> {
   await requireUser();
-  const [accounts, categories, rows, recent] = await Promise.all([
-    listAccounts(),
+  const accounts = await listAccounts();
+  const hiddenAccountIds = accounts
+    .filter((account) => !account.showOnHome)
+    .map((account) => account.id);
+  const [categories, rows, recent] = await Promise.all([
     listAllCategories(),
-    loadMonthRows(month),
-    listTransactions(baseFilters(null), RECENT_COUNT),
+    loadMonthRows(month, hiddenAccountIds),
+    listTransactions(baseFilters(null), RECENT_COUNT, hiddenAccountIds),
   ]);
   const summaries = monthSummary(
     rows,
@@ -78,8 +92,9 @@ export async function getDashboard(month: string): Promise<Dashboard> {
       ]),
     ),
   );
+  const active = accounts.filter((account) => !account.archived);
   const cards = groupByCurrency(
-    accounts.filter((account) => !account.archived),
+    active.filter((account) => account.showOnHome),
   ).map((group) => ({
     currency: group.currency,
     balance: group.total,
@@ -87,5 +102,9 @@ export async function getDashboard(month: string): Promise<Dashboard> {
       summaries.find((summary) => summary.currency === group.currency) ??
       emptySummary(group.currency),
   }));
-  return { cards, recent };
+  return {
+    cards,
+    recent,
+    allSwitchedOff: active.length > 0 && cards.length === 0,
+  };
 }

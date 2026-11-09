@@ -62,7 +62,7 @@ select throws_ok(
   '23514'::char(5), null, 'kind can only be expense');
 select throws_ok(
   $$insert into public.budgets (category_id, currency, start_month, amount_minor)
-    values (current_setting('test.a_food')::uuid, 'EUR', '2026-11-01', 1)$$,
+    values (current_setting('test.a_food')::uuid, 'GBP', '2026-11-01', 1)$$,
   '23503'::char(5), null, 'an unknown currency is refused');
 select throws_ok(
   $$insert into public.budgets (category_id, currency, start_month, amount_minor)

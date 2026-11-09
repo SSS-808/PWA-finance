@@ -233,6 +233,88 @@ test("a single currency shows its card without dots", async ({ page }) => {
   ).toHaveCount(0);
 });
 
+test("an account switched off stays out of Home but shows on Accounts, and can be switched back on", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addAccount(page, {
+    name: "LDB",
+    type: "bank",
+    amount: "500,000",
+    showOnHome: false,
+  });
+  await addAccount(page, {
+    name: "Dong",
+    currency: "VND",
+    amount: "50,000.50",
+    showOnHome: false,
+  });
+  await addEntry(page, { amount: "45,000", category: "Food", account: "Cash" });
+  await addEntry(page, { amount: "1,000", category: "Bills", account: "LDB" });
+  await addEntry(page, {
+    amount: "1,000.25",
+    category: "Shopping",
+    account: "Dong",
+  });
+
+  await page.goto("/accounts");
+  await expect(shown(page.getByText("₫49,000.25")).first()).toBeVisible();
+
+  await page.goto("/");
+  const lak = card(page, "LAK");
+  await expect(lak.getByText("₭955,000", { exact: true })).toBeVisible();
+  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭45,000");
+  await expect(card(page, "VND")).toHaveCount(0);
+  await expect(spending(page, "VND")).toHaveCount(0);
+  const recent = shown(
+    page.getByRole("region", { name: en.dashboard.recent, exact: true }),
+  );
+  await expect(recent.getByRole("link", { name: /Food/ })).toBeVisible();
+  await expect(recent.getByRole("link", { name: /Bills/ })).toHaveCount(0);
+
+  await page.goto("/accounts");
+  await shown(page.getByRole("link", { name: /LDB/ }))
+    .first()
+    .click();
+  await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
+  await page.getByRole("link", { name: en.accounts.detail.edit }).click();
+  await expect(page).toHaveURL(/\/edit$/);
+  const toggle = page.getByRole("switch", {
+    name: en.accounts.form.showOnHome,
+    exact: true,
+  });
+  await expect(toggle).not.toBeChecked();
+  await toggle.check();
+  await page.getByRole("button", { name: en.accounts.form.save }).click();
+  await expect(page).toHaveURL(/notice=saved/);
+
+  await page.goto("/");
+  await expect(lak.getByText("₭1,454,000", { exact: true })).toBeVisible();
+  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭46,000");
+});
+
+test("when every account is switched off, Home says so and points to Accounts", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, {
+    name: "Cash",
+    amount: "1,000,000",
+    showOnHome: false,
+  });
+
+  await page.goto("/");
+  await expect(
+    shown(page.getByRole("heading", { name: en.home.noneShownTitle })),
+  ).toBeVisible();
+  await expect(card(page, "LAK")).toHaveCount(0);
+  await shown(
+    page.getByRole("link", { name: en.home.noneShownAction }),
+  ).click();
+  await expect(page).toHaveURL(/\/accounts$/);
+});
+
 test("home fits every width and the nav never covers the last element", async ({
   page,
 }) => {
