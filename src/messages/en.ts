@@ -79,6 +79,8 @@ export const en = {
     moneyOut: "Money Out",
     passwordUpdated: "Your password was changed.",
     startTitle: "Start by adding your accounts",
+    noneShownTitle: "None of your accounts are set to show on Home",
+    noneShownAction: "Open Accounts",
   },
   dashboard: {
     title: "Overview",
@@ -459,6 +461,9 @@ export const en = {
       minimum: "Minimum the bank keeps",
       minimumHint:
         "You can't spend this part, but the bank can take card fees from it. Bank accounts start with ₭50,000, $10 or ฿500. Change it if your bank asks for a different amount, or set 0.",
+      showOnHome: "Show on Home",
+      showOnHomeHint:
+        "When this is off, this account's money and entries stay out of Home. They still show in Accounts and History.",
       save: "Save",
       saving: "Saving…",
       cancel: "Cancel",

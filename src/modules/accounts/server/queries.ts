@@ -16,9 +16,11 @@ type AccountRow = {
   currency: string;
   archived_at: string | null;
   minimum_minor: number;
+  show_on_home: boolean;
 };
 
-const ACCOUNT_COLUMNS = "id, name, type, currency, archived_at, minimum_minor";
+const ACCOUNT_COLUMNS =
+  "id, name, type, currency, archived_at, minimum_minor, show_on_home";
 
 const idSchema = z.uuid();
 
@@ -40,6 +42,7 @@ function toAccount(
     type: row.type,
     currency: row.currency,
     archived: row.archived_at !== null,
+    showOnHome: row.show_on_home,
     balance: money(balanceMinor ?? 0, row.currency),
     minimum: money(row.minimum_minor, row.currency),
     setAside: money(setAsideMinor ?? 0, row.currency),

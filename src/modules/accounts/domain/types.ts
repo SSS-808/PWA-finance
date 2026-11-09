@@ -21,7 +21,9 @@ export type AccountErrorKey = (typeof ACCOUNT_ERROR_KEYS)[number];
 export type AccountFieldName =
   "name" | "type" | "currency" | "startingAmount" | "minimum";
 
-export type AccountFormValues = Record<AccountFieldName, string>;
+export type AccountFormValues = Record<AccountFieldName, string> & {
+  showOnHome: boolean;
+};
 
 export type AccountFormState = {
   status: "idle" | "error";
@@ -47,6 +49,7 @@ export type Account = {
   type: AccountType;
   currency: CurrencyCode;
   archived: boolean;
+  showOnHome: boolean;
   balance: Money;
   minimum: Money;
   setAside: Money;

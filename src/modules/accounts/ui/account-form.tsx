@@ -44,6 +44,7 @@ type AccountFormProps = { title: string } & (
       type: AccountType;
       startingAmount: string;
       minimum: string;
+      showOnHome: boolean;
     }
 );
 
@@ -75,6 +76,7 @@ function startValues(props: AccountFormProps): AccountFormValues {
       currency: props.currency,
       startingAmount: props.startingAmount,
       minimum: props.minimum,
+      showOnHome: props.showOnHome,
     };
   }
   const type = props.type ?? ACCOUNT_TYPES[0];
@@ -85,6 +87,7 @@ function startValues(props: AccountFormProps): AccountFormValues {
     currency,
     startingAmount: "",
     minimum: defaultMinimumText(type, currency),
+    showOnHome: true,
   };
 }
 
@@ -281,6 +284,26 @@ export function AccountForm(props: AccountFormProps) {
           />
         </div>
         <FieldMessage id={`${uid}-minimum-error`} error={fieldErrors.minimum} />
+      </div>
+      <div className="flex min-h-12 items-center justify-between gap-3">
+        <div className="flex items-center gap-1">
+          <Label htmlFor={`${uid}-show-on-home`} className="text-base">
+            {en.accounts.form.showOnHome}
+          </Label>
+          <HelpHint label={en.accounts.form.showOnHome}>
+            {en.accounts.form.showOnHomeHint}
+          </HelpHint>
+        </div>
+        <input
+          // A new key remounts the box, because React keeps the old default after a form reset
+          key={String(current.showOnHome)}
+          id={`${uid}-show-on-home`}
+          type="checkbox"
+          role="switch"
+          name="showOnHome"
+          defaultChecked={current.showOnHome}
+          className="size-6 shrink-0 accent-primary"
+        />
       </div>
     </form>
   );

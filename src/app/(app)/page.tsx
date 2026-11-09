@@ -63,11 +63,9 @@ async function HomeContent({
   const currentMonth = today.slice(0, 7);
   // "all" and bad values fall back to this month
   const month = parseFilters(params, today).month ?? currentMonth;
-  const [{ cards, recent }, budgets, goals] = await Promise.all([
-    getDashboard(month),
-    getBudgetMonth(month),
-    listGoals(),
-  ]);
+  const [{ cards, recent, allSwitchedOff }, budgets, goals] = await Promise.all(
+    [getDashboard(month), getBudgetMonth(month), listGoals()],
+  );
   const ordered = mainFirst(cards, profile.baseCurrency);
   const withSpending = ordered.filter(
     (card) => card.summary.byCategory.length > 0,
@@ -84,9 +82,13 @@ async function HomeContent({
       />
       {ordered.length === 0 ? (
         <div className="space-y-4 rounded-2xl border border-border bg-card px-4 py-6">
-          <h2 className="text-xl font-semibold">{en.home.startTitle}</h2>
+          <h2 className="text-xl font-semibold">
+            {allSwitchedOff ? en.home.noneShownTitle : en.home.startTitle}
+          </h2>
           <Button asChild className="h-12 w-full text-base">
-            <Link href="/accounts/new">{en.accounts.addFirst}</Link>
+            <Link href={allSwitchedOff ? "/accounts" : "/accounts/new"}>
+              {allSwitchedOff ? en.home.noneShownAction : en.accounts.addFirst}
+            </Link>
           </Button>
         </div>
       ) : (
