@@ -114,15 +114,15 @@ test("a transfer shows as one row in History and moves both balances", async ({
   await saveButton(page).click();
 
   await expect(page).toHaveURL(/\/accounts$/);
-  await expect(notice(page, "Saved: BCEL → Cash ₭500,000")).toBeVisible();
-  await expect(accountRows(page, "BCEL")).toContainText("₭500,000");
-  await expect(accountRows(page, "Cash")).toContainText("₭500,000");
+  await expect(notice(page, "Saved: BCEL → Cash ₭500,000.00")).toBeVisible();
+  await expect(accountRows(page, "BCEL")).toContainText("₭500,000.00");
+  await expect(accountRows(page, "Cash")).toContainText("₭500,000.00");
 
   await page.goto("/transactions");
   const day = page.getByRole("region", { name: en.transactions.today });
   const rows = day.getByRole("link", { name: /BCEL → Cash/ });
   await expect(rows).toHaveCount(1);
-  await expect(rows).toContainText("₭500,000");
+  await expect(rows).toContainText("₭500,000.00");
 });
 
 test("an exchange asks how much arrived and keeps both amounts", async ({
@@ -158,15 +158,15 @@ test("an exchange asks how much arrived and keeps both amounts", async ({
   await saveButton(page).click();
   await expect(page).toHaveURL(/\/accounts$/);
   await expect(
-    notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,150,000"),
+    notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,150,000.00"),
   ).toBeVisible();
   await expect(accountRows(page, "USD Cash")).toContainText("$100.00");
-  await expect(accountRows(page, "Cash")).toContainText("₭2,150,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭2,150,000.00");
 
   await page.goto("/transactions");
   const row = page.getByRole("link", { name: /USD Cash → Cash/ });
   await expect(row).toContainText("-$100.00");
-  await expect(row).toContainText("+₭2,150,000");
+  await expect(row).toContainText("+₭2,150,000.00");
 });
 
 test("a transfer can be edited and then deleted in two steps, both accounts following", async ({
@@ -192,7 +192,7 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
     }),
   ).toBeVisible();
   // The form is prefilled with the amount that left, without a sign
-  await expect(amountBox(page)).toHaveValue("500,000");
+  await expect(amountBox(page)).toHaveValue("500,000.00");
   await expect(fromBox(page).locator("option:checked")).toHaveText("BCEL");
   await expect(toBox(page).locator("option:checked")).toHaveText("Cash");
   await expect(noteBox(page)).toHaveValue("Cash out");
@@ -201,12 +201,12 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
   await amountBox(page).fill("300,000");
   await saveButton(page).click();
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(notice(page, "Saved: BCEL → Cash ₭300,000")).toBeVisible();
+  await expect(notice(page, "Saved: BCEL → Cash ₭300,000.00")).toBeVisible();
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(1);
 
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭700,000");
-  await expect(accountRows(page, "Cash")).toContainText("₭300,000");
+  await expect(accountRows(page, "BCEL")).toContainText("₭700,000.00");
+  await expect(accountRows(page, "Cash")).toContainText("₭300,000.00");
 
   await page.goto("/transactions");
   await page.getByRole("link", { name: /BCEL → Cash/ }).click();
@@ -227,8 +227,8 @@ test("a transfer can be edited and then deleted in two steps, both accounts foll
   await expect(page.getByRole("link", { name: /BCEL → Cash/ })).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭1,000,000");
-  await expect(accountRows(page, "Cash")).toContainText("₭0");
+  await expect(accountRows(page, "BCEL")).toContainText("₭1,000,000.00");
+  await expect(accountRows(page, "Cash")).toContainText("₭0.00");
 });
 
 test("an exchange can be edited and its arrived amount is prefilled", async ({
@@ -247,11 +247,11 @@ test("an exchange can be edited and its arrived amount is prefilled", async ({
   await page.goto("/transactions");
   await page.getByRole("link", { name: /USD Cash → Cash/ }).click();
   await expect(amountBox(page)).toHaveValue("100.00");
-  await expect(arrivedBox(page)).toHaveValue("2,150,000");
+  await expect(arrivedBox(page)).toHaveValue("2,150,000.00");
   await arrivedBox(page).fill("2,200,000");
   await saveButton(page).click();
   await expect(
-    notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,200,000"),
+    notice(page, "Saved: USD Cash → Cash $100.00 → ₭2,200,000.00"),
   ).toBeVisible();
 });
 
@@ -329,7 +329,7 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
     page.getByRole("heading", { level: 1, name: en.accounts.fix.title }),
   ).toBeVisible();
   await expect(shown(page.getByText(en.accounts.fix.current))).toBeVisible();
-  await expect(shown(page.getByText("₭1,000,000"))).toBeVisible();
+  await expect(shown(page.getByText("₭1,000,000.00"))).toBeVisible();
   await expect(fixBox(page)).toBeFocused();
   await expect(
     page.getByRole("textbox", { name: en.accounts.fix.note }),
@@ -350,13 +350,13 @@ test("Fix balance adds the difference as a Balance fix, and says so when nothing
   await fixSave(page).click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   await expect(notice(page, en.accounts.notices.fixed)).toBeVisible();
-  await expect(shown(page.getByText("₭950,000"))).toBeVisible();
+  await expect(shown(page.getByText("₭950,000.00"))).toBeVisible();
 
   await page.goto("/transactions");
   const day = page.getByRole("region", { name: en.transactions.today });
   const fixRows = day.getByText(en.transactions.kinds.adjustment);
   await expect(fixRows).toHaveCount(1);
-  await expect(shown(day.getByText("-₭50,000"))).toBeVisible();
+  await expect(shown(day.getByText("-₭50,000.00"))).toBeVisible();
 
   // The same number again changes nothing
   await openFixBalance(page, "Cash");
@@ -430,7 +430,7 @@ test("another person's transfer, and an id that is not a uuid, give not found", 
 
   // The owner still sees it
   await page.goto(`/transactions/transfer/${id}`);
-  await expect(amountBox(page)).toHaveValue("100");
+  await expect(amountBox(page)).toHaveValue("100.00");
 });
 
 test("the Transfer view and the Fix balance page fit every width", async ({
@@ -446,7 +446,7 @@ test("the Transfer view and the Fix balance page fit every width", async ({
   });
   await addAccount(page, {
     name: "Another very long account name that keeps going on",
-    amount: "123,456,789,012",
+    amount: "99,999,999,999",
   });
 
   await openTransferForm(page, "/transactions/new");
@@ -454,7 +454,7 @@ test("the Transfer view and the Fix balance page fit every width", async ({
   await toBox(page).selectOption({ index: 2 });
   await expect(arrivedBox(page)).toBeVisible();
   await amountBox(page).fill("12,345,678.90");
-  await arrivedBox(page).fill("123,456,789,012");
+  await arrivedBox(page).fill("99,999,999,999");
   for (const width of widths) {
     await page.setViewportSize({ width, height: 800 });
     await expect(saveButton(page)).toBeVisible();

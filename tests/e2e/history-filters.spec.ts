@@ -255,8 +255,8 @@ test("an account page lists its transactions and links to the filtered History",
   await accountRows(page, "Cash").click();
   await expect(page).toHaveURL(new RegExp(`/accounts/${UUID}$`));
   const accountId = page.url().split("/").pop() ?? "";
-  await expect(row(page, /Food.*-₭10,000/)).toBeVisible();
-  await expect(row(page, /-₭5,000/)).toHaveCount(0);
+  await expect(row(page, /Food.*-₭10,000\.00/)).toBeVisible();
+  await expect(row(page, /-₭5,000\.00/)).toHaveCount(0);
   await expect(
     shown(
       page.getByText(en.transactions.kinds.opening_balance, { exact: true }),
@@ -274,6 +274,6 @@ test("an account page lists its transactions and links to the filtered History",
   await expect(
     shown(page.getByText(text.allMonths, { exact: true })),
   ).toBeVisible();
-  await expect(row(page, /Food.*-₭10,000/)).toBeVisible();
-  await expect(row(page, /-₭5,000/)).toHaveCount(0);
+  await expect(row(page, /Food.*-₭10,000\.00/)).toBeVisible();
+  await expect(row(page, /-₭5,000\.00/)).toHaveCount(0);
 });

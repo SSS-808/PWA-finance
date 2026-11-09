@@ -80,8 +80,8 @@ test("adding an expense from Accounts comes back with a note and moves the balan
   await saveButton(page).click();
 
   await expect(page).toHaveURL(/\/accounts$/);
-  await expect(notice(page, "Saved: Food ₭45,000")).toBeVisible();
-  await expect(accountRows(page, "Cash")).toContainText("₭1,455,000");
+  await expect(notice(page, "Saved: Food ₭45,000.00")).toBeVisible();
+  await expect(accountRows(page, "Cash")).toContainText("₭1,455,000.00");
 });
 
 test("saving after opening Add from Settings lands on History, where the note shows", async ({
@@ -92,7 +92,7 @@ test("saving after opening Add from Settings lands on History, where the note sh
   await openAddForm(page, "/transactions/new?from=%2Fsettings");
   await fillEntry(page, { amount: "100", category: "Food" });
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(notice(page, "Saved: Food ₭100")).toBeVisible();
+  await expect(notice(page, "Saved: Food ₭100.00")).toBeVisible();
 });
 
 test("the History list shows the entry under Today with its sign", async ({
@@ -108,7 +108,9 @@ test("the History list shows the entry under Today with its sign", async ({
     mainNav(page).getByRole("link", { name: en.nav.history }),
   ).toHaveAttribute("aria-current", "page");
   const day = page.getByRole("region", { name: en.transactions.today });
-  await expect(day.getByRole("link", { name: /Food.*-₭45,000/ })).toBeVisible();
+  await expect(
+    day.getByRole("link", { name: /Food.*-₭45,000\.00/ }),
+  ).toBeVisible();
   // The starting amount is listed too, but is not a link
   await expect(
     day.getByText(en.transactions.kinds.opening_balance),
@@ -128,13 +130,13 @@ test("an entry can be edited and then deleted in two steps", async ({
   await addEntry(page, { amount: "45,000", category: "Food" });
 
   await page.goto("/transactions");
-  await page.getByRole("link", { name: /Food.*-₭45,000/ }).click();
+  await page.getByRole("link", { name: /Food.*-₭45,000\.00/ }).click();
   await expect(page).toHaveURL(new RegExp(`/transactions/${UUID}$`));
   await expect(
     page.getByRole("heading", { level: 1, name: en.transactions.editTitle }),
   ).toBeVisible();
   // The form is prefilled, with the amount written without a sign
-  await expect(amountBox(page)).toHaveValue("45,000");
+  await expect(amountBox(page)).toHaveValue("45,000.00");
   await expect(chip(page, "Food")).toBeChecked();
   await expect(
     page.getByRole("button", { name: en.transactions.kinds.expense }),
@@ -143,18 +145,18 @@ test("an entry can be edited and then deleted in two steps", async ({
   await amountBox(page).fill("50,000");
   await saveButton(page).click();
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(notice(page, "Saved: Food ₭50,000")).toBeVisible();
+  await expect(notice(page, "Saved: Food ₭50,000.00")).toBeVisible();
   // Opening the same entry again from the list shows what was saved
-  await page.getByRole("link", { name: /Food.*-₭50,000/ }).click();
+  await page.getByRole("link", { name: /Food.*-₭50,000\.00/ }).click();
   await expect(page).toHaveURL(new RegExp(`/transactions/${UUID}$`));
-  await expect(amountBox(page)).toHaveValue("50,000");
+  await expect(amountBox(page)).toHaveValue("50,000.00");
   await expect(chip(page, "Food")).toBeChecked();
 
   await page.goto("/accounts");
-  await expect(accountRows(page, "Cash")).toContainText("₭1,450,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭1,450,000.00");
 
   await page.goto("/transactions");
-  await page.getByRole("link", { name: /Food.*-₭50,000/ }).click();
+  await page.getByRole("link", { name: /Food.*-₭50,000\.00/ }).click();
   // Cancelling the confirmation changes nothing
   await page.getByRole("button", { name: en.transactions.delete }).click();
   await expect(
@@ -172,7 +174,7 @@ test("an entry can be edited and then deleted in two steps", async ({
   await expect(page.getByRole("link", { name: /Food/ })).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(accountRows(page, "Cash")).toContainText("₭1,500,000");
+  await expect(accountRows(page, "Cash")).toContainText("₭1,500,000.00");
 });
 
 test("income shows a plus sign, and switching the kind swaps the categories", async ({
@@ -196,11 +198,11 @@ test("income shows a plus sign, and switching the kind swaps the categories", as
   await amountBox(page).fill("8,000,000");
   await chip(page, "Salary").check();
   await saveButton(page).click();
-  await expect(notice(page, "Saved: Salary ₭8,000,000")).toBeVisible();
+  await expect(notice(page, "Saved: Salary ₭8,000,000.00")).toBeVisible();
 
   await page.goto("/transactions");
   await expect(
-    page.getByRole("link", { name: /Salary.*\+₭8,000,000/ }),
+    page.getByRole("link", { name: /Salary.*\+₭8,000,000\.00/ }),
   ).toBeVisible();
 });
 
@@ -221,7 +223,7 @@ test("a past date and a note are saved and listed under Yesterday", async ({
   const yesterday = page.getByRole("region", {
     name: en.transactions.yesterday,
   });
-  const row = yesterday.getByRole("link", { name: /Shopping.*-₭20,000/ });
+  const row = yesterday.getByRole("link", { name: /Shopping.*-₭20,000\.00/ });
   await expect(row).toBeVisible();
   await expect(row).toContainText("Lunch with Sai");
   await expect(row).toContainText("Cash");
@@ -345,7 +347,7 @@ test("the category row shows four at a time, Show all opens the rest, and a hidd
   await waitForSaved(page);
   await page.goto("/transactions");
   await expect(
-    page.getByRole("link", { name: /Travel.*-₭1,000/ }),
+    page.getByRole("link", { name: /Travel.*-₭1,000\.00/ }),
   ).toBeVisible();
 });
 
@@ -398,14 +400,14 @@ test("the form answers before it calls the server, and the server still checks",
   ).toBeVisible();
   expect(posts).toEqual([]);
 
-  // Kip has no decimals; only the server knows the account's currency
-  await amountBox(page).fill("1000.5");
+  // Two decimals is the most any currency has; only the server knows the account's currency
+  await amountBox(page).fill("1000.555");
   await chip(page, "Food").check();
   await saveButton(page).click();
   await expect(
     shown(page.getByText(en.transactions.errors.amount_too_many_decimals)),
   ).toBeVisible();
-  await expect(amountBox(page)).toHaveValue("1,000.5");
+  await expect(amountBox(page)).toHaveValue("1,000.555");
   await expect(chip(page, "Food")).toBeChecked();
   await expect(page).toHaveURL(/\/transactions\/new/);
 });
@@ -434,7 +436,9 @@ test("an expense above what is free to spend opens a pop-up: Go back saves nothi
   await openAddForm(page);
   await expect(
     shown(
-      page.getByText(en.transactions.form.free.replace("{amount}", "₭950,000")),
+      page.getByText(
+        en.transactions.form.free.replace("{amount}", "₭950,000.00"),
+      ),
     ),
   ).toBeVisible();
 
@@ -442,7 +446,7 @@ test("an expense above what is free to spend opens a pop-up: Go back saves nothi
   await fillEntry(page, { amount: "960,000", category: "Food" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText(
-    overspendBody("₭950,000", "BCEL", "₭50,000"),
+    overspendBody("₭950,000.00", "BCEL", "₭50,000.00"),
   );
   await expect(
     dialog.getByRole("button", { name: en.transactions.overspend.saveAnyway }),
@@ -463,7 +467,7 @@ test("an expense above what is free to spend opens a pop-up: Go back saves nothi
   // Nothing is saved yet
   const other = await page.context().newPage();
   await other.goto("/accounts");
-  await expect(accountRows(other, "BCEL")).toContainText("₭1,000,000");
+  await expect(accountRows(other, "BCEL")).toContainText("₭1,000,000.00");
   await other.close();
 
   await saveButton(page).click();
@@ -472,9 +476,9 @@ test("an expense above what is free to spend opens a pop-up: Go back saves nothi
     .click();
   await waitForSaved(page);
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭40,000");
+  await expect(accountRows(page, "BCEL")).toContainText("₭40,000.00");
   await expect(accountRows(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "-₭10,000"),
+    en.accounts.freeLine.replace("{amount}", "-₭10,000.00"),
   );
 });
 
@@ -491,20 +495,20 @@ test("editing an expense counts its old amount as free, so only a bigger overspe
   await addEntry(page, { amount: "900,000", category: "Food" });
 
   await page.goto("/transactions");
-  await page.getByRole("link", { name: /Food.*-₭900,000/ }).click();
-  await expect(amountBox(page)).toHaveValue("900,000");
+  await page.getByRole("link", { name: /Food.*-₭900,000\.00/ }).click();
+  await expect(amountBox(page)).toHaveValue("900,000.00");
   // ₭50,000 is free now, but this entry's own ₭900,000 comes back while it is edited
   await amountBox(page).fill("940,000");
   await saveButton(page).click();
   await expect(page).toHaveURL(/\/transactions$/);
-  await expect(notice(page, "Saved: Food ₭940,000")).toBeVisible();
+  await expect(notice(page, "Saved: Food ₭940,000.00")).toBeVisible();
 
-  await page.getByRole("link", { name: /Food.*-₭940,000/ }).click();
+  await page.getByRole("link", { name: /Food.*-₭940,000\.00/ }).click();
   await amountBox(page).fill("960,000");
   await saveButton(page).click();
   const dialog = overspendDialog(page);
   await expect(dialog).toContainText(
-    overspendBody("₭950,000", "BCEL", "₭50,000"),
+    overspendBody("₭950,000.00", "BCEL", "₭50,000.00"),
   );
   await dialog
     .getByRole("button", { name: en.transactions.overspend.goBack })
@@ -528,7 +532,7 @@ test("a transfer above what the account has free to spend asks first too", async
 
   const dialog = overspendDialog(page);
   await expect(dialog).toContainText(
-    overspendBody("₭950,000", "BCEL", "₭50,000"),
+    overspendBody("₭950,000.00", "BCEL", "₭50,000.00"),
   );
   await dialog
     .getByRole("button", { name: en.transactions.overspend.goBack })
@@ -542,8 +546,8 @@ test("a transfer above what the account has free to spend asks first too", async
     .click();
   await waitForSaved(page);
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭40,000");
-  await expect(accountRows(page, "Cash")).toContainText("₭960,000");
+  await expect(accountRows(page, "BCEL")).toContainText("₭40,000.00");
+  await expect(accountRows(page, "Cash")).toContainText("₭960,000.00");
 });
 
 test("a user with no accounts is asked to add one first", async ({ page }) => {
@@ -583,7 +587,7 @@ test("another person's entry, and an id that is not a uuid, give not found", asy
 
   // The owner still sees it
   await page.goto(`/transactions/${id}`);
-  await expect(amountBox(page)).toHaveValue("1,000");
+  await expect(amountBox(page)).toHaveValue("1,000.00");
 });
 
 test("a deleted entry can no longer be opened", async ({ page }) => {
@@ -608,7 +612,7 @@ test("History and Add fit every width and the nav never covers the last element"
   await signUpAndConfirm(page);
   await addAccount(page, {
     name: "A very long account name that keeps going and going",
-    amount: "123,456,789,012",
+    amount: "99,999,999,999",
   });
   await addEntry(page, {
     amount: "1,234,567,890",
@@ -666,7 +670,7 @@ test("the saved toast shows and goes away by itself", async ({ page }) => {
   await openAddForm(page);
   await fillEntry(page, { amount: "45,000", category: "Food" });
 
-  const toast = notice(page, "Saved: Food ₭45,000");
+  const toast = notice(page, "Saved: Food ₭45,000.00");
   await expect(toast).toBeVisible();
   await expect(toast).toHaveCount(0, { timeout: 6000 });
 });
@@ -678,7 +682,7 @@ test("the toast fits inside the screen at every width", async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     await openAddForm(page);
     await fillEntry(page, { amount: "1,000", category: "Food" });
-    const toast = notice(page, "Saved: Food ₭1,000");
+    const toast = notice(page, "Saved: Food ₭1,000.00");
     await expect(toast).toBeVisible();
     // The toast slides in, so wait until it has settled inside the screen
     await expect
@@ -713,7 +717,7 @@ test("typing an amount one key at a time adds commas and saves the right value",
 
   await page.goto("/transactions");
   await expect(
-    page.getByRole("link", { name: /Food.*-₭1,234,567/ }),
+    page.getByRole("link", { name: /Food.*-₭1,234,567\.00/ }),
   ).toBeVisible();
 });
 

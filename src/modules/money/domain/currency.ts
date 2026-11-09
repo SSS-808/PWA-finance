@@ -22,7 +22,7 @@ export type CurrencyCode = (typeof CURRENCY_CODES)[number];
 
 // Mirrors the minor_unit column of the currencies table (docs/database.md §4)
 const MINOR_UNITS: Record<CurrencyCode, number> = {
-  LAK: 0,
+  LAK: 2,
   USD: 2,
   THB: 2,
   BND: 2,

@@ -11,7 +11,7 @@ import { parseMoney } from "./parse";
 
 describe("toDecimalString", () => {
   it.each<[CurrencyCode, number, string]>([
-    ["LAK", 100000, "100000"],
+    ["LAK", 10000000, "100000.00"],
     ["USD", 1250, "12.50"],
     ["USD", 5, "0.05"],
     ["USD", -5, "-0.05"],
@@ -24,7 +24,7 @@ describe("toDecimalString", () => {
 
 describe("formatMoney", () => {
   it.each<[CurrencyCode, number, string]>([
-    ["LAK", 100000, "₭100,000"],
+    ["LAK", 10000000, "₭100,000.00"],
     ["USD", 1250, "$12.50"],
     ["USD", -1250, "-$12.50"],
     ["THB", 35025, "฿350.25"],
@@ -43,9 +43,9 @@ describe("formatMoney", () => {
   });
 
   it("can show the currency code", () => {
-    expect(formatMoney(money(100000, "LAK"), { currencyDisplay: "code" })).toBe(
-      "LAK\u00A0100,000",
-    );
+    expect(
+      formatMoney(money(10000000, "LAK"), { currencyDisplay: "code" }),
+    ).toBe("LAK\u00A0100,000.00");
     expect(formatMoney(money(1250, "USD"), { currencyDisplay: "code" })).toBe(
       "USD\u00A012.50",
     );

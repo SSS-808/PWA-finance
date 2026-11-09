@@ -14,7 +14,7 @@ import { type AccountType, isDebt } from "./account-types";
 
 // The minimum a bank account starts with, in minor units: ₭50,000, $10.00 and ฿500.00; travel currencies start at 0
 const BANK_MINIMUM_MINOR: Partial<Record<CurrencyCode, number>> = {
-  LAK: 50_000,
+  LAK: 5_000_000,
   USD: 1_000,
   THB: 50_000,
 };
