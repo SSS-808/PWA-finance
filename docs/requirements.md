@@ -15,7 +15,7 @@ It is also a portfolio project, so the code, tests and docs matter as much as th
 | D1 | Users | One user (the owner), in Laos. Database and security are built for many users from day one. |
 | D2 | Time zone | `Asia/Vientiane` (UTC+7), saved per user in `profiles.timezone`. |
 | D3 | Language | English UI for the MVP. All UI text lives in one file (`src/messages/en.ts`) so Lao can be added later. |
-| D4 | Currencies | LAK, USD, THB, plus 13 travel currencies added 2026-11-06 (BND, KHR, CNY, EUR, HKD, IDR, JPY, MYR, MMK, PHP, SGD, KRW, VND), all with 2 decimals. LAK is the base currency. Home shows cards for LAK, USD and THB only. |
+| D4 | Currencies | LAK, USD, THB, plus 13 travel currencies added 2026-11-06 (BND, KHR, CNY, EUR, HKD, IDR, JPY, MYR, MMK, PHP, SGD, KRW, VND), all with 2 decimals. LAK is the base currency. |
 | D5 | Mixed currencies | The MVP shows a total per currency and never adds currencies together. Exchange rates (typed in by hand) come with Net Worth in Phase 8. See [ADR-008](adr/008-no-currency-mixing.md). |
 | D6 | Currency exchange | Works in the MVP as a transfer where each side keeps its own amount. |
 | D7 | Deadline | None. Target: MVP live in about 4–6 weeks. |
@@ -56,7 +56,7 @@ It is also a portfolio project, so the code, tests and docs matter as much as th
 - **FR-18** History, newest first. Filter by date range, account, category and type; search the note text; sort by date or amount. Filters live in the URL.
 
 ### Dashboard
-- **FR-19** For each currency: total balance (= net worth in that currency), plus this month's income, expenses and savings rate.
+- **FR-19** For each currency: total balance (= net worth in that currency), plus this month's income, expenses and savings rate. Home counts only accounts with "Show on Home" switched on (2026-11-09); the others still show in Accounts and History.
 - **FR-20** One chart of this month's spending by category.
 - **FR-21** The 10 most recent transactions.
 - **FR-22** Switch to another month.

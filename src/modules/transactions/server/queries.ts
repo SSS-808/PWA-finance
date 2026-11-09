@@ -97,6 +97,7 @@ function toHistoryRow(record: HistoryRecord): HistoryRow {
 export async function listTransactions(
   filters: HistoryFilters,
   limit = MAX_ROWS,
+  hiddenAccountIds: readonly string[] = [],
 ): Promise<DayGroup[]> {
   await requireUser();
   const supabase = await createClient();
@@ -109,6 +110,9 @@ export async function listTransactions(
     query = query.gte("transaction_date", from).lt("transaction_date", to);
   }
   if (filters.accountId) query = query.eq("account_id", filters.accountId);
+  if (hiddenAccountIds.length > 0) {
+    query = query.not("account_id", "in", `(${hiddenAccountIds.join(",")})`);
+  }
   if (filters.categoryId) query = query.eq("category_id", filters.categoryId);
   if (filters.type) query = query.in("kind", [...KINDS_BY_TYPE[filters.type]]);
   if (filters.q) {

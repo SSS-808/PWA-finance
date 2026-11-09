@@ -37,6 +37,7 @@ erDiagram
     text name
     text type "cash, bank, savings, credit_card, loan, investment, other"
     char currency FK
+    boolean show_on_home
     timestamptz archived_at
     timestamptz created_at
     timestamptz updated_at
@@ -149,6 +150,8 @@ create table public.accounts (
   currency char(3) not null references public.currencies (code),
   -- What the bank keeps (since 2026-10-31): free to spend = balance − this; debts have none
   minimum_minor bigint not null default 0 check (minimum_minor >= 0),
+  -- Whether the account counts on Home (since 2026-11-09); it always shows in Accounts and History
+  show_on_home boolean not null default true,
   archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

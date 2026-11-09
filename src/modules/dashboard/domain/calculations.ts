@@ -13,9 +13,6 @@ import {
 // The biggest spending categories shown on their own; the rest become "Other"
 export const TOP_CATEGORIES = 5;
 
-// Only these get Home cards; travel currencies show on Accounts and History
-export const HOME_CURRENCIES: readonly CurrencyCode[] = ["LAK", "USD", "THB"];
-
 // Amounts are as stored, so an expense is negative; categoryId null or unknown counts as "Other"
 export type SummaryRow = {
   kind: string;
