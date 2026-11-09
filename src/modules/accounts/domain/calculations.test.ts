@@ -171,7 +171,7 @@ describe("sameNameOthers", () => {
 
 describe("defaultMinimum", () => {
   it.each([
-    ["LAK", 50000],
+    ["LAK", 5000000],
     ["USD", 1000],
     ["THB", 50000],
   ] as const)("gives a bank account the usual %s amount", (currency, minor) => {

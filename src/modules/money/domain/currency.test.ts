@@ -13,7 +13,7 @@ describe("isCurrencyCode", () => {
 
 describe("minorUnitOf", () => {
   it.each([
-    ["LAK", 0],
+    ["LAK", 2],
     ["USD", 2],
     ["THB", 2],
     ["VND", 2],

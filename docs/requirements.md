@@ -15,7 +15,7 @@ It is also a portfolio project, so the code, tests and docs matter as much as th
 | D1 | Users | One user (the owner), in Laos. Database and security are built for many users from day one. |
 | D2 | Time zone | `Asia/Vientiane` (UTC+7), saved per user in `profiles.timezone`. |
 | D3 | Language | English UI for the MVP. All UI text lives in one file (`src/messages/en.ts`) so Lao can be added later. |
-| D4 | Currencies | LAK, USD, THB, plus 13 travel currencies added 2026-11-06 (BND, KHR, CNY, EUR, HKD, IDR, JPY, MYR, MMK, PHP, SGD, KRW, VND), all with 2 decimals. LAK is the base currency. |
+| D4 | Currencies | LAK, USD, THB, plus 13 travel currencies added 2026-11-06 (BND, KHR, CNY, EUR, HKD, IDR, JPY, MYR, MMK, PHP, SGD, KRW, VND). All have 2 decimals, kip too since 2026-11-09 ([ADR-014](adr/014-kip-has-decimals.md)). LAK is the base currency. |
 | D5 | Mixed currencies | The MVP shows a total per currency and never adds currencies together. Exchange rates (typed in by hand) come with Net Worth in Phase 8. See [ADR-008](adr/008-no-currency-mixing.md). |
 | D6 | Currency exchange | Works in the MVP as a transfer where each side keeps its own amount. |
 | D7 | Deadline | None. Target: MVP live in about 4–6 weeks. |

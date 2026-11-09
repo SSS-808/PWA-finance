@@ -9,7 +9,7 @@ describe("parseBudgetAmount", () => {
   it("parses an amount with commas", () => {
     expect(parseBudgetAmount("2,000,000", "LAK")).toEqual({
       ok: true,
-      value: money(2_000_000, "LAK"),
+      value: money(200_000_000, "LAK"),
     });
     expect(parseBudgetAmount("12.5", "USD")).toEqual({
       ok: true,
@@ -30,7 +30,7 @@ describe("parseBudgetAmount", () => {
   });
 
   it("refuses too many decimals for the currency", () => {
-    expect(parseBudgetAmount("1.5", "LAK")).toEqual({
+    expect(parseBudgetAmount("1.555", "LAK")).toEqual({
       ok: false,
       error: "amount_too_many_decimals",
     });
@@ -46,7 +46,7 @@ describe("budgetSchema", () => {
     expect(budgetSchema.parse(valid)).toEqual({
       categoryId: ID,
       currency: "LAK",
-      amount: money(2_000_000, "LAK"),
+      amount: money(200_000_000, "LAK"),
     });
   });
 
@@ -69,7 +69,7 @@ describe("budgetSchema", () => {
     expect(zero.error && fieldErrorsFrom(zero.error)).toEqual({
       amount: "amount_zero",
     });
-    const decimals = budgetSchema.safeParse({ ...valid, amount: "1.5" });
+    const decimals = budgetSchema.safeParse({ ...valid, amount: "1.555" });
     expect(decimals.error && fieldErrorsFrom(decimals.error)).toEqual({
       amount: "amount_too_many_decimals",
     });

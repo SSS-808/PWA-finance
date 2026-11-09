@@ -135,7 +135,7 @@ test("renaming a category renames it in History", async ({ page }) => {
 
   await page.goto("/transactions");
   await expect(
-    page.getByRole("link", { name: /Café.*-₭20,000/ }),
+    page.getByRole("link", { name: /Café.*-₭20,000\.00/ }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Coffee/ })).toHaveCount(0);
 });
@@ -206,7 +206,7 @@ test("a hidden category leaves the Add form, keeps old entries, and comes back",
       .getByRole("option", { name: `Café ${en.categories.hiddenSuffix}` }),
   ).toHaveCount(1);
   await filtersToggle.click();
-  await page.getByRole("link", { name: /Café.*-₭20,000/ }).click();
+  await page.getByRole("link", { name: /Café.*-₭20,000\.00/ }).click();
   await expect(chip(page, "Café")).toBeChecked();
 
   await page.goto(LIST_URL);
