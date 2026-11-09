@@ -46,11 +46,11 @@ test("Download my data saves every transaction as a safe CSV file", async ({
     line.includes(en.transactions.kinds.opening_balance),
   );
   expect(opening).toContain(",Cash,LAK,");
-  expect(opening).toContain(",100000,");
+  expect(opening).toContain(",100000.00,");
   const expense = lines.find((line) =>
     line.includes(en.transactions.kinds.expense),
   );
-  expect(expense).toContain(",-45000,");
+  expect(expense).toContain(",-45000.00,");
   expect(expense?.endsWith(`,"'=1+1, ""lunch"""`)).toBe(true);
 });
 
