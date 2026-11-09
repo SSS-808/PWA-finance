@@ -30,6 +30,14 @@ describe("formatMoney", () => {
     ["THB", 35025, "฿350.25"],
     ["USD", 0, "$0.00"],
     ["USD", 10000000000000, "$100,000,000,000.00"],
+    ["SGD", 1250, "S$12.50"],
+    ["SGD", -1250, "-S$12.50"],
+    ["HKD", 1250, "HK$12.50"],
+    ["BND", 1250, "B$12.50"],
+    ["CNY", 1250, "CN¥12.50"],
+    ["JPY", 123450, "¥1,234.50"],
+    ["VND", 5000050, "₫50,000.50"],
+    ["EUR", 1250, "€12.50"],
   ])("%s %i displays as %s", (currency, minor, expected) => {
     expect(formatMoney(money(minor, currency))).toBe(expected);
   });
@@ -40,6 +48,9 @@ describe("formatMoney", () => {
     );
     expect(formatMoney(money(1250, "USD"), { currencyDisplay: "code" })).toBe(
       "USD\u00A012.50",
+    );
+    expect(formatMoney(money(1250, "SGD"), { currencyDisplay: "code" })).toBe(
+      "SGD\u00A012.50",
     );
   });
 
@@ -86,6 +97,9 @@ describe("currencySymbol", () => {
     ["LAK", "₭"],
     ["USD", "$"],
     ["THB", "฿"],
+    ["SGD", "S$"],
+    ["CNY", "CN¥"],
+    ["VND", "₫"],
   ])("%s is shown as %s", (currency, expected) => {
     expect(currencySymbol(currency)).toBe(expected);
   });

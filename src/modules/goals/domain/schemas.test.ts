@@ -104,7 +104,7 @@ describe("goalSchema", () => {
     expect(errorsOf({ ...valid, name })).toEqual({ name: error });
   });
 
-  it.each(["", "EUR", "lak"])("refuses the currency %j", (currency) => {
+  it.each(["", "GBP", "lak"])("refuses the currency %j", (currency) => {
     expect(errorsOf({ ...valid, currency })).toEqual({
       currency: "invalid_currency",
     });
@@ -173,7 +173,7 @@ describe("contributionSchema", () => {
   });
 
   it("refuses a currency that is not supported", () => {
-    const result = contributionSchema.safeParse({ ...input, currency: "EUR" });
+    const result = contributionSchema.safeParse({ ...input, currency: "GBP" });
     expect(result.error && fieldErrorsFrom(result.error)).toEqual({
       currency: "invalid_currency",
     });

@@ -94,8 +94,11 @@ select lives_ok(
 -- Mirrors src/modules/money/domain/currency.ts
 select results_eq(
   $$select code::text, minor_unit::int from public.currencies order by code$$,
-  $$values ('LAK'::text, 0), ('THB'::text, 2), ('USD'::text, 2)$$,
-  'currencies holds exactly LAK 0, THB 2, USD 2');
+  $$values ('BND'::text, 2), ('CNY'::text, 2), ('EUR'::text, 2), ('HKD'::text, 2),
+    ('IDR'::text, 2), ('JPY'::text, 2), ('KHR'::text, 2), ('KRW'::text, 2),
+    ('LAK'::text, 0), ('MMK'::text, 2), ('MYR'::text, 2), ('PHP'::text, 2),
+    ('SGD'::text, 2), ('THB'::text, 2), ('USD'::text, 2), ('VND'::text, 2)$$,
+  'currencies holds exactly the 16 codes, LAK with 0 decimals and the rest with 2');
 
 select * from finish();
 rollback;

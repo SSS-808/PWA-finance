@@ -12,8 +12,8 @@ import {
 } from "@/modules/money";
 import { type AccountType, isDebt } from "./account-types";
 
-// The minimum a bank account starts with, in minor units: ₭50,000, $10.00 and ฿500.00
-const BANK_MINIMUM_MINOR: Record<CurrencyCode, number> = {
+// The minimum a bank account starts with, in minor units: ₭50,000, $10.00 and ฿500.00; travel currencies start at 0
+const BANK_MINIMUM_MINOR: Partial<Record<CurrencyCode, number>> = {
   LAK: 50_000,
   USD: 1_000,
   THB: 50_000,
@@ -98,13 +98,13 @@ export function sameNameOthers<T extends { id: string; name: string }>(
   );
 }
 
-// What the bank keeps by default: a bank account holds ₭50,000, $10 or ฿500, everything else nothing
+// What the bank keeps by default: a kip, dollar or baht bank account holds ₭50,000, $10 or ฿500, everything else nothing
 export function defaultMinimum(
   type: AccountType,
   currency: CurrencyCode,
 ): Money {
   if (type !== "bank") return zero(currency);
-  return money(BANK_MINIMUM_MINOR[currency], currency);
+  return money(BANK_MINIMUM_MINOR[currency] ?? 0, currency);
 }
 
 // The balance minus the minimum the bank keeps and the money set aside for goals; it goes below 0 when those add up to more

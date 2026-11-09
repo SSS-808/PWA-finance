@@ -72,7 +72,7 @@ describe("createAccountSchema", () => {
     );
   });
 
-  it.each(["EUR", "", "lak"])("rejects the currency %j", (currency) => {
+  it.each(["GBP", "", "lak"])("rejects the currency %j", (currency) => {
     const result = createAccountSchema.safeParse({ ...valid, currency });
     expect(result.error?.issues[0]?.message).toBe("invalid_currency");
   });
@@ -85,7 +85,7 @@ describe("fieldErrorsFrom", () => {
       type: "wallet",
       startingAmount: "",
       minimum: "",
-      currency: "EUR",
+      currency: "GBP",
     });
     expect(result.error && fieldErrorsFrom(result.error)).toEqual({
       name: "name_required",
