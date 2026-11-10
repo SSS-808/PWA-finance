@@ -1,6 +1,6 @@
 "use client";
 
-import { House, Plus, ReceiptText, Settings, Wallet } from "lucide-react";
+import { House, LayoutGrid, Plus, ReceiptText, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,25 +12,27 @@ const items = [
   { href: "/transactions", label: en.nav.history, icon: ReceiptText },
   { href: "/transactions/new", label: en.nav.add, icon: Plus },
   { href: "/accounts", label: en.nav.accounts, icon: Wallet },
-  { href: "/settings", label: en.nav.settings, icon: Settings },
+  { href: "/more", label: en.nav.more, icon: LayoutGrid },
 ];
 
 const ADD_HREF = "/transactions/new";
 
-// Home matches itself, the Budgets pages and the Goals pages; the other pages also match their sub-pages
+// More also lights up on the pages it opens
+const MORE_PAGES = ["/more", "/budgets", "/goals", "/trips", "/settings"];
+
+function startsWithPage(pathname: string, page: string): boolean {
+  return pathname === page || pathname.startsWith(`${page}/`);
+}
+
+// Home matches only itself; More matches its own pages; the others also match their sub-pages
 function isActive(pathname: string | null, href: string): boolean {
   // The Add page has its own button, so it doesn't light up History
   if (pathname === null || pathname === ADD_HREF) return false;
-  if (href === "/") {
-    return (
-      pathname === "/" ||
-      pathname === "/budgets" ||
-      pathname.startsWith("/budgets/") ||
-      pathname === "/goals" ||
-      pathname.startsWith("/goals/")
-    );
+  if (href === "/") return pathname === "/";
+  if (href === "/more") {
+    return MORE_PAGES.some((page) => startsWithPage(pathname, page));
   }
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return startsWithPage(pathname, href);
 }
 
 // Add returns to the page it was opened from; with an unknown address the form falls back to Home

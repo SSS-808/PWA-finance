@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { AddLink } from "@/components/shared/add-link";
 import {
   CardListSkeleton,
@@ -14,6 +15,7 @@ import { parseFilters } from "@/modules/transactions";
 export default function BudgetsPage({ searchParams }: PageProps<"/budgets">) {
   return (
     <div className="w-full max-w-2xl space-y-6">
+      <BackLink href="/more" label={en.more.back} />
       <Suspense
         fallback={
           <div className="space-y-6">

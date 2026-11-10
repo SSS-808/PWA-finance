@@ -75,8 +75,6 @@ export const en = {
     logout: "Log out",
   },
   home: {
-    moneyIn: "Money In",
-    moneyOut: "Money Out",
     passwordUpdated: "Your password was changed.",
     startTitle: "Start by adding your accounts",
     noneShownTitle: "None of your accounts are set to show on Home",
@@ -111,7 +109,6 @@ export const en = {
     of: "{spent} of {budget}",
     left: "{amount} left",
     over: "{amount} over",
-    seeAll: "See all",
     form: {
       category: "Category",
       currency: "Currency",
@@ -142,7 +139,6 @@ export const en = {
   goals: {
     title: "Goals",
     back: "Goals",
-    seeAll: "See all",
     add: "Add a goal",
     edit: "Edit",
     newTitle: "Add a goal",
@@ -227,6 +223,7 @@ export const en = {
     sections: { now: "On now", upcoming: "Coming up", past: "Past" },
     dayOf: "day {day} of {days}",
     nothingSpent: "Nothing spent yet",
+    spentSoFar: "Spent so far {amounts}",
     form: {
       name: "Name",
       namePlaceholder: "e.g. Vietnam, Chiang Mai weekend",
@@ -280,7 +277,25 @@ export const en = {
     history: "History",
     add: "Add a transaction",
     accounts: "Accounts",
+    more: "More",
+  },
+  more: {
+    title: "More",
+    back: "More",
+    budgetsNone: "No budgets yet",
+    budgetsOk: "On track this month",
+    budgetsOver: "{n} over this month",
+    goalsNone: "No goals yet",
+    goalsOne: "1 goal · {percent}%",
+    goalsMany: "{n} goals",
+    tripsNone: "No trips yet",
+    tripsNow: "{name} is on now",
+    tripsNext: "Next: {name}",
+    tripsOne: "1 trip",
+    tripsMany: "{n} trips",
+    categories: "Icons, colours, order",
     settings: "Settings",
+    settingsHint: "Profile, main currency, the app, your data",
   },
   problem: {
     notFoundTitle: "Page not found",
@@ -295,7 +310,7 @@ export const en = {
     helpLabel: "the saved copy",
     help: "The server can't be reached, so this is what your phone saved last time. Check your internet or VPN. Adding and changing need a connection; the page updates by itself once you're back.",
     title: "You're offline",
-    body: "This page isn't saved on your phone. Pages you've opened before still work offline: Home, Accounts, History, Budgets, Goals and Trips.",
+    body: "This page isn't saved on your phone. Pages you've opened before still work offline: Home, Accounts, History, More, Budgets, Goals and Trips.",
   },
   currencies: {
     LAK: "Lao kip (₭)",

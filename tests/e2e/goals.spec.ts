@@ -10,6 +10,7 @@ import {
   accountRows,
   addAccount,
   fillEntry,
+  moreTile,
   openAddForm,
   signUpAndConfirm,
   waitForSaved,
@@ -261,31 +262,34 @@ test("the goal pages fit every width", async ({ page }) => {
   console.log(report.join("\n"));
 });
 
-// The Goals section on Home; Home shows it once there is an account
-function homeGoals(page: Page) {
-  return shown(page.getByRole("region", { name: en.goals.title }));
-}
-
-test("Home shows a goal with its progress and links to all goals", async ({
+test("More shows a goal's progress and the Goals page its amounts", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
   await addAccount(page, { name: "Cash" });
+
+  await page.goto("/more");
+  await expect(moreTile(page, "/goals")).toContainText(en.more.goalsNone);
+
   await addGoal(page, { name: "Laptop", target: "10,000,000" });
   await openGoal(page, "Laptop");
   await moveMoney(page, "add", "7,000,000", en.goals.notices.money_added);
 
-  await page.goto("/");
-  const section = homeGoals(page);
-  await expect(section).toBeVisible();
-  await expect(
-    section.getByText("₭7,000,000.00 of ₭10,000,000.00", { exact: true }),
-  ).toBeVisible();
-  await section.getByRole("link", { name: en.goals.seeAll }).click();
+  await page.goto("/more");
+  await expect(moreTile(page, "/goals")).toContainText(
+    en.more.goalsOne.replace("{percent}", "70"),
+  );
+
+  await moreTile(page, "/goals").click();
   await expect(page).toHaveURL(/\/goals$/);
+  await expect(
+    card(page, "Laptop").getByText("₭7,000,000.00 of ₭10,000,000.00", {
+      exact: true,
+    }),
+  ).toBeVisible();
 });
 
-test("Home lists three goals while the Goals page lists all four", async ({
+test("More counts four goals while the Goals page lists all four", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
@@ -294,57 +298,15 @@ test("Home lists three goals while the Goals page lists all four", async ({
     await addGoal(page, { name, target: "1,000,000" });
   }
 
-  await page.goto("/");
-  await expect(homeGoals(page)).toBeVisible();
-  await expect(homeGoals(page).getByRole("listitem")).toHaveCount(3);
+  await page.goto("/more");
+  await expect(moreTile(page, "/goals")).toContainText(
+    en.more.goalsMany.replace("{n}", "4"),
+  );
 
   await page.goto("/goals");
   for (const name of ["Alpha", "Bravo", "Charlie", "Delta"]) {
     await expect(card(page, name)).toBeVisible();
   }
-});
-
-test("Home without goals has only the Goals link, and with one goal it fits every width", async ({
-  page,
-}) => {
-  await signUpAndConfirm(page);
-  await addAccount(page, { name: "Cash" });
-
-  await page.goto("/");
-  await expect(
-    shown(page.getByRole("link", { name: en.goals.title, exact: true })),
-  ).toBeVisible();
-  await expect(
-    shown(page.getByRole("heading", { name: en.goals.title, exact: true })),
-  ).toHaveCount(0);
-
-  await addGoal(page, {
-    name: "Laptop",
-    target: "10,000,000",
-    deadline: monthEnd(5).date,
-  });
-  await openGoal(page, "Laptop");
-  await moveMoney(page, "add", "3,000,000", en.goals.notices.money_added);
-
-  const report: string[] = [];
-  for (const width of widths) {
-    await page.setViewportSize({ width, height: 800 });
-    await page.goto("/");
-    const bar = homeGoals(page).getByRole("progressbar", { name: "Laptop" });
-    await expect(bar).toBeVisible();
-    const box = await bar.boundingBox();
-    const overflow = await page.evaluate(() => ({
-      scroll: document.documentElement.scrollWidth,
-      inner: window.innerWidth,
-    }));
-    expect(overflow.scroll, `Home at ${width}px`).toBeLessThanOrEqual(
-      overflow.inner,
-    );
-    report.push(
-      `Home ${width}px: page ${overflow.scroll}, bar ${Math.round(box?.x ?? 0)} to ${Math.round((box?.x ?? 0) + (box?.width ?? 0))}`,
-    );
-  }
-  console.log(report.join("\n"));
 });
 
 function fromBox(page: Page) {

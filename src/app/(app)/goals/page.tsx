@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { AddLink } from "@/components/shared/add-link";
 import { LoadingStatus, Skeleton } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
@@ -12,6 +13,7 @@ const toggleClass =
 export default function GoalsPage({ searchParams }: PageProps<"/goals">) {
   return (
     <div className="w-full max-w-2xl space-y-6">
+      <BackLink href="/more" label={en.more.back} />
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-3xl font-semibold tracking-tight">
           {en.goals.title}

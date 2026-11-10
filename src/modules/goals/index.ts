@@ -23,6 +23,5 @@ export { GoalForm } from "./ui/goal-form";
 export { GoalIcon } from "./ui/goal-icon";
 export { GoalList } from "./ui/goal-list";
 export { GoalPercent, GoalProgress } from "./ui/goal-progress";
-export { GoalSummary } from "./ui/goal-summary";
 export { GoalNotice } from "./ui/notice";
 export { UnarchiveButton } from "./ui/unarchive-button";
