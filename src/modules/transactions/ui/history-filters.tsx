@@ -108,6 +108,7 @@ export function HistoryFilterBar({
   accounts,
   expenseCategories,
   incomeCategories,
+  trips = [],
 }: {
   filters: HistoryFilters;
   today: string;
@@ -115,6 +116,8 @@ export function HistoryFilterBar({
   accounts: readonly AccountOption[];
   expenseCategories: readonly CategoryOption[];
   incomeCategories: readonly CategoryOption[];
+  // The Trip filter is left out when there are none
+  trips?: readonly { id: string; name: string }[];
 }) {
   const uid = useId();
   const text = en.transactions.filters;
@@ -122,6 +125,7 @@ export function HistoryFilterBar({
   const activeCount = [
     filters.accountId,
     filters.categoryId,
+    filters.tripId,
     filters.type,
   ].filter(Boolean).length;
   return (
@@ -204,6 +208,26 @@ export function HistoryFilterBar({
                   </optgroup>
                 </select>
               </div>
+              {trips.length > 0 ? (
+                <div className="space-y-2">
+                  <Label htmlFor={`${uid}-trip`} className="text-base">
+                    {text.trip}
+                  </Label>
+                  <select
+                    id={`${uid}-trip`}
+                    name="trip"
+                    className={selectClass}
+                    defaultValue={filters.tripId ?? ""}
+                  >
+                    <option value="">{text.allTrips}</option>
+                    {trips.map((trip) => (
+                      <option key={trip.id} value={trip.id}>
+                        {trip.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
               <div className="space-y-2">
                 <Label htmlFor={`${uid}-type`} className="text-base">
                   {text.type}

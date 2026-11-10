@@ -110,6 +110,7 @@ export async function listTransactions(
     query = query.gte("transaction_date", from).lt("transaction_date", to);
   }
   if (filters.accountId) query = query.eq("account_id", filters.accountId);
+  if (filters.tripId) query = query.eq("trip_id", filters.tripId);
   if (hiddenAccountIds.length > 0) {
     query = query.not("account_id", "in", `(${hiddenAccountIds.join(",")})`);
   }
