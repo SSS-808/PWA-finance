@@ -10,8 +10,15 @@ import {
   monthSummary,
 } from "@/modules/dashboard";
 import { type Money, isCurrencyCode, money } from "@/modules/money";
-import { type TripSpendRow, spentByTrip } from "../domain/calculations";
+import {
+  type TripSpendRow,
+  spentByTrip,
+  tripStatus,
+} from "../domain/calculations";
 import type { Trip } from "../domain/types";
+
+// The trip that is on today and what it spent so far, per currency
+export type CurrentTrip = { trip: Trip; spent: Money[] };
 
 // Everything the trip page shows; entries counts the trip's income and expense rows
 export type TripPage = {
@@ -168,4 +175,22 @@ export async function countUnlabelled(trip: Trip): Promise<number> {
     throw new Error("Could not count the unlabelled entries", { cause: error });
   }
   return count ?? 0;
+}
+
+// The trip whose days include today, with what it spent so far; null when no trip is on
+export async function getCurrentTrip(
+  today: string,
+): Promise<CurrentTrip | null> {
+  const trips = await listTrips();
+  const trip = trips.find(
+    (candidate) => tripStatus(candidate, today) === "now",
+  );
+  if (trip === undefined) return null;
+  const rows = await loadTripRows(trip.id);
+  const spent = spentByTrip(
+    rows
+      .filter((row) => row.kind === "expense")
+      .map((row) => ({ tripId: trip.id, amount: row.amount })),
+  );
+  return { trip, spent: spent.get(trip.id) ?? [] };
 }

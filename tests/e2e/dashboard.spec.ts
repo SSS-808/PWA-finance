@@ -118,7 +118,7 @@ test("a category bar opens History for it, and an empty month says so", async ({
   ).toHaveCount(0);
 });
 
-test("the main currency's card comes first, and Money In and Money Out open Add with the type chosen", async ({
+test("the main currency's card comes first, and Home has no Money In or Money Out buttons", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
@@ -155,20 +155,12 @@ test("the main currency's card comes first, and Money In and Money Out open Add 
   await expect(card(page, "LAK")).toBeVisible();
   expect(await left("USD")).toBeLessThan(await left("LAK"));
 
-  const pressed = (name: string) =>
-    page.getByRole("button", { name, exact: true });
-  await shown(page.getByRole("link", { name: en.home.moneyIn })).click();
-  await expect(pressed(en.transactions.kinds.income)).toHaveAttribute(
-    "aria-pressed",
-    "true",
+  await expect(shown(page.getByRole("link", { name: "Money In" }))).toHaveCount(
+    0,
   );
-
-  await page.goto("/");
-  await shown(page.getByRole("link", { name: en.home.moneyOut })).click();
-  await expect(pressed(en.transactions.kinds.expense)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(
+    shown(page.getByRole("link", { name: "Money Out" })),
+  ).toHaveCount(0);
 });
 
 // The dot that brings one currency's card into view

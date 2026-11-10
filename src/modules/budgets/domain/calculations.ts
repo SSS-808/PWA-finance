@@ -80,23 +80,6 @@ export function usedPercent(spent: Money, budget: Money): number {
   return Math.floor((spent.minor * 100) / budget.minor);
 }
 
-function byName(a: BudgetLine, b: BudgetLine): number {
-  return (
-    a.name.localeCompare(b.name, "en") ||
-    a.categoryId.localeCompare(b.categoryId)
-  );
-}
-
-// The budgets closest to (or furthest over) their limit come first; ties go by name
-export function mostUsedLines(
-  lines: readonly BudgetLine[],
-  limit: number,
-): BudgetLine[] {
-  return [...lines]
-    .sort((a, b) => b.percent - a.percent || byName(a, b))
-    .slice(0, limit);
-}
-
 // One group per currency (in the order of CURRENCY_CODES), lines in the person's category order
 export function budgetGroups(
   changes: readonly BudgetChange[],

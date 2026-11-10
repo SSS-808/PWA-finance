@@ -62,6 +62,7 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
     "/accounts/new",
     `${accountPath}/edit`,
     `${accountPath}/fix-balance`,
+    "/more",
     "/budgets",
     "/budgets/new",
     "/goals",

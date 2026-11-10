@@ -2,6 +2,7 @@ import { ChevronRight, Download, KeyRound, Tags } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/shared/back-link";
 import { InstallApp } from "@/components/shared/install-app";
 import {
   FormSkeleton,
@@ -47,6 +48,7 @@ function SettingsRow({
 export default function SettingsPage() {
   return (
     <div className="w-full max-w-md space-y-8">
+      <BackLink href="/more" label={en.more.back} />
       <h1 className="text-3xl font-semibold tracking-tight">
         {en.settings.title}
       </h1>
