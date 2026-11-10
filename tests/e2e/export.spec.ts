@@ -40,6 +40,7 @@ test("Download my data saves every transaction as a safe CSV file", async ({
       columns.category,
       columns.amount,
       columns.note,
+      columns.trip,
     ].join(","),
   );
   const opening = lines.find((line) =>
@@ -51,7 +52,7 @@ test("Download my data saves every transaction as a safe CSV file", async ({
     line.includes(en.transactions.kinds.expense),
   );
   expect(expense).toContain(",-45000.00,");
-  expect(expense?.endsWith(`,"'=1+1, ""lunch"""`)).toBe(true);
+  expect(expense?.endsWith(`,"'=1+1, ""lunch""",`)).toBe(true);
 });
 
 test("opening the export address without logging in ends on the login page", async ({

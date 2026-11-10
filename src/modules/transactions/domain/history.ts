@@ -11,6 +11,7 @@ export type HistoryRow = {
   categoryName: string | null;
   categoryLook: { icon: string; color: string } | null;
   note: string | null;
+  tripName: string | null;
   amount: Money;
 };
 

@@ -12,6 +12,7 @@ const labels: ExportLabels = {
     "Category",
     "Amount",
     "Note",
+    "Trip",
   ],
   kinds: {
     expense: "Expense",
@@ -22,7 +23,7 @@ const labels: ExportLabels = {
   },
 };
 
-const HEADER = "Date,Account,Currency,Type,Category,Amount,Note\r\n";
+const HEADER = "Date,Account,Currency,Type,Category,Amount,Note,Trip\r\n";
 
 function row(overrides: Partial<HistoryRow> = {}): HistoryRow {
   return {
@@ -35,6 +36,7 @@ function row(overrides: Partial<HistoryRow> = {}): HistoryRow {
     categoryName: "Food",
     categoryLook: { icon: "utensils", color: "orange" },
     note: null,
+    tripName: null,
     amount: money(-4500000, "LAK"),
     ...overrides,
   };
@@ -59,8 +61,8 @@ describe("transactionsToCsv", () => {
     );
     expect(csv).toBe(
       HEADER +
-        "2026-10-09,Cash,LAK,Expense,Food,-45000.00,Lunch\r\n" +
-        "2026-10-09,Cash,LAK,Income,Salary,3000000.00,\r\n",
+        "2026-10-09,Cash,LAK,Expense,Food,-45000.00,Lunch,\r\n" +
+        "2026-10-09,Cash,LAK,Income,Salary,3000000.00,,\r\n",
     );
   });
 
@@ -78,30 +80,30 @@ describe("transactionsToCsv", () => {
       labels,
     );
     expect(csv).toBe(
-      HEADER + "2026-10-09,Cash,LAK,Starting amount,,-45000.00,\r\n",
+      HEADER + "2026-10-09,Cash,LAK,Starting amount,,-45000.00,,\r\n",
     );
   });
 
   it("wraps a note with a comma in quotes", () => {
     const csv = transactionsToCsv([row({ note: "rice, fish" })], labels);
-    expect(csv).toContain(',-45000.00,"rice, fish"\r\n');
+    expect(csv).toContain(',-45000.00,"rice, fish",\r\n');
   });
 
   it("doubles the quotes inside a note", () => {
     const csv = transactionsToCsv([row({ note: 'the "big" lunch' })], labels);
-    expect(csv).toContain(',-45000.00,"the ""big"" lunch"\r\n');
+    expect(csv).toContain(',-45000.00,"the ""big"" lunch",\r\n');
   });
 
   it("keeps a line break inside a quoted note", () => {
     const csv = transactionsToCsv([row({ note: "one\ntwo" })], labels);
-    expect(csv).toContain(',-45000.00,"one\ntwo"\r\n');
+    expect(csv).toContain(',-45000.00,"one\ntwo",\r\n');
   });
 
   it.each(["=", "+", "-", "@"])(
     "puts a quote in front of a note that starts with %s",
     (start) => {
       const csv = transactionsToCsv([row({ note: `${start}1+1` })], labels);
-      expect(csv).toContain(`,-45000.00,'${start}1+1\r\n`);
+      expect(csv).toContain(`,-45000.00,'${start}1+1,\r\n`);
     },
   );
 
@@ -118,14 +120,14 @@ describe("transactionsToCsv", () => {
       labels,
     );
     expect(csv).toContain(
-      "2026-10-09,'=Cash,LAK,Expense,'@Food,-45000.00,'\tlunch\r\n",
+      "2026-10-09,'=Cash,LAK,Expense,'@Food,-45000.00,'\tlunch,\r\n",
     );
-    expect(csv).toContain(',-45000.00,"\'\rlunch"\r\n');
+    expect(csv).toContain(',-45000.00,"\'\rlunch",\r\n');
   });
 
   it("quotes and guards a note that needs both", () => {
     const csv = transactionsToCsv([row({ note: '=1+1, "lunch"' })], labels);
-    expect(csv).toContain(',-45000.00,"\'=1+1, ""lunch"""\r\n');
+    expect(csv).toContain(',-45000.00,"\'=1+1, ""lunch""",\r\n');
   });
 
   it("does not guard the amount, which starts with a minus sign", () => {
@@ -140,7 +142,20 @@ describe("transactionsToCsv", () => {
       labels,
     );
     expect(csv).toContain(
-      "2026-10-09,ເງິນສົດ,LAK,Expense,Food,-45000.00,ເຂົ້າປຸ້ນ\r\n",
+      "2026-10-09,ເງິນສົດ,LAK,Expense,Food,-45000.00,ເຂົ້າປຸ້ນ,\r\n",
     );
+  });
+  it("writes the trip name last, quoted and guarded like free text", () => {
+    const csv = transactionsToCsv(
+      [
+        row({ tripName: "Vietnam" }),
+        row({ tripName: "Hue, Hanoi" }),
+        row({ tripName: "=SUM(A1)" }),
+      ],
+      labels,
+    );
+    expect(csv).toContain(",-45000.00,,Vietnam\r\n");
+    expect(csv).toContain(',-45000.00,,"Hue, Hanoi"\r\n');
+    expect(csv).toContain(",-45000.00,,'=SUM(A1)\r\n");
   });
 });

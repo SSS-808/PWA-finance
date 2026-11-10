@@ -18,6 +18,7 @@ const valid = {
   categoryId: CATEGORY_ID,
   date: "2026-10-09",
   note: "Lunch",
+  tripId: "",
 };
 
 function firstMessage(input: unknown): string | undefined {
@@ -99,6 +100,14 @@ describe("entrySchema", () => {
   it("accepts a complete entry and tidies the note", () => {
     expect(entrySchema.parse(valid)).toEqual(valid);
     expect(entrySchema.parse({ ...valid, kind: "income" }).kind).toBe("income");
+  });
+
+  it("accepts no trip or a trip id and refuses anything else", () => {
+    const id = "55555555-5555-4555-8555-000000000001";
+    expect(entrySchema.parse({ ...valid, tripId: id }).tripId).toBe(id);
+    expect(entrySchema.parse({ ...valid, tripId: "" }).tripId).toBe("");
+    expect(firstMessage({ ...valid, tripId: "nope" })).toBe("trip_invalid");
+    expect(firstMessage({ ...valid, tripId: undefined })).toBe("trip_invalid");
   });
 
   it("trims the amount and the note", () => {
