@@ -5,7 +5,16 @@ import {
   type Page,
 } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { addAccount, addEntry, signUpAndConfirm } from "./helpers";
+import {
+  addAccount,
+  addEntry,
+  dateBox,
+  fillEntry,
+  openAddForm,
+  saveButton,
+  signUpAndConfirm,
+  waitForSaved,
+} from "./helpers";
 
 test.describe.configure({ timeout: 180_000 });
 
@@ -241,4 +250,124 @@ test("deleting a trip keeps its entries in History", async ({ page }) => {
   await expect(shown(page.getByText("Noodles in Hue"))).toBeVisible();
   await expect(shown(page.getByText("Coffee in Hanoi"))).toBeVisible();
   await expect(shown(page.getByText("Lunch back home"))).toBeVisible();
+});
+
+function tripBox(page: Page) {
+  return shown(
+    page.getByRole("combobox", {
+      name: en.transactions.form.trip,
+      exact: true,
+    }),
+  );
+}
+
+const filledIn = /Filled in because .* is during this trip\./;
+
+test("Add opens with the trip that holds today, and the entry lands on the trip", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addTrip(page, { name: "Vietnam", from: day(-1), to: day(2) });
+  const tripUrl = new URL(page.url()).pathname;
+
+  await openAddForm(page);
+  await expect(tripBox(page).locator("option:checked")).toContainText(
+    "Vietnam",
+  );
+  await expect(shown(page.getByText(filledIn))).toBeVisible();
+  await fillEntry(page, { amount: "45,000", category: "Food" });
+  await waitForSaved(page);
+
+  await page.goto(tripUrl);
+  const summary = shown(
+    page.getByRole("region", { name: "Vietnam", exact: true }),
+  );
+  await expect(summary.getByText("₭45,000.00", { exact: true })).toBeVisible();
+});
+
+test("the cross clears the trip, so the entry is not on the trip", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addTrip(page, { name: "Vietnam", from: day(-1), to: day(2) });
+  const tripUrl = new URL(page.url()).pathname;
+
+  await openAddForm(page);
+  await expect(tripBox(page).locator("option:checked")).toContainText(
+    "Vietnam",
+  );
+  await shown(
+    page.getByRole("button", { name: en.transactions.form.removeTrip }),
+  ).click();
+  await expect(tripBox(page).locator("option:checked")).toHaveText(
+    en.transactions.form.noTrip,
+  );
+  await fillEntry(page, { amount: "45,000", category: "Food" });
+  await waitForSaved(page);
+
+  await page.goto(tripUrl);
+  await expect(shown(page.getByText(text.detail.nothingSpent))).toBeVisible();
+  await expect(shown(page.getByText(text.detail.unlabelledOne))).toBeVisible();
+});
+
+test("an entry outside the trip's days can be given the trip when edited", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await addTrip(page, { name: "Vietnam", from: day(-1), to: day(2) });
+  const tripUrl = new URL(page.url()).pathname;
+  await addEntry(page, {
+    amount: "45,000",
+    category: "Food",
+    date: day(-20),
+    note: "Old lunch",
+  });
+
+  await page.goto("/transactions?month=all");
+  await shown(page.getByRole("link", { name: /Food.*-₭45,000\.00/ })).click();
+  await expect(tripBox(page).locator("option:checked")).toHaveText(
+    en.transactions.form.noTrip,
+  );
+  const label = await tripBox(page)
+    .locator("option", { hasText: "Vietnam" })
+    .textContent();
+  await tripBox(page).selectOption({ label: label ?? "" });
+  await expect(shown(page.getByText(filledIn))).toHaveCount(0);
+  await saveButton(page).click();
+  await waitForSaved(page);
+
+  await page.goto(tripUrl);
+  const summary = shown(
+    page.getByRole("region", { name: "Vietnam", exact: true }),
+  );
+  await expect(summary.getByText("₭45,000.00", { exact: true })).toBeVisible();
+});
+
+test("the Trip field follows the date until it is touched, and is absent without trips", async ({
+  page,
+}) => {
+  await signUpAndConfirm(page);
+  await addAccount(page, { name: "Cash", amount: "1,000,000" });
+  await openAddForm(page);
+  await expect(shown(page.getByLabel(en.transactions.form.date))).toBeVisible();
+  await expect(tripBox(page)).toHaveCount(0);
+
+  await addTrip(page, { name: "Vietnam", from: day(-1), to: day(2) });
+  await openAddForm(page);
+  await dateBox(page).fill(day(-20));
+  await expect(tripBox(page).locator("option:checked")).toHaveText(
+    en.transactions.form.noTrip,
+  );
+  await dateBox(page).fill(day(0));
+  await expect(tripBox(page).locator("option:checked")).toContainText(
+    "Vietnam",
+  );
+  await tripBox(page).selectOption({ label: en.transactions.form.noTrip });
+  await dateBox(page).fill(day(1));
+  await expect(tripBox(page).locator("option:checked")).toHaveText(
+    en.transactions.form.noTrip,
+  );
 });

@@ -6,6 +6,7 @@ import { safeNextPath } from "@/modules/auth";
 import { listCategories } from "@/modules/categories";
 import { listGoalMoneyByAccount } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
+import { formatTripDays, listTrips } from "@/modules/trips";
 import {
   AddForm,
   readLastAccountId,
@@ -44,6 +45,7 @@ async function NewEntry({
     incomeCategories,
     lastId,
     goalMoney,
+    trips,
   ] = await Promise.all([
     getProfile(),
     listAccounts(),
@@ -51,6 +53,7 @@ async function NewEntry({
     listCategories("income"),
     readLastAccountId(),
     listGoalMoneyByAccount(),
+    listTrips(),
   ]);
   const active = accounts.filter((account) => !account.archived);
   const first = active[0];
@@ -80,6 +83,12 @@ async function NewEntry({
       accounts={toAccountOptions(active, goalMoney)}
       expenseCategories={expenseCategories}
       incomeCategories={incomeCategories}
+      trips={trips.map((trip) => ({
+        id: trip.id,
+        label: `${trip.name} · ${formatTripDays(trip)}`,
+        startsOn: trip.startsOn,
+        endsOn: trip.endsOn,
+      }))}
       defaultAccountId={defaultAccountId}
       today={todayIn(profile.timeZone)}
     />

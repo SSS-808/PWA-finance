@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { startTransition, useActionState, useId } from "react";
+import { Plane, X } from "lucide-react";
+import { startTransition, useActionState, useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { AmountInput } from "@/components/shared/amount-input";
 import { SubmitButton } from "@/components/shared/submit-button";
@@ -26,6 +27,7 @@ import {
   MIN_DATE,
   entrySchema,
 } from "../domain/schemas";
+import { shortDate, tripForDate } from "../domain/trip-for-date";
 import {
   ENTRY_KINDS,
   TRANSACTION_ERROR_KEYS,
@@ -35,6 +37,7 @@ import {
   type EntryFormValues,
   type EntryKind,
   type TransactionErrorKey,
+  type TripOption,
 } from "../domain/types";
 import { createEntry, updateEntry } from "../server/actions";
 import { CategoryPicker } from "./category-picker";
@@ -46,6 +49,7 @@ type EntryFormProps = {
   accounts: readonly AccountOption[];
   expenseCategories: readonly CategoryOption[];
   incomeCategories: readonly CategoryOption[];
+  trips: readonly TripOption[];
 } & (
   | {
       mode: "create";
@@ -89,6 +93,7 @@ function startValues(props: EntryFormProps): EntryFormValues {
     categoryId: "",
     date: props.today,
     note: "",
+    tripId: tripForDate(props.trips, props.today)?.id ?? "",
   };
 }
 
@@ -138,6 +143,10 @@ export function EntryForm(props: EntryFormProps) {
   const kind = useWatch({ control, name: "kind" });
   const selectedId = useWatch({ control, name: "categoryId" });
   const accountId = useWatch({ control, name: "accountId" });
+  const date = useWatch({ control, name: "date" });
+  const tripId = useWatch({ control, name: "tripId" });
+  // On Add the trip follows the date until the person picks or clears it
+  const [followsDate, setFollowsDate] = useState(props.mode === "create");
   const account = props.accounts.find((a) => a.id === accountId);
   const currency = account?.currency;
   const overspend = useOverspend();
@@ -153,6 +162,8 @@ export function EntryForm(props: EntryFormProps) {
   const accountError = errorFor("accountId");
   const dateError = errorFor("date");
   const noteError = errorFor("note");
+  const tripError = errorFor("tripId");
+  const dateField = register("date");
   const topError = state.error ?? state.fieldErrors?.kind;
 
   function chooseKind(next: EntryKind) {
@@ -302,11 +313,71 @@ export function EntryForm(props: EntryFormProps) {
               aria-describedby={dateError ? `${uid}-date-error` : undefined}
               className="h-12 bg-card text-base dark:bg-card"
               defaultValue={initial.date}
-              {...register("date")}
+              {...dateField}
+              onChange={(event) => {
+                void dateField.onChange(event);
+                if (followsDate) {
+                  setValue(
+                    "tripId",
+                    tripForDate(props.trips, event.target.value)?.id ?? "",
+                  );
+                }
+              }}
             />
             <FieldMessage id={`${uid}-date-error`} error={dateError} />
           </div>
         </div>
+        {props.trips.length > 0 ? (
+          <div className="space-y-2">
+            <Label htmlFor={`${uid}-trip`} className="text-base">
+              {en.transactions.form.trip}
+            </Label>
+            <div className="flex items-center gap-2">
+              <Plane
+                aria-hidden="true"
+                className="size-5 shrink-0 text-muted-foreground"
+              />
+              <select
+                id={`${uid}-trip`}
+                aria-invalid={Boolean(tripError)}
+                aria-describedby={tripError ? `${uid}-trip-error` : undefined}
+                className={cn(selectClass, "min-w-0 flex-1")}
+                defaultValue={initial.tripId}
+                {...register("tripId", {
+                  onChange: () => setFollowsDate(false),
+                })}
+              >
+                <option value="">{en.transactions.form.noTrip}</option>
+                {props.trips.map((trip) => (
+                  <option key={trip.id} value={trip.id}>
+                    {trip.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                aria-label={en.transactions.form.removeTrip}
+                disabled={tripId === ""}
+                onClick={() => {
+                  setValue("tripId", "");
+                  setFollowsDate(false);
+                }}
+                className="flex size-10 shrink-0 items-center justify-center rounded-full border border-input bg-card text-muted-foreground outline-none hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+              >
+                <X aria-hidden="true" className="size-4" />
+              </button>
+            </div>
+            {followsDate && tripId !== "" ? (
+              <p className="text-sm text-muted-foreground">
+                {en.transactions.form.tripFilled.replace(
+                  "{date}",
+                  shortDate(date),
+                )}
+              </p>
+            ) : null}
+            <FieldMessage id={`${uid}-trip-error`} error={tripError} />
+          </div>
+        ) : null}
         <div className="space-y-2">
           <Label htmlFor={`${uid}-note`} className="text-base">
             {en.transactions.form.note}

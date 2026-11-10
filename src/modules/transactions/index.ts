@@ -23,6 +23,7 @@ export type {
   Transfer,
   TransferFormState,
   TransferFormValues,
+  TripOption,
 } from "./domain/types";
 export {
   getEntry,

@@ -98,6 +98,11 @@ export const entrySchema = z.object({
     .trim()
     .max(MAX_NOTE_LENGTH, { error: "note_too_long" })
     .transform((value) => (value === "" ? null : value)),
+  tripId: z
+    .string({ error: "trip_invalid" })
+    .refine((value) => value === "" || z.uuid().safeParse(value).success, {
+      error: "trip_invalid",
+    }),
 });
 
 export type EntryInput = z.input<typeof entrySchema>;
