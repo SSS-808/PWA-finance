@@ -135,7 +135,7 @@ async function AccountDetail({
         <p className="text-xs font-medium tracking-wider text-hero-muted uppercase">
           {en.accounts.detail.balance}
         </p>
-        <p className="text-4xl font-bold tracking-tight break-words tabular-nums">
+        <p className="text-3xl font-bold tracking-tight break-words tabular-nums min-[360px]:text-4xl">
           {balanceText(account.type, account.balance).text}
         </p>
       </section>

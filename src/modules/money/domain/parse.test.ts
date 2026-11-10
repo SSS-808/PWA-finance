@@ -8,14 +8,15 @@ type ErrorCase = [CurrencyCode, string, ParseMoneyError];
 
 describe("parseMoney: valid amounts", () => {
   it.each<OkCase>([
-    ["LAK", "100000", 100000],
-    ["LAK", "100,000", 100000],
-    ["LAK", " 1,250,000 ", 1250000],
+    ["LAK", "100000", 10000000],
+    ["LAK", "100,000", 10000000],
+    ["LAK", "1,250.50", 125050],
+    ["LAK", " 1,250,000 ", 125000000],
     ["LAK", "0", 0],
-    ["LAK", "007", 7],
-    ["LAK", "1000.0", 1000],
-    ["LAK", "1000.", 1000],
-    ["LAK", "10000000000000", 10000000000000],
+    ["LAK", "007", 700],
+    ["LAK", "1000.0", 100000],
+    ["LAK", "1000.", 100000],
+    ["LAK", "100000000000", 10000000000000],
     ["USD", "12.50", 1250],
     ["USD", "12.5", 1250],
     ["USD", "12", 1200],
@@ -50,8 +51,8 @@ describe("parseMoney: errors", () => {
     ["LAK", "-", "invalid"],
     ["LAK", ",", "invalid"],
     ["LAK", "-5", "negative"],
-    ["LAK", "1000.5", "too_many_decimals"],
-    ["LAK", "10000000000001", "too_large"],
+    ["LAK", "1000.555", "too_many_decimals"],
+    ["LAK", "100000000000.01", "too_large"],
     ["LAK", "99999999999999999999", "too_large"],
     ["USD", "1.005", "too_many_decimals"],
     ["USD", "100000000000.01", "too_large"],
@@ -64,7 +65,7 @@ describe("parseMoney: allowNegative", () => {
   it("accepts a minus sign when allowed", () => {
     expect(parseMoney("-5", "LAK", { allowNegative: true })).toEqual({
       ok: true,
-      value: money(-5, "LAK"),
+      value: money(-500, "LAK"),
     });
   });
 

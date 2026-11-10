@@ -10,9 +10,6 @@ export function toDecimalString(value: Money): string {
   const minorUnit = minorUnitOf(value.currency);
   const sign = value.minor < 0 ? "-" : "";
   const digits = String(Math.abs(value.minor));
-  if (minorUnit === 0) {
-    return sign + digits;
-  }
   const padded = digits.padStart(minorUnit + 1, "0");
   const splitAt = padded.length - minorUnit;
   return `${sign}${padded.slice(0, splitAt)}.${padded.slice(splitAt)}`;

@@ -1,6 +1,6 @@
 # ADR-003: Store money as whole numbers of the smallest unit, with a currency
 
-**Status:** Accepted · 2026-10-09
+**Status:** Accepted · 2026-10-09 · Kip decimals changed by [ADR-014](014-kip-has-decimals.md)
 
 ## In plain words
 **Computers are bad at decimals.** Ask JavaScript for `0.1 + 0.2` and you get `0.30000000000000004`. With money, those tiny errors add up. So we **count money in its smallest coin, as whole numbers**: $12.50 is stored as `1250` cents. Kip has no coins in real life, so 100,000 kip is just `100000`. Whole numbers never go wrong, and every amount always carries its currency, so kip and dollars can't get mixed up.
@@ -10,7 +10,7 @@ Floats can't represent most decimals exactly (`0.1 + 0.2 = 0.30000000000000004`)
 
 ## Decision
 - **Database:** `amount_minor bigint` next to `currency char(3)`. The `currencies` table holds `minor_unit` (the number of decimals).
-- **Decimals:** LAK = **0**, USD = 2, THB = 2. ISO 4217 says LAK has 2 decimals (att), but att aren't used in practice, and browsers format kip with 0 decimals (`Intl.NumberFormat` gives `LAK 100,000`). Using 0 matches reality.
+- **Decimals:** every currency has 2 since [ADR-014](014-kip-has-decimals.md) (2026-11-09). The original choice, kept for history: LAK = **0**, USD = 2, THB = 2. ISO 4217 says LAK has 2 decimals (att), but att aren't used in practice, and browsers format kip with 0 decimals (`Intl.NumberFormat` gives `LAK 100,000`). Using 0 matches reality.
 - **TypeScript:** `type Money = { minor: number; currency: CurrencyCode }`. Every value is checked with `Number.isSafeInteger`, which is exact up to about 9 × 10¹⁵. That's far beyond any personal amount, and the database also caps a single row at 10¹³. We use `number` rather than `bigint` because JSON, the Supabase API, Zod and Recharts all work with `number`.
 - **Parsing:** user input is converted from its *string* form (`"1,250.50"` → `125050`), never with `parseFloat(x) * 100`. That classic bug turns `1.005 * 100` into `100.49999…`.
 - **Calculations:** only addition, subtraction and integer multiplication on `minor`. Any division (exchange rates, splitting) uses one rounding helper (round half away from zero), which is tested.
@@ -24,4 +24,4 @@ Floats can't represent most decimals exactly (`0.1 + 0.2 = 0.30000000000000004`)
 ## Consequences
 - ✅ Exact sums, simple storage, fast comparisons.
 - ⚠️ Every input and display must go through `parseMoney` and `formatMoney`.
-- ⚠️ If LAK ever needed decimals, every LAK amount would need a data migration (× 100).
+- ⚠️ If LAK ever needed decimals, every LAK amount would need a data migration (× 100). That happened in [ADR-014](014-kip-has-decimals.md).

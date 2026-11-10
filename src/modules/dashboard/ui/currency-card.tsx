@@ -18,7 +18,7 @@ function HeroStat({ label, value }: { label: string; value: string }) {
       <dt className="text-xs font-medium tracking-wider text-hero-muted uppercase">
         {label}
       </dt>
-      <dd className="text-lg font-semibold break-words tabular-nums">
+      <dd className="text-base font-semibold break-words tabular-nums min-[400px]:text-lg">
         {value}
       </dd>
     </div>
@@ -108,11 +108,11 @@ export function CurrencyCard({ card }: { card: DashboardCard }) {
           <span aria-hidden="true">·</span>
           <span>{text.totalBalance}</span>
         </div>
-        <p className="text-4xl font-semibold tracking-tight break-words tabular-nums">
+        <p className="text-3xl font-semibold tracking-tight break-words tabular-nums min-[360px]:text-4xl">
           {formatMoney(balance)}
         </p>
       </div>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+      <dl className="grid grid-cols-1 gap-x-4 gap-y-3 min-[360px]:grid-cols-2">
         <HeroStat
           label={text.income}
           value={formatMoney(summary.income, { signDisplay: "exceptZero" })}

@@ -31,8 +31,8 @@ describe("parseTransferAmounts", () => {
   it("uses one amount for both sides when the currency is the same", () => {
     expect(parseTransferAmounts("500,000", "", "LAK", "LAK")).toEqual({
       ok: true,
-      from: money(500000, "LAK"),
-      to: money(500000, "LAK"),
+      from: money(50000000, "LAK"),
+      to: money(50000000, "LAK"),
     });
   });
 
@@ -46,7 +46,7 @@ describe("parseTransferAmounts", () => {
     expect(parseTransferAmounts("100", "2,150,000", "USD", "LAK")).toEqual({
       ok: true,
       from: money(10000, "USD"),
-      to: money(2150000, "LAK"),
+      to: money(215000000, "LAK"),
     });
   });
 
@@ -54,12 +54,12 @@ describe("parseTransferAmounts", () => {
     expect(parseTransferAmounts("100.5", "2150000", "USD", "LAK").ok).toBe(
       true,
     );
-    expect(parseTransferAmounts("100", "2150000.5", "USD", "LAK")).toEqual({
+    expect(parseTransferAmounts("100", "2150000.555", "USD", "LAK")).toEqual({
       ok: false,
       field: "arrived",
       error: "amount_too_many_decimals",
     });
-    expect(parseTransferAmounts("1000.5", "1", "LAK", "USD")).toEqual({
+    expect(parseTransferAmounts("1000.555", "1", "LAK", "USD")).toEqual({
       ok: false,
       field: "amount",
       error: "amount_too_many_decimals",

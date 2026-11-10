@@ -113,7 +113,7 @@ describe("parseStartingAmount", () => {
   it("reads a kip amount with commas", () => {
     expect(parseStartingAmount("1,500,000", "cash", "LAK")).toEqual({
       ok: true,
-      value: money(1500000, "LAK"),
+      value: money(150000000, "LAK"),
     });
   });
 
@@ -131,7 +131,7 @@ describe("parseStartingAmount", () => {
     });
     expect(parseStartingAmount("500", "loan", "LAK")).toEqual({
       ok: true,
-      value: money(-500, "LAK"),
+      value: money(-50000, "LAK"),
     });
   });
 
@@ -174,7 +174,7 @@ describe("parseMinimum", () => {
   it("reads a kip amount with commas", () => {
     expect(parseMinimum("50,000", "bank", "LAK")).toEqual({
       ok: true,
-      value: money(50000, "LAK"),
+      value: money(5000000, "LAK"),
     });
   });
 

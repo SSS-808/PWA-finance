@@ -130,11 +130,13 @@ test("accounts show a total per currency and one card per name, and a debt shows
   await addAccount(page, { name: "Cash", amount: "1,500,000" });
   await expect(notice(page, en.accounts.notices.added)).toBeVisible();
   const totals = page.getByRole("region", { name: en.accounts.totalsLabel });
-  await expect(totals.getByText("₭1,500,000", { exact: true })).toBeVisible();
+  await expect(
+    totals.getByText("₭1,500,000.00", { exact: true }),
+  ).toBeVisible();
   await expect(
     accountCard(page, "Cash").getByRole("heading", { level: 2 }),
   ).toHaveText("Cash");
-  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000");
+  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000.00");
 
   // Home stops asking for a first account once there is one
   await page.goto("/");
@@ -180,14 +182,14 @@ test("editing changes the name and starting amount, and a taken name is refused"
     page.getByRole("heading", { level: 1, name: "Cash" }),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭1,500,000", { exact: true })),
+    shown(page.getByText("₭1,500,000.00", { exact: true })),
   ).toBeVisible();
   await page.getByRole("link", { name: en.accounts.detail.edit }).click();
   await expect(page).toHaveURL(/\/edit$/);
 
   // The edit form is prefilled, and the currency can only be read
   await expect(nameBox(page)).toHaveValue("Cash");
-  await expect(amountBox(page)).toHaveValue("1,500,000");
+  await expect(amountBox(page)).toHaveValue("1,500,000.00");
   await expect(currencyBox(page)).toHaveCount(0);
   await page
     .getByRole("button", {
@@ -207,7 +209,7 @@ test("editing changes the name and starting amount, and a taken name is refused"
     page.getByRole("heading", { level: 1, name: "Wallet cash" }),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭2,000,000", { exact: true })),
+    shown(page.getByText("₭2,000,000.00", { exact: true })),
   ).toBeVisible();
 
   // The same name in other letters and the same currency is still taken, and what was typed stays
@@ -260,7 +262,9 @@ test("the same bank in other currencies shows as one card, added from the accoun
     en.currencies.USD,
   ]);
   const totals = page.getByRole("region", { name: en.accounts.totalsLabel });
-  await expect(totals.getByText("₭1,000,000", { exact: true })).toBeVisible();
+  await expect(
+    totals.getByText("₭1,000,000.00", { exact: true }),
+  ).toBeVisible();
   await expect(totals.getByText("$250.00", { exact: true })).toBeVisible();
 
   // The kip account lists the dollar account, and still offers the third currency
@@ -297,7 +301,7 @@ test("a bank account starts with the usual minimum, and its page shows what is f
   await expect(async () => {
     await typeBox(page).selectOption("cash");
     await typeBox(page).selectOption("bank");
-    await expect(minimumBox(page)).toHaveValue("50,000", { timeout: 1000 });
+    await expect(minimumBox(page)).toHaveValue("50,000.00", { timeout: 1000 });
   }).toPass();
 
   // The default follows the currency until the person types their own
@@ -306,7 +310,7 @@ test("a bank account starts with the usual minimum, and its page shows what is f
   await currencyBox(page).selectOption("THB");
   await expect(minimumBox(page)).toHaveValue("500.00");
   await currencyBox(page).selectOption("LAK");
-  await expect(minimumBox(page)).toHaveValue("50,000");
+  await expect(minimumBox(page)).toHaveValue("50,000.00");
   await minimumBox(page).fill("100,000");
   await currencyBox(page).selectOption("USD");
   await expect(minimumBox(page)).toHaveValue("100,000");
@@ -317,25 +321,27 @@ test("a bank account starts with the usual minimum, and its page shows what is f
   await submitNew(page).click();
   await expect(notice(page, en.accounts.notices.added)).toBeVisible();
   await expect(currencyRow(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "₭6,950,000"),
+    en.accounts.freeLine.replace("{amount}", "₭6,950,000.00"),
   );
 
   await openAccount(page, "BCEL");
   await expect(
     shown(page.getByText(en.accounts.detail.minimum, { exact: true })),
   ).toBeVisible();
-  await expect(shown(page.getByText("₭50,000", { exact: true }))).toBeVisible();
+  await expect(
+    shown(page.getByText("₭50,000.00", { exact: true })),
+  ).toBeVisible();
   await expect(
     shown(page.getByText(en.accounts.detail.free, { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭6,950,000", { exact: true })),
+    shown(page.getByText("₭6,950,000.00", { exact: true })),
   ).toBeVisible();
 
   // The edit form is prefilled, a minus sign is refused, and 0 takes the minimum away
   await page.getByRole("link", { name: en.accounts.detail.edit }).click();
   await expect(page).toHaveURL(/\/edit$/);
-  await expect(minimumBox(page)).toHaveValue("50,000");
+  await expect(minimumBox(page)).toHaveValue("50,000.00");
   await minimumBox(page).fill("-5");
   await page.getByRole("button", { name: en.accounts.form.save }).click();
   await expect(
@@ -454,7 +460,7 @@ test("an account can be archived in two steps and brought back", async ({
     page,
     page
       .getByRole("region", { name: en.accounts.archivedTitle })
-      .getByRole("link", { name: /Cash.*₭1,500,000/ }),
+      .getByRole("link", { name: /Cash.*₭1,500,000\.00/ }),
   );
 
   await page
@@ -469,7 +475,7 @@ test("an account can be archived in two steps and brought back", async ({
   ).toHaveCount(0);
 
   await page.goto("/accounts");
-  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000");
+  await expect(currencyRow(page, "Cash")).toContainText("₭1,500,000.00");
   await expect(page.getByRole("link", { name: /^Show archived/ })).toHaveCount(
     0,
   );
@@ -545,7 +551,7 @@ test("the accounts pages fit every width and the nav never covers the last eleme
   await signUpAndConfirm(page);
   await addAccount(page, {
     name: "A very long account name that keeps going and going",
-    amount: "123,456,789,012",
+    amount: "99,999,999,999",
   });
   await addAccount(page, {
     name: "Visa",

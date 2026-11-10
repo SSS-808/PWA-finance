@@ -56,10 +56,10 @@ test("a new budget shows the limit and all of it left", async ({ page }) => {
   await expect(page).toHaveURL(/\/budgets$/);
   const food = line(page, "Food");
   await expect(
-    food.getByText("₭0 of ₭2,000,000", { exact: true }),
+    food.getByText("₭0.00 of ₭2,000,000.00", { exact: true }),
   ).toBeVisible();
   await expect(
-    food.getByText("₭2,000,000 left", { exact: true }),
+    food.getByText("₭2,000,000.00 left", { exact: true }),
   ).toBeVisible();
   await expect(food.getByRole("progressbar", { name: "Food" })).toBeVisible();
 });
@@ -74,10 +74,10 @@ test("spending counts against its own category only", async ({ page }) => {
   await page.goto("/budgets");
   const food = line(page, "Food");
   await expect(
-    food.getByText("₭45,000 of ₭2,000,000", { exact: true }),
+    food.getByText("₭45,000.00 of ₭2,000,000.00", { exact: true }),
   ).toBeVisible();
   await expect(
-    food.getByText("₭1,955,000 left", { exact: true }),
+    food.getByText("₭1,955,000.00 left", { exact: true }),
   ).toBeVisible();
 });
 
@@ -89,9 +89,11 @@ test("going over the budget says how much", async ({ page }) => {
 
   await page.goto("/budgets");
   const food = line(page, "Food");
-  await expect(food.getByText("₭35,000 over", { exact: true })).toBeVisible();
   await expect(
-    food.getByText("₭45,000 of ₭10,000", { exact: true }),
+    food.getByText("₭35,000.00 over", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    food.getByText("₭45,000.00 of ₭10,000.00", { exact: true }),
   ).toBeVisible();
 });
 
@@ -100,12 +102,12 @@ test("a budget can be edited and then ended", async ({ page }) => {
   await addBudget(page, "Food", "2,000,000");
 
   await line(page, "Food").getByRole("link", { name: en.budgets.edit }).click();
-  await expect(amountBox(page)).toHaveValue("2,000,000");
+  await expect(amountBox(page)).toHaveValue("2,000,000.00");
   await amountBox(page).fill("3,000,000");
   await saveButton(page).click();
   await expect(toast(page, en.budgets.notices.saved)).toBeVisible();
   await expect(
-    line(page, "Food").getByText("₭0 of ₭3,000,000", { exact: true }),
+    line(page, "Food").getByText("₭0.00 of ₭3,000,000.00", { exact: true }),
   ).toBeVisible();
 
   await line(page, "Food").getByRole("link", { name: en.budgets.edit }).click();
@@ -192,10 +194,10 @@ test("Home shows the most used budgets and links to all of them", async ({
   const section = homeBudgets(page);
   await expect(section).toBeVisible();
   await expect(
-    section.getByText("₭45,000 of ₭2,000,000", { exact: true }),
+    section.getByText("₭45,000.00 of ₭2,000,000.00", { exact: true }),
   ).toBeVisible();
   await expect(
-    section.getByText("₭1,955,000 left", { exact: true }),
+    section.getByText("₭1,955,000.00 left", { exact: true }),
   ).toBeVisible();
 
   await section.getByRole("link", { name: en.budgets.seeAll }).click();
@@ -210,7 +212,7 @@ test("Home says how much a budget is over", async ({ page }) => {
 
   await page.goto("/");
   await expect(
-    homeBudgets(page).getByText("₭35,000 over", { exact: true }),
+    homeBudgets(page).getByText("₭35,000.00 over", { exact: true }),
   ).toBeVisible();
 });
 

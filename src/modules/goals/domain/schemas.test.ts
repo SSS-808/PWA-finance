@@ -24,7 +24,7 @@ describe("parseGoalAmount", () => {
   it("parses an amount with commas", () => {
     expect(parseGoalAmount("2,000,000", "LAK")).toEqual({
       ok: true,
-      value: money(2_000_000, "LAK"),
+      value: money(200_000_000, "LAK"),
     });
     expect(parseGoalAmount("12.5", "USD")).toEqual({
       ok: true,
@@ -40,7 +40,7 @@ describe("parseGoalAmount", () => {
     ["0", "amount_zero"],
     ["0.00", "amount_zero"],
     ["99999999999999999", "amount_too_large"],
-    ["1.5", "amount_too_many_decimals"],
+    ["1.555", "amount_too_many_decimals"],
   ])("refuses %j with %s", (input, error) => {
     expect(parseGoalAmount(input, "LAK")).toEqual({ ok: false, error });
   });
@@ -76,7 +76,7 @@ describe("goalSchema", () => {
     expect(goalSchema.parse(valid)).toEqual({
       name: "Laptop",
       currency: "LAK",
-      target: money(10_000_000, "LAK"),
+      target: money(1_000_000_000, "LAK"),
       deadline: null,
     });
   });
@@ -114,7 +114,7 @@ describe("goalSchema", () => {
     ["", "amount_required"],
     ["abc", "amount_invalid"],
     ["0", "amount_zero"],
-    ["1.5", "amount_too_many_decimals"],
+    ["1.555", "amount_too_many_decimals"],
     ["99999999999999999", "amount_too_large"],
   ])("refuses the target %j with %s", (target, error) => {
     expect(errorsOf({ ...valid, target })).toEqual({ target: error });
@@ -140,14 +140,14 @@ describe("contributionSchema", () => {
   it("adds money as a positive amount", () => {
     expect(contributionSchema.parse(input)).toEqual({
       currency: "LAK",
-      amount: money(7_000_000, "LAK"),
+      amount: money(700_000_000, "LAK"),
     });
   });
 
   it("takes money out as a negative amount", () => {
     expect(contributionSchema.parse({ ...input, direction: "take" })).toEqual({
       currency: "LAK",
-      amount: money(-7_000_000, "LAK"),
+      amount: money(-700_000_000, "LAK"),
     });
   });
 
@@ -156,7 +156,7 @@ describe("contributionSchema", () => {
     ["abc", "amount_invalid"],
     ["-5", "amount_invalid"],
     ["0", "amount_zero"],
-    ["1.5", "amount_too_many_decimals"],
+    ["1.555", "amount_too_many_decimals"],
     ["99999999999999999", "amount_too_large"],
   ])("refuses the amount %j with %s", (amount, error) => {
     const result = contributionSchema.safeParse({ ...input, amount });

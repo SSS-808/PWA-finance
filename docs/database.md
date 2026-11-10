@@ -21,7 +21,7 @@ erDiagram
   CURRENCIES {
     char code PK "LAK, USD, THB + 13 travel currencies"
     text name
-    smallint minor_unit "LAK 0, all others 2"
+    smallint minor_unit "2 for every currency"
   }
   PROFILES {
     uuid id PK "same as auth.users.id"
@@ -82,7 +82,7 @@ There is no `balance` column. A balance is the sum of the account's rows ([ADR-0
 ## 2. Money
 
 - Every amount is a `bigint` in the currency's smallest unit, stored next to a 3-letter currency code.
-- `currencies.minor_unit` says how many decimals a currency has: LAK 0, every other currency 2. So 100,000 kip is stored as `100000`, and $12.50 as `1250`.
+- `currencies.minor_unit` says how many decimals a currency has: 2 for every currency (kip since 2026-11-09, see [ADR-014](adr/014-kip-has-decimals.md)). So 100,000 kip is stored as `10000000`, and $12.50 as `1250`.
 - Details and reasons: [ADR-003](adr/003-money-integer-minor-units.md).
 
 ## 3. The transaction model
@@ -107,13 +107,13 @@ Each row is **one change to one account's balance** (one "leg"). `amount_minor` 
 
 | What happened | Rows written (account · kind · amount_minor · currency) |
 |---|---|
-| Lunch, 45,000 kip cash | Cash · expense · −45000 · LAK |
-| Salary of 8,000,000 kip into BCEL | BCEL · income · +8000000 · LAK |
-| Moved 500,000 kip from BCEL to cash | BCEL · transfer · −500000 · LAK **and** Cash · transfer · +500000 · LAK (same `transfer_id`) |
-| Changed $100 into kip (example rate) | USD Cash · transfer · −10000 · USD **and** LAK Cash · transfer · +2150000 · LAK |
+| Lunch, 45,000 kip cash | Cash · expense · −4500000 · LAK |
+| Salary of 8,000,000 kip into BCEL | BCEL · income · +800000000 · LAK |
+| Moved 500,000 kip from BCEL to cash | BCEL · transfer · −50000000 · LAK **and** Cash · transfer · +50000000 · LAK (same `transfer_id`) |
+| Changed $100 into kip (example rate) | USD Cash · transfer · −10000 · USD **and** LAK Cash · transfer · +215000000 · LAK |
 | $30 dinner on a credit card | Visa · expense · −3000 · USD → card balance −3000 = you owe $30 |
-| Added BCEL, which already holds 3,000,000 | BCEL · opening_balance · +3000000 · LAK |
-| App says 3,000,000, BCEL app says 2,950,000 | BCEL · adjustment · −50000 · LAK |
+| Added BCEL, which already holds 3,000,000 | BCEL · opening_balance · +300000000 · LAK |
+| App says 3,000,000, BCEL app says 2,950,000 | BCEL · adjustment · −5000000 · LAK |
 | Transfer fee charged by the bank | A separate expense row in "Bills" (or a "Fees" category) |
 
 Debts need no special maths. A credit card or loan balance is simply negative, so **net worth in a currency = the sum of all account balances in that currency**.
@@ -129,7 +129,7 @@ create table public.currencies (
   minor_unit smallint not null check (minor_unit between 0 and 4)
 );
 insert into public.currencies (code, name, minor_unit) values
-  ('LAK', 'Lao kip', 0),
+  ('LAK', 'Lao kip', 2),
   ('USD', 'US dollar', 2),
   ('THB', 'Thai baht', 2);
 

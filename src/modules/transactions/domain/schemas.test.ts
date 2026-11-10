@@ -28,7 +28,7 @@ describe("parseEntryAmount", () => {
   it("makes an expense negative", () => {
     expect(parseEntryAmount("45,000", "LAK", "expense")).toEqual({
       ok: true,
-      value: money(-45000, "LAK"),
+      value: money(-4500000, "LAK"),
     });
   });
 
@@ -62,7 +62,7 @@ describe("parseEntryAmount", () => {
   });
 
   it("checks the decimals of the account's own currency", () => {
-    expect(parseEntryAmount("1000.5", "LAK", "expense")).toEqual({
+    expect(parseEntryAmount("1000.555", "LAK", "expense")).toEqual({
       ok: false,
       error: "amount_too_many_decimals",
     });

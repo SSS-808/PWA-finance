@@ -69,11 +69,11 @@ test("the card shows this month's numbers and the transfer changes none of them"
 
   await page.goto("/");
   const lak = card(page, "LAK");
-  await expect(stat(lak, en.dashboard.income)).toHaveText("+₭8,000,000");
-  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭395,000");
-  await expect(stat(lak, en.dashboard.saved)).toHaveText("₭7,605,000");
+  await expect(stat(lak, en.dashboard.income)).toHaveText("+₭8,000,000.00");
+  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭395,000.00");
+  await expect(stat(lak, en.dashboard.saved)).toHaveText("₭7,605,000.00");
   await expect(stat(lak, en.dashboard.savingsRate)).toHaveText("95%");
-  await expect(lak.getByText("₭8,605,000", { exact: true })).toBeVisible();
+  await expect(lak.getByText("₭8,605,000.00", { exact: true })).toBeVisible();
   const lakSpending = spending(page, "LAK");
   await expect(lakSpending.getByRole("link", { name: /Bills/ })).toBeVisible();
   await expect(lakSpending.getByRole("link", { name: /Food/ })).toBeVisible();
@@ -263,8 +263,8 @@ test("an account switched off stays out of Home but shows on Accounts, and can b
 
   await page.goto("/");
   const lak = card(page, "LAK");
-  await expect(lak.getByText("₭955,000", { exact: true })).toBeVisible();
-  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭45,000");
+  await expect(lak.getByText("₭955,000.00", { exact: true })).toBeVisible();
+  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭45,000.00");
   await expect(card(page, "VND")).toHaveCount(0);
   await expect(spending(page, "VND")).toHaveCount(0);
   const recent = shown(
@@ -290,8 +290,8 @@ test("an account switched off stays out of Home but shows on Accounts, and can b
   await expect(page).toHaveURL(/notice=saved/);
 
   await page.goto("/");
-  await expect(lak.getByText("₭1,454,000", { exact: true })).toBeVisible();
-  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭46,000");
+  await expect(lak.getByText("₭1,454,000.00", { exact: true })).toBeVisible();
+  await expect(stat(lak, en.dashboard.spending)).toHaveText("₭46,000.00");
 });
 
 test("when every account is switched off, Home says so and points to Accounts", async ({

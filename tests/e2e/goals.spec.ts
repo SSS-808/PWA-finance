@@ -117,10 +117,10 @@ test("a new goal shows the target and all of it still to go", async ({
 
   const laptop = card(page, "Laptop");
   await expect(
-    laptop.getByText("₭0 of ₭10,000,000", { exact: true }),
+    laptop.getByText("₭0.00 of ₭10,000,000.00", { exact: true }),
   ).toBeVisible();
   await expect(
-    laptop.getByText("₭10,000,000 to go", { exact: true }),
+    laptop.getByText("₭10,000,000.00 to go", { exact: true }),
   ).toBeVisible();
   await expect(
     laptop.getByRole("progressbar", { name: "Laptop" }),
@@ -134,19 +134,19 @@ test("money can be added to a goal and taken out again", async ({ page }) => {
 
   await moveMoney(page, "add", "7,000,000", en.goals.notices.money_added);
   await expect(
-    shown(page.getByText("₭7,000,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭7,000,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByRole("listitem")).filter({ hasText: "+₭7,000,000" }),
+    shown(page.getByRole("listitem")).filter({ hasText: "+₭7,000,000.00" }),
   ).toBeVisible();
   await expect(amountBox(page)).toHaveValue("");
 
   await moveMoney(page, "take", "2,000,000", en.goals.notices.money_taken);
   await expect(
-    shown(page.getByText("₭5,000,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭5,000,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByRole("listitem")).filter({ hasText: "-₭2,000,000" }),
+    shown(page.getByRole("listitem")).filter({ hasText: "-₭2,000,000.00" }),
   ).toBeVisible();
 });
 
@@ -163,10 +163,10 @@ test("taking out more than is saved is refused and changes nothing", async ({
     shown(page.getByText(en.goals.errors.not_enough_saved)),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭1,000,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭1,000,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByRole("listitem")).filter({ hasText: "-₭2,000,000" }),
+    shown(page.getByRole("listitem")).filter({ hasText: "-₭2,000,000.00" }),
   ).toHaveCount(0);
 });
 
@@ -183,7 +183,7 @@ test("a goal with a deadline says what to save each month until it is reached", 
 
   await expect(
     card(page, "Trip").getByText(
-      `₭3,000,000 a month to make it by ${deadline.label}`,
+      `₭3,000,000.00 a month to make it by ${deadline.label}`,
       { exact: true },
     ),
   ).toBeVisible();
@@ -279,7 +279,7 @@ test("Home shows a goal with its progress and links to all goals", async ({
   const section = homeGoals(page);
   await expect(section).toBeVisible();
   await expect(
-    section.getByText("₭7,000,000 of ₭10,000,000", { exact: true }),
+    section.getByText("₭7,000,000.00 of ₭10,000,000.00", { exact: true }),
   ).toBeVisible();
   await section.getByRole("link", { name: en.goals.seeAll }).click();
   await expect(page).toHaveURL(/\/goals$/);
@@ -374,7 +374,7 @@ test("money added to a goal stays in the account, lowers its free to spend, and 
   await openGoal(page, "Laptop");
 
   await expect(fromBox(page)).toHaveValue(/[0-9a-f-]{36}/);
-  await expect(fromBox(page)).toContainText("BCEL (free ₭6,950,000)");
+  await expect(fromBox(page)).toContainText("BCEL (free ₭6,950,000.00)");
   await expect(
     fromBox(page).locator("option", { hasText: en.goals.money.noAccount }),
   ).toHaveCount(0);
@@ -387,7 +387,7 @@ test("money added to a goal stays in the account, lowers its free to spend, and 
     ),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭2,000,000", { exact: true })),
+    shown(page.getByText("₭2,000,000.00", { exact: true })),
   ).toHaveCount(1);
   await expect(
     shown(page.getByText(en.goals.historyFrom.replace("{account}", "BCEL"))),
@@ -395,9 +395,9 @@ test("money added to a goal stays in the account, lowers its free to spend, and 
 
   // The balance still matches the bank; only what is free to spend went down
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭7,000,000");
+  await expect(accountRows(page, "BCEL")).toContainText("₭7,000,000.00");
   await expect(accountRows(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "₭4,950,000"),
+    en.accounts.freeLine.replace("{amount}", "₭4,950,000.00"),
   );
 
   await openAccountPage(page, "BCEL");
@@ -406,10 +406,10 @@ test("money added to a goal stays in the account, lowers its free to spend, and 
   ).toBeVisible();
   await expect(shown(page.getByText("Laptop", { exact: true }))).toBeVisible();
   await expect(
-    shown(page.getByText("₭2,000,000", { exact: true })),
+    shown(page.getByText("₭2,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭4,950,000", { exact: true })),
+    shown(page.getByText("₭4,950,000.00", { exact: true })),
   ).toBeVisible();
 });
 
@@ -424,7 +424,7 @@ test("taking money out of a goal gives it back to the account", async ({
 
   await moveMoney(page, "take", "500,000", en.goals.notices.money_taken);
   await expect(
-    shown(page.getByText("₭1,500,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭1,500,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
     shown(page.getByText(en.goals.historyFrom.replace("{account}", "BCEL"))),
@@ -433,7 +433,7 @@ test("taking money out of a goal gives it back to the account", async ({
 
   await page.goto("/accounts");
   await expect(accountRows(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "₭5,450,000"),
+    en.accounts.freeLine.replace("{amount}", "₭5,450,000.00"),
   );
 
   // The account cannot give back more than the goal holds in it
@@ -443,7 +443,7 @@ test("taking money out of a goal gives it back to the account", async ({
     shown(page.getByText(en.goals.errors.not_enough_in_account)),
   ).toBeVisible();
   await expect(
-    shown(page.getByText("₭1,500,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭1,500,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
 });
 
@@ -464,9 +464,9 @@ test("an expense that eats into goal money offers to take it from the goal", asy
   });
   await expect(dialog).toContainText(
     en.transactions.overspend.bodyGoals
-      .replace("{free}", "₭350,000")
-      .replace("{minimum}", "₭50,000")
-      .replace("{aside}", "₭600,000")
+      .replace("{free}", "₭350,000.00")
+      .replace("{minimum}", "₭50,000.00")
+      .replace("{aside}", "₭600,000.00")
       .replace("{account}", "BCEL"),
   );
   await dialog
@@ -478,20 +478,22 @@ test("an expense that eats into goal money offers to take it from the goal", asy
 
   // ₭600,000 is left in the account and ₭550,000 of it is above the minimum, so the goal gave up ₭50,000
   await page.goto("/accounts");
-  await expect(accountRows(page, "BCEL")).toContainText("₭600,000");
+  await expect(accountRows(page, "BCEL")).toContainText("₭600,000.00");
   await expect(accountRows(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "₭0"),
+    en.accounts.freeLine.replace("{amount}", "₭0.00"),
   );
   await page.goto("/goals");
   await openGoal(page, "Laptop");
   await expect(
-    shown(page.getByText("₭550,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭550,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(
-    shown(page.getByRole("listitem")).filter({ hasText: "-₭50,000" }),
+    shown(page.getByRole("listitem")).filter({ hasText: "-₭50,000.00" }),
   ).toBeVisible();
   await expect(
-    shown(page.getByText(en.goals.takeMissing.replace("{missing}", "₭50,000"))),
+    shown(
+      page.getByText(en.goals.takeMissing.replace("{missing}", "₭50,000.00")),
+    ),
   ).toHaveCount(0);
 });
 
@@ -524,11 +526,11 @@ test("Save anyway leaves the goal as it was, and its page warns until the missin
   await page.goto(goalUrl);
   const warning = en.goals.short
     .replace("{account}", "BCEL")
-    .replace("{held}", "₭650,000")
-    .replace("{aside}", "₭900,000");
+    .replace("{held}", "₭650,000.00")
+    .replace("{aside}", "₭900,000.00");
   await expect(shown(page.getByText(warning))).toBeVisible();
   await expect(
-    shown(page.getByText("₭900,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭900,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
 
   // The warning page has no accessibility problems in either colour scheme
@@ -551,17 +553,17 @@ test("Save anyway leaves the goal as it was, and its page warns until the missin
 
   await shown(
     page.getByRole("button", {
-      name: en.goals.takeMissing.replace("{missing}", "₭250,000"),
+      name: en.goals.takeMissing.replace("{missing}", "₭250,000.00"),
     }),
   ).click();
   await expect(toast(page, en.goals.notices.missing_taken)).toBeVisible();
   await expect(
-    shown(page.getByText("₭650,000 of ₭10,000,000", { exact: true })),
+    shown(page.getByText("₭650,000.00 of ₭10,000,000.00", { exact: true })),
   ).toBeVisible();
   await expect(shown(page.getByText(warning))).toHaveCount(0);
 
   await page.goto("/accounts");
   await expect(accountRows(page, "BCEL")).toContainText(
-    en.accounts.freeLine.replace("{amount}", "₭0"),
+    en.accounts.freeLine.replace("{amount}", "₭0.00"),
   );
 });
