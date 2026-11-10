@@ -46,7 +46,7 @@ const MAX_ROWS = 500;
 const EXPORT_PAGE_SIZE = 1000;
 
 const HISTORY_COLUMNS =
-  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name, icon, color)";
+  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name, icon, color), trips(name)";
 
 function isTransactionKind(value: string): value is TransactionKind {
   return (TRANSACTION_KINDS as readonly string[]).includes(value);
@@ -67,6 +67,7 @@ type HistoryRecord = {
   currency: string;
   accounts: { name: string } | null;
   categories: { name: string; icon: string; color: string } | null;
+  trips: { name: string } | null;
 };
 
 function toHistoryRow(record: HistoryRecord): HistoryRow {
@@ -89,6 +90,7 @@ function toHistoryRow(record: HistoryRecord): HistoryRow {
       ? { icon: record.categories.icon, color: record.categories.color }
       : null,
     note: record.description,
+    tripName: record.trips?.name ?? null,
     amount: money(record.amount_minor, record.currency),
   };
 }
@@ -110,6 +112,7 @@ export async function listTransactions(
     query = query.gte("transaction_date", from).lt("transaction_date", to);
   }
   if (filters.accountId) query = query.eq("account_id", filters.accountId);
+  if (filters.tripId) query = query.eq("trip_id", filters.tripId);
   if (hiddenAccountIds.length > 0) {
     query = query.not("account_id", "in", `(${hiddenAccountIds.join(",")})`);
   }
@@ -184,7 +187,7 @@ export async function getEntry(id: string): Promise<Entry> {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, kind, account_id, category_id, amount_minor, currency, description, transaction_date",
+      "id, kind, account_id, category_id, amount_minor, currency, description, transaction_date, trip_id",
     )
     .eq("id", id)
     .in("kind", [...ENTRY_KINDS])
@@ -209,6 +212,7 @@ export async function getEntry(id: string): Promise<Entry> {
     amount: money(data.amount_minor, data.currency),
     date: data.transaction_date,
     note: data.description,
+    tripId: data.trip_id,
   };
 }
 

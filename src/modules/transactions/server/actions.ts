@@ -29,6 +29,7 @@ type EntryRow = {
   currency: string;
   description: string | null;
   transaction_date: string;
+  trip_id: string | null;
 };
 
 type BuiltRow =
@@ -41,6 +42,7 @@ const FIELDS: readonly EntryFieldName[] = [
   "categoryId",
   "date",
   "note",
+  "tripId",
 ];
 
 function readValues(formData: FormData): Record<EntryFieldName, string> {
@@ -97,6 +99,7 @@ async function buildRow(
       currency: account.currency,
       description: data.note,
       transaction_date: data.date,
+      trip_id: data.tripId === "" ? null : data.tripId,
     },
   };
 }
@@ -105,7 +108,10 @@ function databaseErrorState(error: {
   code: string;
   message: string;
 }): EntryFormState {
-  // 23503 is the foreign key to categories: wrong owner or wrong kind
+  // 23503 is a foreign key: the trip is not yours or is gone, else the category
+  if (error.code === "23503" && /trip/i.test(error.message)) {
+    return { status: "error", fieldErrors: { tripId: "trip_not_found" } };
+  }
   if (error.code === "23503") {
     return { status: "error", fieldErrors: { categoryId: "invalid_category" } };
   }

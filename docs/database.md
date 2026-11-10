@@ -464,6 +464,14 @@ Decision: [ADR-011](adr/011-goals-are-earmarks.md). Migration: `supabase/migrati
 - A contribution does **not** move money between accounts. It's a label on money you already have.
 - Since 2026-10-31 ([ADR-012](adr/012-goal-money-sits-in-an-account.md)): `goal_contributions.account_id` names the account the money sits in (foreign key `(account_id, user_id, currency)`: same user, the goal's currency). The trigger checks each account's share of a goal, so none goes below 0. The view `account_set_aside (account_id, user_id, set_aside_minor)` adds up the money set aside per account for goals that aren't archived. Free to spend = balance − minimum − set aside. The function `release_goal_shortfall(p_account_id, p_goal_id, p_on)` takes out the goal money an account no longer holds (balance − minimum below what is set aside): the goal with the most there gives first, or only `p_goal_id` when given. It returns how much it took.
 
+### Trips (built 2026-11-10)
+
+Decision: [ADR-015](adr/015-trips-are-labels.md). Migration: `supabase/migrations/20261110120000_trips.sql`.
+
+- `trips (user_id, name, starts_on, ends_on)`: a named stretch of days. The last day can't be before the first, and an exclusion constraint (`btree_gist`) stops two trips of the same person from sharing a day. A trip can be deleted.
+- `transactions.trip_id` is the optional label. The foreign key `(trip_id, user_id)` makes sure the trip belongs to the same person, and deleting the trip only clears the label (`on delete set null (trip_id)`). A check allows a trip only on income and expenses.
+- The function `label_trip_entries(p_trip_id)` gives the trip to every income and expense of its days that has no trip and isn't deleted, and returns how many it labelled. It runs with the caller's own access, so RLS still applies.
+
 ### Still a sketch
 
 | Phase | Tables | Note |

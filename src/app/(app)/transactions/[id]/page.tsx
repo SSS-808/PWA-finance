@@ -4,6 +4,7 @@ import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { listCategories } from "@/modules/categories";
 import { listGoalMoneyByAccount } from "@/modules/goals";
+import { formatTripDays, listTrips } from "@/modules/trips";
 import { isNegative, negate, toDecimalString } from "@/modules/money";
 import {
   DeleteEntryButton,
@@ -38,12 +39,13 @@ async function EditEntry({
 }) {
   const { id } = await params;
   const entry = await getEntry(id);
-  const [accounts, expenseCategories, incomeCategories, goalMoney] =
+  const [accounts, expenseCategories, incomeCategories, goalMoney, trips] =
     await Promise.all([
       listAccounts(),
       listCategories("expense", entry.categoryId),
       listCategories("income", entry.categoryId),
       listGoalMoneyByAccount(),
+      listTrips(),
     ]);
   // The entry's own account stays in the list even if it was archived since
   const options = toAccountOptions(
@@ -66,6 +68,12 @@ async function EditEntry({
         accounts={options}
         expenseCategories={expenseCategories}
         incomeCategories={incomeCategories}
+        trips={trips.map((trip) => ({
+          id: trip.id,
+          label: `${trip.name} · ${formatTripDays(trip)}`,
+          startsOn: trip.startsOn,
+          endsOn: trip.endsOn,
+        }))}
         initial={{
           kind: entry.kind,
           amount: toDecimalString(size),
@@ -73,6 +81,7 @@ async function EditEntry({
           categoryId: entry.categoryId,
           date: entry.date,
           note: entry.note ?? "",
+          tripId: entry.tripId ?? "",
         }}
       />
       <DeleteEntryButton id={entry.id} />

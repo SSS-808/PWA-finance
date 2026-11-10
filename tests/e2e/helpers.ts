@@ -79,16 +79,31 @@ export async function signUpAndConfirm(
   return { email, password: PASSWORD };
 }
 
-// Log out lives in Settings, so go there through the nav first
+// Settings sits behind the More tab, so go through it
+export async function openSettings(page: Page) {
+  await page
+    .getByRole("navigation", { name: en.nav.label })
+    .getByRole("link", { name: en.nav.more })
+    .click();
+  await page.getByRole("link", { name: en.more.settings }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+}
+
+// A tile of the More page, found by where it goes
+export function moreTile(page: Page, href: string) {
+  return page.locator(`main a[href="${href}"]`).filter({ visible: true });
+}
+
+// Log out lives in Settings, so go there through More first
 export async function logOutFromSettings(page: Page) {
-  await page.getByRole("link", { name: en.nav.settings }).click();
+  await openSettings(page);
   await page.getByRole("button", { name: en.auth.logout }).click();
   await expect(page).toHaveURL(/\/login$/);
 }
 
 // Home shows no email, so Settings is where the signed-in address is checked
 export async function expectSignedInAs(page: Page, email: string) {
-  await page.getByRole("link", { name: en.nav.settings }).click();
+  await openSettings(page);
   await expect(page.getByText(email, { exact: true })).toBeVisible();
 }
 

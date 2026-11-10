@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { AccountOption, CategoryOption, EntryKind } from "../domain/types";
+import type {
+  AccountOption,
+  CategoryOption,
+  EntryKind,
+  TripOption,
+} from "../domain/types";
 import { EntryForm } from "./entry-form";
 import { TransferForm } from "./transfer-form";
 
@@ -15,6 +20,7 @@ export function AddForm({
   accounts,
   expenseCategories,
   incomeCategories,
+  trips,
   defaultAccountId,
   today,
 }: {
@@ -24,6 +30,7 @@ export function AddForm({
   accounts: readonly AccountOption[];
   expenseCategories: readonly CategoryOption[];
   incomeCategories: readonly CategoryOption[];
+  trips: readonly TripOption[];
   defaultAccountId: string;
   today: string;
 }) {
@@ -50,6 +57,7 @@ export function AddForm({
       accounts={accounts}
       expenseCategories={expenseCategories}
       incomeCategories={incomeCategories}
+      trips={trips}
       defaultAccountId={defaultAccountId}
       today={today}
       initialKind={view.kind}

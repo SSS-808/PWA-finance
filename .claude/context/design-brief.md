@@ -11,7 +11,7 @@ Three looks were drawn for Home and Add, light and dark: A "Emerald hero", B "Qu
 **Home**
 - No page title and no greeting on screen. Home starts at the month switcher. Keep an invisible title for screen readers.
 - The **main currency** card comes first (Settings → Main currency): solid emerald, white text, balance big, Income and Spending below, then Saved and Savings rate.
-- Then **Money In** (soft green) and **Money Out** (soft red), side by side.
+- ~~Then **Money In** (soft green) and **Money Out** (soft red), side by side.~~ Removed 2026-11-10 (Home A, see "Calmer Home" below).
 - Then the cards of the other currencies, smaller, in the same emerald.
 - Then "Where your money went" as a white card: a round coloured icon per category and a bar in the category's colour.
 - Then Recent, with the category icon and a green or red amount in each row.
@@ -43,9 +43,16 @@ History, Accounts, Account details, Budgets and Goals were drawn on a private ca
 1. **When:** this brief is saved for the design phase. The order of work stays as above.
 2. **References:** Pocket Clear leads (layout and feel). Copilot Money for polish. Lunch Money for the History list and filters. Monarch Money dropped (desktop-first, built on bank sync). Inspiration only, never a copy.
 3. **Main colour:** deep emerald for buttons and the active nav item. Income and expense get their own green and red, clearly different from the emerald.
-4. **Home buttons:** "Money In" and "Money Out" on Home. The ＋ in the nav stays.
+4. **Home buttons:** "Money In" and "Money Out" on Home. The ＋ in the nav stays. **Changed 2026-11-10:** the owner found them redundant with the ＋ and picked Home A: the ＋ stays, the two buttons go.
 5. **Categories:** each gets an icon and a colour, picked from a fixed set. The Add screen shows them as an icon grid.
 6. **Reports page with tabs:** decide at Phase 10. Phase 6 stays as planned (a Home section plus a `/budgets` page, no new nav icon).
+
+## Calmer Home and the More tab (approved 2026-11-10)
+Mockups: https://claude.ai/artifact/16KrPF6ojM1TaP1HyDTEoR (the owner picked **Home A** and approved the trip screens).
+- Bottom bar: Home · History · ＋ · Accounts · **More**. "Settings" moved into More.
+- **More** page: tiles for Budgets, Goals, Trips and Categories, each with a one-line status, then a Settings row.
+- **Home** keeps only the month bar, the balance cards, "Where your money went" and Recent, plus a slim trip line while a trip is on. Money In / Money Out and the Budgets and Goals sections left Home.
+- Hints use a "?" help button, never a text box (owner's comment on the New trip mockup).
 
 ## The look (everything lives in `src/app/globals.css`)
 | Token | Today | Target |

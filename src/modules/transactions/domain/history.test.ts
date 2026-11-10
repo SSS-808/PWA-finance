@@ -18,6 +18,7 @@ function row(overrides: Partial<HistoryRow>): HistoryRow {
     categoryName: "Food",
     categoryLook: { icon: "utensils", color: "orange" },
     note: null,
+    tripName: null,
     amount: money(-45000, "LAK"),
     ...overrides,
   };

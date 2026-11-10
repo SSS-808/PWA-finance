@@ -24,6 +24,8 @@ export const TRANSACTION_ERROR_KEYS = [
   "amount_too_large",
   "category_required",
   "invalid_category",
+  "trip_invalid",
+  "trip_not_found",
   "account_required",
   "invalid_date",
   "note_too_long",
@@ -37,7 +39,7 @@ export const TRANSACTION_ERROR_KEYS = [
 export type TransactionErrorKey = (typeof TRANSACTION_ERROR_KEYS)[number];
 
 export type EntryFieldName =
-  "kind" | "amount" | "accountId" | "categoryId" | "date" | "note";
+  "kind" | "amount" | "accountId" | "categoryId" | "date" | "note" | "tripId";
 
 export type EntryFormValues = {
   kind: EntryKind;
@@ -46,6 +48,8 @@ export type EntryFormValues = {
   categoryId: string;
   date: string;
   note: string;
+  // "" means no trip
+  tripId: string;
 };
 
 export type EntryFormState = {
@@ -65,6 +69,14 @@ export type AccountOption = {
   goals: { name: string }[];
 };
 
+// A trip as the entry form needs it: plain data, with the label made on the server
+export type TripOption = {
+  id: string;
+  label: string;
+  startsOn: string;
+  endsOn: string;
+};
+
 export type CategoryOption = {
   id: string;
   name: string;
@@ -82,6 +94,7 @@ export type Entry = {
   amount: Money;
   date: string;
   note: string | null;
+  tripId: string | null;
 };
 
 export type TransferFieldName =

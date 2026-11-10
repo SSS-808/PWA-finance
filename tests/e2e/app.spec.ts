@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { en } from "../../src/messages/en";
-import { logOutFromSettings, signUpAndConfirm } from "./helpers";
+import { logOutFromSettings, openSettings, signUpAndConfirm } from "./helpers";
 
 test.describe.configure({ timeout: 90_000 });
 
@@ -39,7 +39,7 @@ test("home marks Home as the current page", async ({ page }) => {
     "aria-current",
     "page",
   );
-  await expect(navLink(page, en.nav.settings)).not.toHaveAttribute(
+  await expect(navLink(page, en.nav.more)).not.toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -47,8 +47,8 @@ test("home marks Home as the current page", async ({ page }) => {
 
 test("settings saves the name, currency and time zone", async ({ page }) => {
   await signUpAndConfirm(page);
-  await navLink(page, en.nav.settings).click();
-  await expect(navLink(page, en.nav.settings)).toHaveAttribute(
+  await openSettings(page);
+  await expect(navLink(page, en.nav.more)).toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -77,7 +77,7 @@ test("settings saves the name, currency and time zone", async ({ page }) => {
   await navLink(page, en.nav.home).click();
   await expect(page).toHaveURL("/");
 
-  await navLink(page, en.nav.settings).click();
+  await openSettings(page);
   await expect(page).toHaveURL(/\/settings$/);
   // Coming back to Settings must not announce the old save again
   await expect(nameBox(page)).toBeVisible();
@@ -93,7 +93,7 @@ test("a name longer than 60 characters is refused by the server", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
-  await navLink(page, en.nav.settings).click();
+  await openSettings(page);
 
   // Remove the browser's own limit so the server check is the one under test
   await nameBox(page).evaluate((input) => input.removeAttribute("maxlength"));
@@ -221,7 +221,7 @@ test("a help hint opens from its question mark button and closes with Escape", a
   page,
 }) => {
   await signUpAndConfirm(page);
-  await navLink(page, en.nav.settings).click();
+  await openSettings(page);
   const hint = page.getByText(en.settings.profile.timeZoneHint);
   await expect(hint).toHaveCount(0);
 
@@ -234,7 +234,7 @@ test("a help hint opens from its question mark button and closes with Escape", a
 
 test("an open help hint does not follow the user to Home", async ({ page }) => {
   await signUpAndConfirm(page);
-  await navLink(page, en.nav.settings).click();
+  await openSettings(page);
   await timeZoneHintButton(page).click();
   await expect(page.getByText(en.settings.profile.timeZoneHint)).toBeVisible();
 

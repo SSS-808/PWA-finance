@@ -18,6 +18,7 @@ const labels: ExportLabels = {
     columns.category,
     columns.amount,
     columns.note,
+    columns.trip,
   ],
   kinds: en.transactions.kinds,
 };

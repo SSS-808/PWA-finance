@@ -3,7 +3,16 @@ import type { HistoryRow } from "./history";
 import type { TransactionKind } from "./types";
 
 export type ExportLabels = {
-  columns: readonly [string, string, string, string, string, string, string];
+  columns: readonly [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
   kinds: Record<TransactionKind, string>;
 };
 
@@ -35,6 +44,7 @@ export function transactionsToCsv(
       safeText(row.categoryName ?? ""),
       quote(toDecimalString(row.amount)),
       safeText(row.note ?? ""),
+      safeText(row.tripName ?? ""),
     ]);
   }
   return lines.map((cells) => cells.join(",") + LINE_END).join("");
