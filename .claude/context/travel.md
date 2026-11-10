@@ -4,10 +4,10 @@ Order agreed with the owner: 1 more currencies, 2 Show on Home, 3 kip decimals, 
 
 | Step | PR | State |
 |---|---|---|
-| 13 travel currencies, own symbols S$ HK$ B$ CN¥ | #48 | In `dev`, on staging |
-| Show on Home switch per account (replaced `HOME_CURRENCIES`) | #49 | In `dev`, on staging |
-| Kip gets 2 decimals ([ADR-014](../../docs/adr/014-kip-has-decimals.md)) | #50 | Held until #48 and #49 are released |
-| Trips (labels on entries, trip page, mockups first, no trip budget) | | Not started |
+| 13 travel currencies, own symbols S$ HK$ B$ CN¥ | #48 | Live 2026-11-10 (release #51) |
+| Show on Home switch per account (replaced `HOME_CURRENCIES`) | #49 | Live 2026-11-10 (release #51) |
+| Kip gets 2 decimals ([ADR-014](../../docs/adr/014-kip-has-decimals.md)) | #50 | Live 2026-11-10 (release #52). Backup taken just before: `C:\Users\asuss\Documents\wallet-backups\prod-before-kip-decimals-2026-11-10.sql` (holds login tokens too, keep it private) |
+| Trips (labels on entries, trip page, mockups first, no trip budget) | | Next |
 
 ## Decisions
 - Every currency has 2 decimals, because the owner's bank shows them.
