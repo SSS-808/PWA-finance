@@ -47,6 +47,12 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
   await expect(page).toHaveURL(/\/accounts\/[0-9a-f-]{36}$/);
   const accountPath = new URL(page.url()).pathname;
 
+  await page.goto("/trips/new");
+  await page.getByLabel(en.trips.form.name, { exact: true }).fill("Vietnam");
+  await page.getByRole("button", { name: en.trips.form.submit }).click();
+  await expect(page).toHaveURL(/\/trips\/[0-9a-f-]{36}/);
+  const tripPath = new URL(page.url()).pathname;
+
   const paths = [
     "/",
     "/transactions",
@@ -60,6 +66,10 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
     "/budgets/new",
     "/goals",
     "/goals/new",
+    "/trips",
+    "/trips/new",
+    tripPath,
+    `${tripPath}/edit`,
     "/settings",
     "/settings/categories",
   ];

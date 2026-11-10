@@ -19,13 +19,21 @@ describe("parseFilters", () => {
 
   it("reads every filter that is good", () => {
     const filters = parseFilters(
-      { month: "2026-02", account: ID, category: ID, type: "other", q: "taxi" },
+      {
+        month: "2026-02",
+        account: ID,
+        category: ID,
+        trip: ID,
+        type: "other",
+        q: "taxi",
+      },
       TODAY,
     );
     expect(filters).toEqual({
       month: "2026-02",
       accountId: ID,
       categoryId: ID,
+      tripId: ID,
       type: "other",
       q: "taxi",
     });
@@ -49,8 +57,12 @@ describe("parseFilters", () => {
     expect(parseFilters({ month: undefined }, TODAY).month).toBe("2026-10");
   });
 
-  it("ignores an account or category that is not a uuid", () => {
-    const filters = parseFilters({ account: "nope", category: [ID] }, TODAY);
+  it("ignores an account, category or trip that is not a uuid", () => {
+    const filters = parseFilters(
+      { account: "nope", category: [ID], trip: "nope" },
+      TODAY,
+    );
+    expect(filters.tripId).toBeNull();
     expect(filters.accountId).toBeNull();
     expect(filters.categoryId).toBeNull();
   });
@@ -127,6 +139,7 @@ describe("filtersToQuery", () => {
       month: null,
       accountId: ID,
       categoryId: ID,
+      tripId: ID,
       type: "income" as const,
       q: "50% off & more",
     };

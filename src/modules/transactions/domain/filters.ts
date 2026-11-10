@@ -20,6 +20,7 @@ export type HistoryFilters = {
   month: string | null;
   accountId: string | null;
   categoryId: string | null;
+  tripId: string | null;
   type: TypeFilter | null;
   q: string;
 };
@@ -46,6 +47,7 @@ export function parseFilters(raw: RawParams, today: string): HistoryFilters {
     month,
     accountId: valid(idSchema, raw.account),
     categoryId: valid(idSchema, raw.category),
+    tripId: valid(idSchema, raw.trip),
     type: valid(typeSchema, raw.type),
     q: valid(searchSchema, raw.q) ?? "",
   };
@@ -53,7 +55,14 @@ export function parseFilters(raw: RawParams, today: string): HistoryFilters {
 
 // No filter at all except the month
 export function baseFilters(month: string | null): HistoryFilters {
-  return { month, accountId: null, categoryId: null, type: null, q: "" };
+  return {
+    month,
+    accountId: null,
+    categoryId: null,
+    tripId: null,
+    type: null,
+    q: "",
+  };
 }
 
 function shiftMonth(month: string, delta: number): string {
@@ -85,6 +94,7 @@ export function filtersToQuery(filters: HistoryFilters): string {
   const params = new URLSearchParams({ month: filters.month ?? "all" });
   if (filters.accountId) params.set("account", filters.accountId);
   if (filters.categoryId) params.set("category", filters.categoryId);
+  if (filters.tripId) params.set("trip", filters.tripId);
   if (filters.type) params.set("type", filters.type);
   if (filters.q) params.set("q", filters.q);
   return params.toString();

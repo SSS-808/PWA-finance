@@ -10,6 +10,7 @@ import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { listAllCategories } from "@/modules/categories";
 import { getProfile, todayIn } from "@/modules/profile";
+import { listTrips } from "@/modules/trips";
 import {
   HistoryFilterBar,
   HistoryList,
@@ -59,14 +60,19 @@ async function HistoryContent({
   const profile = await getProfile();
   const today = todayIn(profile.timeZone);
   const filters = parseFilters(params, today);
-  const [days, accounts, categories] = await Promise.all([
+  const [days, accounts, categories, trips] = await Promise.all([
     listTransactions(filters),
     listAccounts(),
     listAllCategories(),
+    listTrips(),
   ]);
   const count = days.reduce((total, day) => total + day.items.length, 0);
   const narrowed =
-    filters.accountId || filters.categoryId || filters.type || filters.q;
+    filters.accountId ||
+    filters.categoryId ||
+    filters.tripId ||
+    filters.type ||
+    filters.q;
 
   return (
     <div className="space-y-6">
@@ -95,6 +101,7 @@ async function HistoryContent({
         incomeCategories={categories.filter(
           (category) => category.kind === "income",
         )}
+        trips={trips.map(({ id, name }) => ({ id, name }))}
       />
       {days.length > 0 ? (
         <HistoryList days={days} today={today} />

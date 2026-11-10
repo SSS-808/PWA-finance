@@ -1,7 +1,7 @@
 // The offline helper: keeps a copy of each page that only shows data, so the app opens without internet (docs/adr/013)
 
 // Bump the version to drop every cache from older helpers
-const VERSION = "v1";
+const VERSION = "v2";
 // Personal data: the login screens delete every cache that starts with "pages-"
 const PAGES = `pages-${VERSION}`;
 const FILES = `files-${VERSION}`;
@@ -32,6 +32,8 @@ const VIEW_PAGES = [
   /^\/budgets$/,
   /^\/goals$/,
   new RegExp(`^/goals/${ID}$`),
+  /^\/trips$/,
+  new RegExp(`^/trips/${ID}$`),
 ];
 
 let missedAt = 0;
