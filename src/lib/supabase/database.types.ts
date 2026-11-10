@@ -403,6 +403,7 @@ export type Database = {
           kind: string;
           transaction_date: string;
           transfer_id: string | null;
+          trip_id: string | null;
           updated_at: string;
           user_id: string;
         };
@@ -419,6 +420,7 @@ export type Database = {
           kind: string;
           transaction_date: string;
           transfer_id?: string | null;
+          trip_id?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -434,6 +436,7 @@ export type Database = {
           kind?: string;
           transaction_date?: string;
           transfer_id?: string | null;
+          trip_id?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -460,7 +463,53 @@ export type Database = {
             referencedColumns: ["id", "user_id", "kind"];
           },
           {
+            foreignKeyName: "transactions_trip_fk";
+            columns: ["trip_id", "user_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id", "user_id"];
+          },
+          {
             foreignKeyName: "transactions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trips: {
+        Row: {
+          created_at: string;
+          ends_on: string;
+          id: string;
+          name: string;
+          starts_on: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          ends_on: string;
+          id?: string;
+          name: string;
+          starts_on: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          ends_on?: string;
+          id?: string;
+          name?: string;
+          starts_on?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trips_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -563,6 +612,7 @@ export type Database = {
         Returns: string;
       };
       delete_transfer: { Args: { p_transfer_id: string }; Returns: undefined };
+      label_trip_entries: { Args: { p_trip_id: string }; Returns: number };
       release_goal_shortfall: {
         Args: { p_account_id: string; p_goal_id: string; p_on: string };
         Returns: number;
