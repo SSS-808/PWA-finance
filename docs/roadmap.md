@@ -19,7 +19,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 7.6 | Fixes: one card per bank, the bank's minimum, goal money in accounts | M | Done: released to the live site on 2026-11-02 (PRs #34–#36, [ADR-012](adr/012-goal-money-sits-in-an-account.md)) |
 | 8 | Net worth and exchange rates | M | 4th in the new order |
 | 9 | Investments | L | Last: only once the owner invests |
-| 10 | Analytics | M | 3rd in the new order |
+| 10 | Analytics | M | Done: released to the live site on 2026-11-13 (release PR #61). An Insights page under More: month-by-month bars, a pie for each month, a normal month, where money usually goes, biggest expenses, budgets kept and where money came from ([ADR-016](adr/016-insights-worked-out-on-open.md)) |
 | 11 | PWA and offline | M | Done: released to the live site on 2026-11-02 (release PR #42). Install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)), and the five main pages are saved in the background so they work offline without being opened first (PR #43). Adding entries offline is a later step |
 | 12 | Production hardening | M | 5th in the new order (small parts may come earlier) |
 
@@ -27,10 +27,12 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 The owner is a student in Laos, so the order now follows what helps daily use most:
 1. **Own domain** (removes the VPN; `.vercel.app` is blocked in Laos, see [deploy.md](deploy.md) §7). **On hold:** the owner can't buy one yet. Do it as soon as possible; it's a setup step, not a phase.
 2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out. **Done: released 2026-11-02.**
-3. **Phase 10, Analytics:** best after 2–3 months of real data.
-4. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
-5. **Phase 12, Production hardening.**
-6. **Phase 9, Investments:** only when the owner invests.
+3. **Phase 10, Analytics:** best after 2–3 months of real data. **Done: released 2026-11-13** (built early; averages fill in as months finish).
+4. **Adding entries offline** (owner, 2026-11-13): an "outbox" on the phone that sends new money in and money out once the app is open with internet. iPhone web apps can't sync in the background.
+5. **An iPhone Shortcut** (owner, 2026-11-13): screenshot a payment, read the amount on the phone, confirm, send it to the app with a key that can only add entries. Best after the own domain, so it works without the VPN.
+6. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
+7. **Phase 12, Production hardening.**
+8. **Phase 9, Investments:** only when the owner invests.
 
 ## MVP
 
