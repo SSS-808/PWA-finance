@@ -1,7 +1,7 @@
 // The offline helper: keeps a copy of each page that only shows data, so the app opens without internet (docs/adr/013)
 
 // Bump the version to drop every cache from older helpers
-const VERSION = "v3";
+const VERSION = "v4";
 // Personal data: the login screens delete every cache that starts with "pages-"
 const PAGES = `pages-${VERSION}`;
 const FILES = `files-${VERSION}`;
@@ -25,6 +25,7 @@ const MAIN_PAGES = [
   "/goals",
   "/more",
   "/trips",
+  "/insights",
 ];
 // A copy younger than this isn't fetched again, so the server sees at most 5 extra loads per half hour
 const FRESH_MS = 30 * 60 * 1000;
@@ -43,6 +44,7 @@ const VIEW_PAGES = [
   new RegExp(`^/goals/${ID}$`),
   /^\/trips$/,
   new RegExp(`^/trips/${ID}$`),
+  /^\/insights$/,
 ];
 
 let missedAt = 0;

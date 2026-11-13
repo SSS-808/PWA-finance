@@ -1,6 +1,8 @@
 import "server-only";
+import { getNormalMonthOut } from "@/modules/analytics";
 import { getBudgetMonth } from "@/modules/budgets";
 import { goalProgress, listGoals } from "@/modules/goals";
+import type { Money } from "@/modules/money";
 import { getProfile, todayIn } from "@/modules/profile";
 import { groupTrips, listTrips } from "@/modules/trips";
 import {
@@ -16,16 +18,18 @@ export type MoreStatus = {
   budgets: BudgetsStatus;
   goals: GoalsStatus;
   trips: TripsStatus;
+  insights: Money | null;
 };
 
 // The short status line of each tile on the More page
 export async function getMoreStatus(): Promise<MoreStatus> {
   const profile = await getProfile();
   const today = todayIn(profile.timeZone);
-  const [budgetMonth, goals, trips] = await Promise.all([
+  const [budgetMonth, goals, trips, insights] = await Promise.all([
     getBudgetMonth(today.slice(0, 7)),
     listGoals(),
     listTrips(),
+    getNormalMonthOut(),
   ]);
   const lines = budgetMonth.groups.flatMap((group) => group.lines);
   const over = lines.filter((line) => line.left.minor < 0).length;
@@ -42,5 +46,6 @@ export async function getMoreStatus(): Promise<MoreStatus> {
       grouped.now[0]?.name ?? null,
       grouped.upcoming[0]?.name ?? null,
     ),
+    insights,
   };
 }

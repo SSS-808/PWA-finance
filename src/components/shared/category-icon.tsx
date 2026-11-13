@@ -98,6 +98,20 @@ const BAR: Record<CategoryColor, string> = {
   green: "bg-cat-green",
 };
 
+// The same colours for SVG strokes, like the pie of Insights
+const STROKE: Record<CategoryColor, string> = {
+  gray: "stroke-cat-gray",
+  orange: "stroke-cat-orange",
+  blue: "stroke-cat-blue",
+  violet: "stroke-cat-violet",
+  pink: "stroke-cat-pink",
+  teal: "stroke-cat-teal",
+  amber: "stroke-cat-amber",
+  rose: "stroke-cat-rose",
+  indigo: "stroke-cat-indigo",
+  green: "stroke-cat-green",
+};
+
 // An unknown key (a stale value) falls back to the tag icon and the gray classes
 function isIconKey(key: string): key is CategoryIconKey {
   return Object.hasOwn(ICONS, key);
@@ -109,6 +123,10 @@ function isColorKey(key: string): key is CategoryColor {
 
 export function categoryBarClass(color: string): string {
   return BAR[isColorKey(color) ? color : "gray"];
+}
+
+export function categoryStrokeClass(color: string): string {
+  return STROKE[isColorKey(color) ? color : "gray"];
 }
 
 const BADGE_SIZE = { sm: "size-7", md: "size-10", lg: "size-12" };

@@ -5,7 +5,7 @@ import {
   budgetRecords,
   countedMonths,
   fullMonthsOf,
-  incomeSources,
+  categoryShares,
   normalMonth,
   orderCurrencies,
   usualByCategory,
@@ -149,6 +149,35 @@ describe("usualByCategory", () => {
     expect(result[0]?.byMonth).toEqual([usd(0), usd(900)]);
   });
 
+  it("keeps a single leftover category by name instead of a group of one", () => {
+    const result = usualByCategory(
+      [row("2026-09", "food", 300), row("2026-09", "fun", 100)],
+      months,
+      categories,
+      "USD",
+      1,
+    );
+    expect(result.map((item) => item.categoryId)).toEqual(["food", "fun"]);
+  });
+
+  it("groups a single leftover category when entries without a category join it", () => {
+    const result = usualByCategory(
+      [
+        row("2026-09", "food", 300),
+        row("2026-09", "fun", 100),
+        row("2026-09", null, 50),
+      ],
+      months,
+      categories,
+      "USD",
+      1,
+    );
+    expect(result.map((item) => [item.categoryId, item.average])).toEqual([
+      ["food", usd(150)],
+      [null, usd(75)],
+    ]);
+  });
+
   it("breaks ties by name", () => {
     const result = usualByCategory(
       [row("2026-09", "fun", 100), row("2026-09", "bills", 100)],
@@ -199,15 +228,15 @@ describe("usualByCategory", () => {
   });
 });
 
-describe("incomeSources", () => {
+describe("categoryShares", () => {
   const months = ["2026-09", "2026-10"];
 
   it("is empty when there is nothing", () => {
-    expect(incomeSources([], months, categories, "USD", 5)).toEqual([]);
+    expect(categoryShares([], months, categories, "USD", 5)).toEqual([]);
   });
 
   it("gives each source's amount and share, with Other last", () => {
-    const result = incomeSources(
+    const result = categoryShares(
       [
         row("2026-09", "food", 600),
         row("2026-10", "food", 200),

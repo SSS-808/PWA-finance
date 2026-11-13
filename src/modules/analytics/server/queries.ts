@@ -4,7 +4,6 @@ import { listAccounts } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
 import { listAllCategories } from "@/modules/categories";
 import {
-  type CategorySpending,
   type SummaryRow,
   TOP_CATEGORIES,
   monthSummary,
@@ -27,7 +26,7 @@ import {
   biggestExpenses,
   countedMonths,
   fullMonthsOf,
-  incomeSources,
+  categoryShares,
   normalMonth,
   orderCurrencies,
   usualByCategory,
@@ -41,7 +40,7 @@ import {
   type CategoryRow,
   DEFAULT_PERIOD,
   type ExpenseItem,
-  type IncomeSource,
+  type CategoryShare,
   MIN_FULL_MONTHS,
   type MonthTotals,
   type NormalMonth,
@@ -53,7 +52,7 @@ export type InsightsBar = MonthTotals;
 export type InsightsPie = {
   month: string;
   spending: Money;
-  byCategory: CategorySpending[];
+  byCategory: CategoryShare[];
 };
 export type BiggestRow = ExpenseItem & CategoryInfo & { accountName: string };
 
@@ -70,7 +69,7 @@ export type Insights = {
   usual: UsualCategory[];
   biggest: BiggestRow[];
   budgets: BudgetRecord[];
-  sources: IncomeSource[];
+  sources: CategoryShare[];
 };
 
 // One income or expense; amount is positive
@@ -192,7 +191,26 @@ function summarise(
     const income = summary?.income ?? zero(currency);
     const spending = summary?.spending ?? zero(currency);
     bars.push({ month, income, spending });
-    pies.push({ month, spending, byCategory: summary?.byCategory ?? [] });
+    const spent: CategoryRow[] = entries
+      .filter(
+        (entry) => entry.kind === "expense" && entry.date.startsWith(month),
+      )
+      .map((entry) => ({
+        month,
+        categoryId: entry.categoryId,
+        amount: entry.amount,
+      }));
+    pies.push({
+      month,
+      spending,
+      byCategory: categoryShares(
+        spent,
+        [month],
+        categoriesById,
+        currency,
+        TOP_CATEGORIES,
+      ),
+    });
   }
   return { bars, pies };
 }
@@ -328,7 +346,7 @@ export async function getInsights(
       }));
   const expenseRows = toRows("expense");
   let usual: UsualCategory[] = [];
-  let sources: IncomeSource[] = [];
+  let sources: CategoryShare[] = [];
   let budgets: BudgetRecord[] = [];
   const lastCounted = counted.at(-1);
   if (counted.length >= MIN_FULL_MONTHS && lastCounted !== undefined) {
@@ -339,7 +357,7 @@ export async function getInsights(
       currency,
       TOP_CATEGORIES,
     );
-    sources = incomeSources(
+    sources = categoryShares(
       toRows("income"),
       counted,
       categoriesById,

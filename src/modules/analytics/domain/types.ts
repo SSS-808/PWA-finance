@@ -37,7 +37,7 @@ export type UsualCategory = {
   byMonth: Money[];
 };
 
-export type IncomeSource = {
+export type CategoryShare = {
   categoryId: string | null;
   name: string;
   icon: string;
