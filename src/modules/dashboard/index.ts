@@ -1,5 +1,10 @@
 export { getDashboard } from "./server/queries";
-export { mainFirst, monthSummary } from "./domain/calculations";
+export {
+  TOP_CATEGORIES,
+  mainFirst,
+  monthSummary,
+  savingsRate,
+} from "./domain/calculations";
 export type {
   CategorySpending,
   CurrencySummary,
