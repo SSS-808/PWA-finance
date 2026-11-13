@@ -3,6 +3,7 @@ import {
   CurrencyMismatchError,
   MoneyRangeError,
   add,
+  divide,
   isNegative,
   isZero,
   money,
@@ -153,5 +154,32 @@ describe("isZero and isNegative", () => {
     expect(isNegative(money(-1, "USD"))).toBe(true);
     expect(isNegative(money(0, "USD"))).toBe(false);
     expect(isNegative(money(1, "USD"))).toBe(false);
+  });
+});
+
+describe("divide", () => {
+  it("rounds to a whole minor unit", () => {
+    expect(divide(money(1000, "USD"), 3)).toEqual(money(333, "USD"));
+    expect(divide(money(1000, "USD"), 4)).toEqual(money(250, "USD"));
+  });
+
+  it("rounds half away from zero", () => {
+    expect(divide(money(1001, "USD"), 2)).toEqual(money(501, "USD"));
+    expect(divide(money(-1001, "USD"), 2)).toEqual(money(-501, "USD"));
+  });
+
+  it("handles zero and one", () => {
+    expect(divide(money(0, "USD"), 5)).toEqual(money(0, "USD"));
+    expect(divide(money(7, "USD"), 1)).toEqual(money(7, "USD"));
+  });
+
+  it("keeps the currency", () => {
+    expect(divide(money(900, "LAK"), 3).currency).toBe("LAK");
+  });
+
+  it("rejects a divisor that is not a whole number of at least 1", () => {
+    expect(() => divide(money(1, "USD"), 0)).toThrow(RangeError);
+    expect(() => divide(money(1, "USD"), -1)).toThrow(RangeError);
+    expect(() => divide(money(1, "USD"), 1.5)).toThrow(RangeError);
   });
 });

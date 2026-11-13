@@ -69,6 +69,7 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
     "/goals/new",
     "/trips",
     "/trips/new",
+    "/insights",
     tripPath,
     `${tripPath}/edit`,
     "/settings",

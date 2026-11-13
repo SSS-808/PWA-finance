@@ -65,7 +65,7 @@ async function addTrip(
   await expect(page).toHaveURL(/\/trips\/[0-9a-f-]{36}/);
 }
 
-test("More shows the four tiles and the Settings row, and each opens its page", async ({
+test("More shows the four tiles, the Insights and Settings rows, and each opens its page", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
@@ -82,11 +82,13 @@ test("More shows the four tiles and the Settings row, and each opens its page", 
     en.more.categories,
   );
   await expect(moreTile(page, "/settings")).toContainText(en.more.settingsHint);
+  await expect(moreTile(page, "/insights")).toContainText(en.more.insightsNone);
 
   const targets = [
     { href: "/budgets", url: /\/budgets$/ },
     { href: "/goals", url: /\/goals$/ },
     { href: "/trips", url: /\/trips$/ },
+    { href: "/insights", url: /\/insights$/ },
     { href: "/settings/categories", url: /\/settings\/categories$/ },
     { href: "/settings", url: /\/settings$/ },
   ];
@@ -97,7 +99,7 @@ test("More shows the four tiles and the Settings row, and each opens its page", 
   }
 });
 
-test("More is the current page on More, Budgets, Goals, Trips and Settings, and Home is not", async ({
+test("More is the current page on More, Budgets, Goals, Trips, Insights and Settings, and Home is not", async ({
   page,
 }) => {
   await signUpAndConfirm(page);
@@ -105,7 +107,14 @@ test("More is the current page on More, Budgets, Goals, Trips and Settings, and 
     "aria-current",
     "page",
   );
-  for (const path of ["/more", "/budgets", "/goals", "/trips", "/settings"]) {
+  for (const path of [
+    "/more",
+    "/budgets",
+    "/goals",
+    "/trips",
+    "/insights",
+    "/settings",
+  ]) {
     await page.goto(path);
     await expect(navLink(page, en.nav.more), path).toHaveAttribute(
       "aria-current",
