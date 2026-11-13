@@ -16,7 +16,7 @@ import {
   type CategoryInfo,
   type CategoryRow,
   type ExpenseItem,
-  type IncomeSource,
+  type CategoryShare,
   MIN_FULL_MONTHS,
   type MonthTotals,
   type NormalMonth,
@@ -142,8 +142,10 @@ function rankCategories(
     (a, b) =>
       b.total.minor - a.total.minor || a.name.localeCompare(b.name, "en"),
   );
-  const result = ranked.slice(0, top);
-  const cut = new Set(ranked.slice(top).map((item) => item.categoryId));
+  // A single leftover category keeps its name, unless entries without a category would share its row
+  const keep = ranked.length === top + 1 && other.size === 0 ? top + 1 : top;
+  const result = ranked.slice(0, keep);
+  const cut = new Set(ranked.slice(keep).map((item) => item.categoryId));
   for (const [id, bucket] of named) {
     if (!cut.has(id)) continue;
     for (const [month, amount] of bucket.cells) {
@@ -176,14 +178,14 @@ export function usualByCategory(
   );
 }
 
-// Where income came from over the months, with each source's share of the total
-export function incomeSources(
+// Each category's total and share over the months: where money came from, and one month's pie
+export function categoryShares(
   rows: readonly CategoryRow[],
   months: readonly string[],
   categories: ReadonlyMap<string, CategoryInfo>,
   currency: CurrencyCode,
   top: number,
-): IncomeSource[] {
+): CategoryShare[] {
   const ranked = rankCategories(rows, months, categories, currency, top);
   const grand = sum(
     ranked.map((item) => item.total),

@@ -18,7 +18,14 @@ const items = [
 const ADD_HREF = "/transactions/new";
 
 // More also lights up on the pages it opens
-const MORE_PAGES = ["/more", "/budgets", "/goals", "/trips", "/settings"];
+const MORE_PAGES = [
+  "/more",
+  "/budgets",
+  "/goals",
+  "/trips",
+  "/insights",
+  "/settings",
+];
 
 function startsWithPage(pathname: string, page: string): boolean {
   return pathname === page || pathname.startsWith(`${page}/`);

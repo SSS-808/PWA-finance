@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { LoadingStatus, Skeleton } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
-import { MoreTiles, getMoreStatus } from "@/modules/more";
+import { InsightsRow, MoreTiles, getMoreStatus } from "@/modules/more";
 
 export default function MorePage() {
   return (
@@ -13,6 +13,7 @@ export default function MorePage() {
         fallback={
           <div className="space-y-3">
             <LoadingStatus />
+            <Skeleton className="h-16 rounded-2xl" />
             <div className="grid grid-cols-2 gap-3">
               <Skeleton className="h-28 rounded-2xl" />
               <Skeleton className="h-28 rounded-2xl" />
@@ -52,5 +53,11 @@ export default function MorePage() {
 }
 
 async function MoreContent() {
-  return <MoreTiles status={await getMoreStatus()} />;
+  const status = await getMoreStatus();
+  return (
+    <div className="space-y-3">
+      <InsightsRow normalOut={status.insights} />
+      <MoreTiles status={status} />
+    </div>
+  );
 }
