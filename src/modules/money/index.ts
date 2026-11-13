@@ -9,6 +9,7 @@ export {
   add,
   subtract,
   negate,
+  divide,
   sum,
   sumByCurrency,
   isZero,

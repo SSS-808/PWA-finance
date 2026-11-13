@@ -50,6 +50,17 @@ export function negate(value: Money): Money {
   return money(0 - value.minor, value.currency);
 }
 
+// Splits evenly and rounds half away from zero to a whole minor unit; by must be a whole number of at least 1
+export function divide(value: Money, by: number): Money {
+  if (!Number.isSafeInteger(by) || by < 1) {
+    throw new RangeError(`Cannot divide by ${by}`);
+  }
+  const abs = Math.abs(value.minor);
+  const remainder = abs % by;
+  const quotient = (abs - remainder) / by + (remainder * 2 >= by ? 1 : 0);
+  return money(value.minor < 0 ? 0 - quotient : quotient, value.currency);
+}
+
 export function sum(items: readonly Money[], currency: CurrencyCode): Money {
   return items.reduce(add, zero(currency));
 }

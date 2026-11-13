@@ -43,8 +43,9 @@ All data access happens on the server. The browser only renders pages and submit
 | `categories` | Default and custom categories | `listCategories(kind)` |
 | `transactions` | Income, expense, transfer, adjustment; history filters | `createTransaction`, `createTransfer`, `listTransactions(filters)` |
 | `dashboard` | Monthly summary, totals per currency | `getMonthSummary(month)` |
+| `analytics` | Insights: trends, averages, biggest expenses, budgets kept | `getInsights()` |
 
-Later phases add `budgets`, `goals`, `networth`, `investments` and `analytics`.
+Later phases add `budgets`, `goals`, `networth` and `investments`.
 
 **Boundary rules** (enforced with ESLint `no-restricted-imports` in Phase 1):
 
