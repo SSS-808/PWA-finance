@@ -57,7 +57,8 @@ test("main pages open offline even if never opened, and log-out forgets them", a
   // Add opens from its saved copy, Transfer is greyed, and an expense waits on the phone
   await openAddForm(page);
   await expect(transferButton(page)).toHaveAttribute("aria-disabled", "true");
-  await transferButton(page).click();
+  // Playwright won't tap an aria-disabled button, but a finger can, and gets the toast
+  await transferButton(page).click({ force: true });
   await expect(
     page
       .locator("[data-sonner-toast]")
