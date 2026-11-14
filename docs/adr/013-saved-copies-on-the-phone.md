@@ -1,6 +1,6 @@
 # ADR-013: The phone keeps copies of the pages you view, and forgets them at log-out
 
-**Status:** Accepted · 2026-11-02
+**Status:** Superseded by [ADR-017](017-no-offline.md) · 2026-11-14 (accepted 2026-11-02)
 
 ## In plain words
 A small helper script lives in the phone's browser, between the app and the internet. It works like a photocopier: each time a page that only shows data loads online, it keeps a copy. When the server can't be reached (no internet, or the VPN is off in Laos), it shows the last copy with a banner, "Offline. Saved copy from Nov 2, 2:05 PM", and swaps in fresh numbers once the server answers again. Forms are never kept, so nothing can be added or changed offline yet. The copies are deleted whenever a login screen shows, so logging out leaves nothing behind.
