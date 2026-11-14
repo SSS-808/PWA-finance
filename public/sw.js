@@ -105,9 +105,9 @@ async function saveMainPages() {
         signal: AbortSignal.timeout(BACKGROUND_WAIT_MS),
       });
       if (!isSavablePage(response)) return;
-      const html = await response.clone().text();
+      // Files first, so a saved copy never exists without the code it needs
+      await saveFiles(await response.clone().text());
       await save(PAGES, url, response, MAX_PAGES);
-      await saveFiles(html);
     } catch {
       return;
     }
