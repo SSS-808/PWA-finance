@@ -84,12 +84,7 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
 test("signed-out pages have no accessibility problems", async ({ page }) => {
   for (const scheme of schemes) {
     await page.emulateMedia({ colorScheme: scheme });
-    for (const path of [
-      "/login",
-      "/forgot-password",
-      "/no-such-page",
-      "/offline",
-    ]) {
+    for (const path of ["/login", "/forgot-password", "/no-such-page"]) {
       await checkPage(page, path, scheme);
     }
   }

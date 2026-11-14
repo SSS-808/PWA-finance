@@ -10,7 +10,7 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
-    // The offline helper stays off except in offline.spec.ts, so other tests always see the server
+    // The clean-up helper in public/sw.js has no use in tests, so it never starts
     serviceWorkers: "block",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

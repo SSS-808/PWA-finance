@@ -100,13 +100,7 @@ Run-permission for RPC functions is taken away from `public` and `anon` and give
 
 Decision: [ADR-013](adr/013-saved-copies-on-the-phone.md).
 
-- The offline helper (`public/sw.js`) keeps copies of view pages (Home, Accounts, History, Budgets, Goals) in the browser's Cache Storage. They contain personal data, so:
-  - only same-origin `GET` page loads that come back `200` as HTML are kept; redirects (to /login, for example) never are, including in the background saving of the five main pages;
-  - forms, Settings, the CSV download and login pages are never kept;
-  - the login, sign-up and forgot-password screens delete every `pages-` cache (`ForgetSavedPages`), so log-out and an expired session clear them.
-- If a session expires while offline, the copies stay until the app is next online. The phone's lock protects them.
-- Other sites can't read the copies: Cache Storage belongs to one web address.
-- Every test except `tests/e2e/offline.spec.ts` blocks the helper, so they always talk to the server.
+- Since 2026-11-14 the app keeps no copies of pages on the phone ([ADR-017](adr/017-no-offline.md)). `public/sw.js` only deletes what the old offline helper saved, then removes itself.
 
 ## 11. Later
 

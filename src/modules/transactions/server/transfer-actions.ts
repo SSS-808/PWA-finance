@@ -5,7 +5,6 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { listAccounts } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
-import { RELEASE_GOALS_FIELD } from "../domain/overspend";
 import { fieldErrorsFrom } from "../domain/schemas";
 import {
   type TransferOutput,
@@ -138,10 +137,7 @@ export async function createTransfer(
   if (error) return databaseErrorState(error);
 
   await rememberAccount(built.args.p_from_account);
-  await releaseGoalMoney(
-    built.args.p_from_account,
-    formData.get(RELEASE_GOALS_FIELD) === "1",
-  );
+  await releaseGoalMoney(formData, built.args.p_from_account);
   redirect(withParam(savedTarget(returnTo), "saved_transfer", data));
 }
 
@@ -170,10 +166,7 @@ export async function updateTransfer(
   });
   if (error) return databaseErrorState(error);
 
-  await releaseGoalMoney(
-    built.args.p_from_account,
-    formData.get(RELEASE_GOALS_FIELD) === "1",
-  );
+  await releaseGoalMoney(formData, built.args.p_from_account);
   redirect(`/transactions?saved_transfer=${transferId}`);
 }
 
