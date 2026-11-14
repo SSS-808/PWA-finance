@@ -125,7 +125,11 @@ async function saveShell() {
 
 // The build files a page needs to work, not just show: Add must run its code offline
 async function saveFiles(html) {
-  const files = html.match(/\/_next\/static\/[^"'\s)]+/g) ?? [];
+  // Page data lists files inside escaped text, sometimes without the /_next/ start
+  const found = html.match(/(?:\/_next\/)?static\/[^"'\s)\\]+/g) ?? [];
+  const files = found.map((file) =>
+    file.startsWith("/_next/") ? file : `/_next/${file}`,
+  );
   const cache = await caches.open(FILES);
   await Promise.all(
     [...new Set(files)].map(async (file) => {
