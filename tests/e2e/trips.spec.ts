@@ -337,7 +337,8 @@ test("an entry outside the trip's days can be given the trip when edited", async
   await tripBox(page).selectOption({ label: label ?? "" });
   await expect(shown(page.getByText(filledIn))).toHaveCount(0);
   await saveButton(page).click();
-  await waitForSaved(page);
+  // The Edit address already passes waitForSaved, so wait for History instead
+  await expect(page).toHaveURL(/\/transactions$/);
 
   await page.goto(tripUrl);
   const summary = shown(
