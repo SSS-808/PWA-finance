@@ -41,6 +41,16 @@ export type TransactionErrorKey = (typeof TRANSACTION_ERROR_KEYS)[number];
 export type EntryFieldName =
   "kind" | "amount" | "accountId" | "categoryId" | "date" | "note" | "tripId";
 
+export const ENTRY_FIELDS = [
+  "kind",
+  "amount",
+  "accountId",
+  "categoryId",
+  "date",
+  "note",
+  "tripId",
+] as const satisfies readonly EntryFieldName[];
+
 export type EntryFormValues = {
   kind: EntryKind;
   amount: string;
