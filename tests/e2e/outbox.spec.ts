@@ -202,9 +202,9 @@ test("an entry the server refuses is listed with a reason", async ({
     .click();
   await expect(page).toHaveURL(/\/accounts$/);
 
-  await page.goto("/waiting");
+  // Opening a page sends by itself, so the refusal arrives without Send now
   await unblockSends(page);
-  await page.getByRole("button", { name: en.outbox.sendNow }).click();
+  await page.goto("/waiting");
   await expect(
     shown(
       page.getByRole("heading", {

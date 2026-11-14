@@ -105,7 +105,9 @@ async function saveMainPages() {
         signal: AbortSignal.timeout(BACKGROUND_WAIT_MS),
       });
       if (!isSavablePage(response)) return;
+      const html = await response.clone().text();
       await save(PAGES, url, response, MAX_PAGES);
+      await saveFiles(html);
     } catch {
       return;
     }
@@ -118,10 +120,18 @@ async function saveShell() {
   if (!response.ok) return;
   const html = await response.clone().text();
   await (await caches.open(SHELL)).put(OFFLINE_URL, response);
+  await saveFiles(html);
+}
+
+// The build files a page needs to work, not just show: Add must run its code offline
+async function saveFiles(html) {
   const files = html.match(/\/_next\/static\/[^"'\s)]+/g) ?? [];
   const cache = await caches.open(FILES);
   await Promise.all(
-    [...new Set(files)].map((file) => cache.add(file).catch(() => {})),
+    [...new Set(files)].map(async (file) => {
+      if (await cache.match(file)) return;
+      await cache.add(file).catch(() => {});
+    }),
   );
 }
 
