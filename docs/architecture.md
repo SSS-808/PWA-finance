@@ -6,7 +6,7 @@ Phase 0 · 2026-10-09 · Decisions: [ADR-002 Modular monolith](adr/002-modular-m
 
 ```
 Phone / desktop browser (installable PWA)
-  └─ public/sw.js       offline helper: keeps copies of view pages, shows them when the server can't be reached (ADR-013)
+  └─ public/sw.js       clean-up helper only: removes the old offline helper from phones (ADR-017)
         │  HTTPS
         ▼
 Next.js app on Vercel  ── one deployable app, split into modules
@@ -120,7 +120,7 @@ Changes from the brief's suggested structure, and why:
 - **Writes:** Server Actions in `server/actions.ts`. Each one does: check the user → Zod → database → revalidate → return a typed result.
 - **State:** filters, month and sort order live in the URL (`?month=2026-10&account=…`). Form state lives in React. There is no global store (no Zustand) in the MVP.
 - **Errors:** actions return `{ ok: true, data } | { ok: false, error: { message, fieldErrors? } }`. Raw database errors are logged on the server and never sent to the browser.
-- **Offline (Phase 11):** the helper in `public/sw.js` tries the server first. If there's no answer within 4 seconds, it shows the last saved copy of a view page (the five main pages are also saved in the background whenever the app is online), and `OfflineBanner` (`src/components/shared/offline.tsx`) says so and refreshes the data once the server answers. Pages it hasn't saved get `/offline`. Nothing can be added or changed offline yet. See [ADR-013](adr/013-saved-copies-on-the-phone.md).
+- **Offline:** none. The app needs the internet for every page. The offline helper from Phase 11 was removed on 2026-11-14; `public/sw.js` is now a clean-up helper that deletes the copies it kept on phones and removes itself. See [ADR-017](adr/017-no-offline.md).
 - **Dates:** transaction dates are plain `YYYY-MM-DD` strings. "Today" is worked out in your time zone with `Intl.DateTimeFormat`. No date library in the MVP.
 
 ## 7. Where calculations run
