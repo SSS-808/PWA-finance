@@ -1,6 +1,6 @@
 # Adding entries offline (planned 2026-11-13)
 
-Status: **planned, nothing built.** The owner answered "defaults" on 2026-11-13. Next step: mockups, then the build after the owner's OK. Roadmap order item 4.
+Status: **built on dev (steps 1–2), not released.** The owner answered "defaults" on 2026-11-13; mockups approved the same day. Roadmap order item 4.
 
 ## In plain words
 With no internet, Add saves the entry into a small **outbox** on the phone, like writing a receipt on a notepad when the bank is closed. When the app is open and online again, the outbox sends each entry to the server, which checks it exactly like a normal Add.

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { en } from "@/messages/en";
 import { EmptyAccounts, listAccounts } from "@/modules/accounts";
-import { safeNextPath } from "@/modules/auth";
+import { requireUser, safeNextPath } from "@/modules/auth";
 import { listCategories } from "@/modules/categories";
 import { listGoalMoneyByAccount } from "@/modules/goals";
 import { getProfile, todayIn } from "@/modules/profile";
@@ -10,6 +10,7 @@ import { formatTripDays, listTrips } from "@/modules/trips";
 import {
   AddForm,
   readLastAccountId,
+  savedTarget,
   toAccountOptions,
 } from "@/modules/transactions";
 
@@ -46,6 +47,7 @@ async function NewEntry({
     lastId,
     goalMoney,
     trips,
+    user,
   ] = await Promise.all([
     getProfile(),
     listAccounts(),
@@ -54,6 +56,7 @@ async function NewEntry({
     readLastAccountId(),
     listGoalMoneyByAccount(),
     listTrips(),
+    requireUser(),
   ]);
   const active = accounts.filter((account) => !account.archived);
   const first = active[0];
@@ -68,6 +71,8 @@ async function NewEntry({
     );
   }
 
+  const returnTo = safeNextPath(typeof from === "string" ? from : null);
+
   // The remembered account is used only while it is still active
   const defaultAccountId = active.some((account) => account.id === lastId)
     ? (lastId ?? first.id)
@@ -78,7 +83,10 @@ async function NewEntry({
       title={en.transactions.addTitle}
       // A new key per visit: Next keeps the old form of an earlier visit, with stale values
       key={crypto.randomUUID()}
-      returnTo={safeNextPath(typeof from === "string" ? from : null)}
+      returnTo={returnTo}
+      savedTo={savedTarget(returnTo)}
+      userId={user.id}
+      timeZone={profile.timeZone}
       initialKind={kind === "income" ? "income" : "expense"}
       accounts={toAccountOptions(active, goalMoney)}
       expenseCategories={expenseCategories}

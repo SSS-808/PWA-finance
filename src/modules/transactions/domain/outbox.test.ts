@@ -4,6 +4,10 @@ import {
   type OutboxInput,
   type OutboxResult,
   applyResult,
+  OUTBOX_EVENT,
+  OUTBOX_SEND_EVENT,
+  OUTBOX_WAIT_MS,
+  fieldsFromForm,
   fromOtherUsers,
   newOutboxEntry,
   outboxCounts,
@@ -12,6 +16,7 @@ import {
   stopsSending,
   toOutboxInput,
   toSend,
+  withParam,
 } from "./outbox";
 
 const ME = "11111111-1111-4111-8111-111111111111";
@@ -203,5 +208,51 @@ describe("stopsSending", () => {
       false,
       true,
     ]);
+  });
+});
+
+describe("constants", () => {
+  it("names the wait and the two events", () => {
+    expect(OUTBOX_WAIT_MS).toBe(4000);
+    expect(OUTBOX_EVENT).toBe("outbox-changed");
+    expect(OUTBOX_SEND_EVENT).toBe("outbox-send-now");
+  });
+});
+
+describe("fieldsFromForm", () => {
+  it("reads every field from the form data", () => {
+    const data = new FormData();
+    for (const [name, value] of Object.entries(input.fields)) {
+      data.set(name, value);
+    }
+    expect(fieldsFromForm(data)).toEqual(input.fields);
+  });
+
+  it("turns missing and non-text values into empty text", () => {
+    const data = new FormData();
+    data.set("amount", "5");
+    data.set("note", new File(["x"], "x.txt"));
+    const fields = fieldsFromForm(data);
+    expect(fields.amount).toBe("5");
+    expect(fields.note).toBe("");
+    expect(fields.kind).toBe("");
+  });
+});
+
+describe("withParam", () => {
+  it("adds a value to a path", () => {
+    expect(withParam("/transactions", "saved", "abc")).toBe(
+      "/transactions?saved=abc",
+    );
+  });
+
+  it("keeps the other query and the hash", () => {
+    expect(withParam("/transactions?month=2026-11#top", "saved", "abc")).toBe(
+      "/transactions?month=2026-11&saved=abc#top",
+    );
+  });
+
+  it("replaces a value that is already there", () => {
+    expect(withParam("/?saved=old", "saved", "new")).toBe("/?saved=new");
   });
 });

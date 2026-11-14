@@ -35,7 +35,8 @@ export {
 } from "./server/queries";
 export { readLastAccountId } from "./server/last-account";
 export { toAccountOptions } from "./server/account-options";
-export { createEntry, deleteEntry, updateEntry } from "./server/actions";
+export { deleteEntry, updateEntry } from "./server/actions";
+export { savedTarget } from "./server/saved-target";
 export {
   createTransfer,
   deleteTransfer,
@@ -47,5 +48,9 @@ export { DeleteTransferButton } from "./ui/delete-transfer-button";
 export { EntryForm } from "./ui/entry-form";
 export { HistoryFilterBar, monthLabel } from "./ui/history-filters";
 export { HistoryList } from "./ui/history-list";
+export { LogoutGuard } from "./ui/logout-guard";
+export { OutboxLine } from "./ui/outbox-line";
+export { OutboxSender } from "./ui/outbox-sender";
 export { SavedNotice } from "./ui/saved-notice";
 export { TransferForm } from "./ui/transfer-form";
+export { WaitingList } from "./ui/waiting-list";

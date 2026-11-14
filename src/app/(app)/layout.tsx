@@ -1,6 +1,13 @@
 import { Suspense } from "react";
 import { AppNav, AppNavFrame } from "@/components/shared/app-nav";
 import { OfflineBanner } from "@/components/shared/offline";
+import { getCurrentUser } from "@/modules/auth";
+import { OutboxSender } from "@/modules/transactions";
+
+async function Sender() {
+  const user = await getCurrentUser();
+  return user ? <OutboxSender userId={user.id} /> : null;
+}
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -11,6 +18,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       </Suspense>
       <main className="flex-1 px-4 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:px-8 lg:pb-8">
         <OfflineBanner />
+        <Suspense fallback={null}>
+          <Sender />
+        </Suspense>
         {children}
       </main>
     </div>

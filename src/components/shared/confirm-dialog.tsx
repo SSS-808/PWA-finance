@@ -12,6 +12,7 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel,
   extra,
+  risky = false,
   onConfirm,
   onCancel,
 }: {
@@ -22,6 +23,8 @@ export function ConfirmDialog({
   cancelLabel: string;
   // A second action between confirm and cancel
   extra?: { label: string; onClick: () => void };
+  // Confirming loses data, so cancel becomes the main, focused button and confirm turns red
+  risky?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -29,17 +32,30 @@ export function ConfirmDialog({
   const bodyId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      confirmRef.current?.focus();
+      (risky ? cancelRef : confirmRef).current?.focus();
     } else if (!open && dialog.open) {
       dialog.close();
     }
-  }, [open]);
+  }, [open, risky]);
+
+  const cancelButton = (
+    <Button
+      ref={cancelRef}
+      type="button"
+      variant={risky ? "default" : "outline"}
+      className="h-12 w-full text-base"
+      onClick={onCancel}
+    >
+      {cancelLabel}
+    </Button>
+  );
 
   return (
     <dialog
@@ -71,9 +87,11 @@ export function ConfirmDialog({
           {children}
         </div>
         <div className="space-y-3">
+          {risky ? cancelButton : null}
           <Button
             ref={confirmRef}
             type="button"
+            variant={risky ? "destructive" : "default"}
             className="h-12 w-full text-base"
             onClick={onConfirm}
           >
@@ -88,14 +106,7 @@ export function ConfirmDialog({
               {extra.label}
             </Button>
           ) : null}
-          <Button
-            type="button"
-            variant="outline"
-            className="h-12 w-full text-base"
-            onClick={onCancel}
-          >
-            {cancelLabel}
-          </Button>
+          {risky ? null : cancelButton}
         </div>
       </div>
     </dialog>

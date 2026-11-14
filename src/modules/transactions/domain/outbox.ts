@@ -8,6 +8,13 @@ import {
 
 export type OutboxFields = Record<EntryFieldName, string>;
 
+// Same as WAIT_MS in public/sw.js
+export const OUTBOX_WAIT_MS = 4000;
+
+// Fired on window when the outbox changed, and to ask the sender to try now
+export const OUTBOX_EVENT = "outbox-changed";
+export const OUTBOX_SEND_EVENT = "outbox-send-now";
+
 export type OutboxEntry = {
   // Made on the phone with crypto.randomUUID(), becomes transactions.id
   id: string;
@@ -132,4 +139,23 @@ export function outboxCounts(
 // The rest of the batch waits for the next try
 export function stopsSending(result: OutboxResult): boolean {
   return result.status === "signed_out" || result.status === "failed";
+}
+
+// The form's values as the outbox keeps them; anything that is not text becomes empty
+export function fieldsFromForm(data: {
+  get(name: string): unknown;
+}): OutboxFields {
+  const fields = {} as OutboxFields;
+  for (const name of ENTRY_FIELDS) {
+    const value = data.get(name);
+    fields[name] = typeof value === "string" ? value : "";
+  }
+  return fields;
+}
+
+// Adds one value to a path on our own site, keeping any other query it has
+export function withParam(path: string, name: string, value: string): string {
+  const url = new URL(path, "http://localhost");
+  url.searchParams.set(name, value);
+  return `${url.pathname}${url.search}${url.hash}`;
 }

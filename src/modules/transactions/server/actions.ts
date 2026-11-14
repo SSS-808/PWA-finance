@@ -13,39 +13,8 @@ import {
   invalidState,
   readValues,
 } from "./entry-rows";
-import { rememberAccount } from "./last-account";
 import { getEntry } from "./queries";
 import { releaseGoalMoney } from "./release-goals";
-import { savedTarget, withParam } from "./saved-target";
-
-export async function createEntry(
-  returnTo: string,
-  _prev: EntryFormState,
-  formData: FormData,
-): Promise<EntryFormState> {
-  await requireUser();
-  const parsed = entrySchema.safeParse(readValues(formData));
-  if (!parsed.success) return invalidState(parsed.error);
-  const built = await buildRow(parsed.data);
-  if (!built.ok) return built.state;
-
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("transactions")
-    .insert(built.row)
-    .select("id")
-    .single();
-  if (error) return databaseErrorState(error);
-
-  await rememberAccount(built.row.account_id);
-  if (built.row.kind === "expense") {
-    await releaseGoalMoney(
-      built.row.account_id,
-      formData.get(RELEASE_GOALS_FIELD) === "1",
-    );
-  }
-  redirect(withParam(savedTarget(returnTo), "saved", data.id));
-}
 
 export async function updateEntry(
   id: string,

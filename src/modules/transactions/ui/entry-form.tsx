@@ -2,12 +2,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plane, X } from "lucide-react";
-import { startTransition, useActionState, useId, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useId,
+  useState,
+} from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import { AmountInput } from "@/components/shared/amount-input";
+import { useOnline } from "@/components/shared/use-online";
 import { SubmitButton } from "@/components/shared/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { todayIn } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import {
@@ -39,10 +48,11 @@ import {
   type TransactionErrorKey,
   type TripOption,
 } from "../domain/types";
-import { createEntry, updateEntry } from "../server/actions";
+import { updateEntry } from "../server/actions";
 import { CategoryPicker } from "./category-picker";
 import { ADD_KINDS, KindSwitch } from "./kind-switch";
 import { OverspendDialog, useOverspend } from "./overspend-dialog";
+import { useAddSave } from "./use-add-save";
 
 type EntryFormProps = {
   title: string;
@@ -53,10 +63,15 @@ type EntryFormProps = {
 } & (
   | {
       mode: "create";
-      returnTo: string;
+      userId: string;
+      timeZone: string;
+      // Where to go after the entry is saved
+      savedTo: string;
       defaultAccountId: string;
       today: string;
       initialKind: EntryKind;
+      // The entry was kept on the phone, so the form starts again empty
+      onKept: (kind: EntryKind) => void;
       // The Add page offers Transfer as a third choice, shown by its own form
       onTransfer: () => void;
     }
@@ -124,16 +139,19 @@ export function EntryForm(props: EntryFormProps) {
   const uid = useId();
   // The same values go to the form library and to the server-rendered HTML
   const initial = startValues(props);
-  const action =
-    props.mode === "edit"
-      ? updateEntry.bind(null, props.id)
-      : createEntry.bind(null, props.returnTo);
-  const [state, formAction, pending] = useActionState(action, idleState);
+  const create = props.mode === "create" ? props : null;
+  // In create mode this action is never used; Add saves through the outbox hook
+  const [editState, formAction, editPending] = useActionState(
+    updateEntry.bind(null, props.mode === "edit" ? props.id : ""),
+    idleState,
+  );
+  const online = useOnline();
   const {
     register,
     handleSubmit,
     control,
     setValue,
+    getValues,
     clearErrors,
     formState: { errors },
   } = useForm<EntryInput, unknown, EntryOutput>({
@@ -150,6 +168,33 @@ export function EntryForm(props: EntryFormProps) {
   const account = props.accounts.find((a) => a.id === accountId);
   const currency = account?.currency;
   const overspend = useOverspend();
+  const addSave = useAddSave({
+    userId: create?.userId ?? "",
+    savedTo: create?.savedTo ?? "/transactions",
+    onKept: () => create?.onKept(kind),
+  });
+  const state = create ? addSave.state : editState;
+  const pending = create ? addSave.pending : editPending;
+
+  function submit(data: FormData) {
+    if (create) void addSave.save(data);
+    else startTransition(() => formAction(data));
+  }
+
+  // A saved copy of Add can be opened on a later day, so the date and trip catch up
+  useEffect(() => {
+    if (!create) return;
+    const phoneToday = todayIn(create.timeZone);
+    if (phoneToday === create.today || getValues("date") !== create.today) {
+      return;
+    }
+    setValue("date", phoneToday);
+    if (followsDate) {
+      setValue("tripId", tripForDate(create.trips, phoneToday)?.id ?? "");
+    }
+    // Only once, when the form opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const categories =
     kind === "income" ? props.incomeCategories : props.expenseCategories;
 
@@ -177,7 +222,7 @@ export function EntryForm(props: EntryFormProps) {
   return (
     <>
       <form
-        action={formAction}
+        action={create ? undefined : formAction}
         noValidate
         onSubmit={handleSubmit((values, event) => {
           const form = event?.target;
@@ -188,7 +233,7 @@ export function EntryForm(props: EntryFormProps) {
             overspend.ask({ data, ...warning });
             return;
           }
-          startTransition(() => formAction(data));
+          submit(data);
         })}
         className="space-y-6"
       >
@@ -219,9 +264,12 @@ export function EntryForm(props: EntryFormProps) {
         <KindSwitch
           kinds={props.mode === "create" ? ADD_KINDS : ENTRY_KINDS}
           value={kind}
+          transferOffline={create !== null && !online}
           onChange={(next) => {
             if (next === "transfer") {
-              if (props.mode === "create") props.onTransfer();
+              if (!create) return;
+              if (online) create.onTransfer();
+              else toast(en.outbox.transferOffline);
             } else {
               chooseKind(next);
             }
@@ -395,10 +443,7 @@ export function EntryForm(props: EntryFormProps) {
           <FieldMessage id={`${uid}-note-error`} error={noteError} />
         </div>
       </form>
-      <OverspendDialog
-        control={overspend}
-        onSave={(data) => startTransition(() => formAction(data))}
-      />
+      <OverspendDialog control={overspend} onSave={submit} />
     </>
   );
 }

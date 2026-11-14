@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { LogoutButton, requireUser } from "@/modules/auth";
 import { ProfileForm, getProfile, timeZoneOptions } from "@/modules/profile";
+import { LogoutGuard } from "@/modules/transactions";
 
 const cardClass = "overflow-hidden rounded-2xl border border-border bg-card";
 
@@ -122,7 +123,9 @@ export default function SettingsPage() {
               label={en.settings.account.changePassword}
             />
           </Link>
-          <LogoutButton />
+          <Suspense fallback={null}>
+            <GuardedLogout />
+          </Suspense>
         </div>
       </section>
     </div>
@@ -150,5 +153,14 @@ async function AccountEmail() {
       </dt>
       <dd className="text-base break-all">{user.email}</dd>
     </dl>
+  );
+}
+
+async function GuardedLogout() {
+  const user = await requireUser();
+  return (
+    <LogoutGuard userId={user.id}>
+      <LogoutButton />
+    </LogoutGuard>
   );
 }

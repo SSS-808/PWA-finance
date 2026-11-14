@@ -1,7 +1,7 @@
 // The offline helper: keeps a copy of each page that only shows data, so the app opens without internet (docs/adr/013)
 
 // Bump the version to drop every cache from older helpers
-const VERSION = "v4";
+const VERSION = "v5";
 // Personal data: the login screens delete every cache that starts with "pages-"
 const PAGES = `pages-${VERSION}`;
 const FILES = `files-${VERSION}`;
@@ -26,13 +26,15 @@ const MAIN_PAGES = [
   "/more",
   "/trips",
   "/insights",
+  "/transactions/new",
+  "/waiting",
 ];
 // A copy younger than this isn't fetched again, so the server sees at most 5 extra loads per half hour
 const FRESH_MS = 30 * 60 * 1000;
 const BACKGROUND_WAIT_MS = 15000;
 
 const ID = "[0-9a-f-]{36}";
-// Only pages that show data; forms, Settings, downloads and login pages are never kept
+// Pages that show data, plus Add (it can save offline); other forms, Settings, downloads and login pages are never kept
 const VIEW_PAGES = [
   /^\/$/,
   /^\/accounts$/,
@@ -45,6 +47,8 @@ const VIEW_PAGES = [
   /^\/trips$/,
   new RegExp(`^/trips/${ID}$`),
   /^\/insights$/,
+  /^\/transactions\/new$/,
+  /^\/waiting$/,
 ];
 
 let missedAt = 0;
@@ -124,9 +128,10 @@ async function saveShell() {
 // Internet first; if it fails or is too slow, the last saved copy, else the offline page
 async function page(event) {
   const { request } = event;
-  const keep = VIEW_PAGES.some((pattern) =>
-    pattern.test(new URL(request.url).pathname),
-  );
+  const { pathname } = new URL(request.url);
+  const keep = VIEW_PAGES.some((pattern) => pattern.test(pathname));
+  // Add's links carry ?from=, but one saved copy serves them all
+  const ignoreSearch = pathname === "/transactions/new";
   const network = fetch(request).then(async (response) => {
     if (keep && isSavablePage(response)) {
       await save(PAGES, request, response.clone(), MAX_PAGES);
@@ -136,7 +141,11 @@ async function page(event) {
   // A late answer still refreshes the saved copy for next time
   event.waitUntil(network.catch(() => {}));
   const copy = keep
-    ? await caches.match(request, { cacheName: PAGES, ignoreVary: true })
+    ? await caches.match(request, {
+        cacheName: PAGES,
+        ignoreVary: true,
+        ignoreSearch,
+      })
     : undefined;
   const recentMiss = Date.now() - missedAt < MISS_MEMORY_MS;
   try {

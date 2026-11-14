@@ -16,10 +16,12 @@ import {
   getDashboard,
   mainFirst,
 } from "@/modules/dashboard";
+import { requireUser } from "@/modules/auth";
 import { getProfile, todayIn } from "@/modules/profile";
 import { TripLine, getCurrentTrip } from "@/modules/trips";
 import {
   HistoryList,
+  OutboxLine,
   SavedNotice,
   monthLabel,
   parseFilters,
@@ -51,7 +53,7 @@ async function HomeContent({
 }) {
   const params = await searchParams;
   const { notice, saved, saved_transfer: savedTransfer, deleted } = params;
-  const profile = await getProfile();
+  const [profile, user] = await Promise.all([getProfile(), requireUser()]);
   const today = todayIn(profile.timeZone);
   const currentMonth = today.slice(0, 7);
   // "all" and bad values fall back to this month
@@ -95,6 +97,7 @@ async function HomeContent({
               <CurrencyCard key={card.currency} card={card} />
             ))}
           </BalanceCarousel>
+          <OutboxLine userId={user.id} />
           {currentTrip !== null ? (
             <TripLine current={currentTrip} today={today} />
           ) : null}

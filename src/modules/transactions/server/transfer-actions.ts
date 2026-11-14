@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { listAccounts } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
+import { withParam } from "../domain/outbox";
 import { RELEASE_GOALS_FIELD } from "../domain/overspend";
 import { fieldErrorsFrom } from "../domain/schemas";
 import {
@@ -16,7 +17,7 @@ import type { TransferFieldName, TransferFormState } from "../domain/types";
 import { rememberAccount } from "./last-account";
 import { getTransfer } from "./queries";
 import { releaseGoalMoney } from "./release-goals";
-import { savedTarget, withParam } from "./saved-target";
+import { savedTarget } from "./saved-target";
 
 type TransferArgs = {
   p_from_account: string;
