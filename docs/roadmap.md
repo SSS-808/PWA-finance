@@ -20,7 +20,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 8 | Net worth and exchange rates | M | 4th in the new order |
 | 9 | Investments | L | Last: only once the owner invests |
 | 10 | Analytics | M | Done: released to the live site on 2026-11-13 (release PR #61). An Insights page under More: month-by-month bars, a pie for each month, a normal month, where money usually goes, biggest expenses, budgets kept and where money came from ([ADR-016](adr/016-insights-worked-out-on-open.md)) |
-| 11 | PWA and offline | M | Done: released to the live site on 2026-11-02 (release PR #42). Install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)), and the five main pages are saved in the background so they work offline without being opened first (PR #43). Adding entries offline is a later step. **Offline removed 2026-11-14** (owner): install stays, offline viewing and adding are gone ([ADR-017](adr/017-no-offline.md)). |
+| 11 | PWA and offline | M | Done: released to the live site on 2026-11-02 (release PR #42). Install on the phone with its own icon (PR #39), saved pages open offline and are forgotten at log-out (PR #40, [ADR-013](adr/013-saved-copies-on-the-phone.md)), and the five main pages are saved in the background so they work offline without being opened first (PR #43). Adding entries offline is a later step. **Offline removed 2026-11-14** (owner) and released the same day (release PR #65): install stays, offline viewing and adding are gone ([ADR-017](adr/017-no-offline.md)). |
 | 12 | Production hardening | M | 5th in the new order (small parts may come earlier) |
 
 ## Order from here (owner, 2026-11-02)
