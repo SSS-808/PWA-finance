@@ -758,4 +758,18 @@ export const en = {
       unknown: "Something went wrong. Please try again.",
     },
   },
+  shortcut: {
+    api: {
+      saved: "Saved: {category} {amount} ({account})",
+      duplicate: "Already saved.",
+      badKey:
+        "This key doesn't work. Make a new one in Settings → iPhone Shortcut.",
+      badRequest: 'Send JSON like {"amount": "25,000", "category": "Food"}.',
+      badAmount: "Couldn't read the amount. Send it like 25,000 or 12.50.",
+      accountArchived: "This key's account is archived. Make a new key.",
+      noCategory: 'No category matched and there is no "Other" category.',
+      tooMany: "Too many entries this hour. Try again later.",
+      unknown: "Couldn't save. Please try again.",
+    },
+  },
 } as const;

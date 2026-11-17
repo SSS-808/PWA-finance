@@ -351,6 +351,68 @@ export type Database = {
           },
         ];
       };
+      shortcut_keys: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          currency: string;
+          id: string;
+          key_hash: string;
+          last_used_at: string | null;
+          name: string;
+          user_id: string;
+          uses_in_window: number;
+          window_started_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          currency: string;
+          id?: string;
+          key_hash: string;
+          last_used_at?: string | null;
+          name: string;
+          user_id?: string;
+          uses_in_window?: number;
+          window_started_at?: string | null;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          key_hash?: string;
+          last_used_at?: string | null;
+          name?: string;
+          user_id?: string;
+          uses_in_window?: number;
+          window_started_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shortcut_keys_account_id_user_id_currency_fkey";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "account_balances";
+            referencedColumns: ["account_id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "shortcut_keys_account_id_user_id_currency_fkey";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "shortcut_keys_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       transaction_audit: {
         Row: {
           action: string;
@@ -630,6 +692,16 @@ export type Database = {
         };
         Returns: number;
       };
+      shortcut_add_expense: {
+        Args: {
+          p_amount_minor: number;
+          p_category: string;
+          p_key: string;
+          p_note: string;
+        };
+        Returns: Json;
+      };
+      shortcut_key_currency: { Args: { p_key: string }; Returns: string };
       update_account: {
         Args: {
           p_account_id: string;

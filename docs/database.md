@@ -472,6 +472,13 @@ Decision: [ADR-015](adr/015-trips-are-labels.md). Migration: `supabase/migration
 - `transactions.trip_id` is the optional label. The foreign key `(trip_id, user_id)` makes sure the trip belongs to the same person, and deleting the trip only clears the label (`on delete set null (trip_id)`). A check allows a trip only on income and expenses.
 - The function `label_trip_entries(p_trip_id)` gives the trip to every income and expense of its days that has no trip and isn't deleted, and returns how many it labelled. It runs with the caller's own access, so RLS still applies.
 
+### iPhone Shortcut keys (built 2026-11-17)
+
+Decision: [ADR-018](adr/018-shortcut-keys.md). Migration: `supabase/migrations/20261117120000_shortcut_keys.sql`.
+
+- `shortcut_keys (user_id, name, account_id, currency, key_hash, last_used_at, window_started_at, uses_in_window)`: a key that adds expenses to one account. The foreign key `(account_id, user_id, currency)` ties it to an account of the same person in that account's currency. `key_hash` is the SHA-256 of the key in hex; the key itself is never stored. A trigger allows 3 keys per person. People can read (not the hash or the counters), make and delete their own keys; nobody can change one.
+- `shortcut_key_currency(p_key)` and `shortcut_add_expense(p_key, p_amount_minor, p_category, p_note)` are `security definer` and run by `anon` only. They hash the key themselves. The second one returns a JSON `status`: `saved` (with the amount, currency, account and category), `bad_key`, `bad_amount`, `bad_note`, `account_archived`, `duplicate`, `too_many` or `no_category`.
+
 ### Still a sketch
 
 | Phase | Tables | Note |
