@@ -1,6 +1,6 @@
 # iPhone Shortcut: add an expense from a payment screenshot
 
-Status: planned 2026-11-17, owner answered "defaults". Next: mockup of the Settings screen, then build.
+Status: steps 1-2 on dev and staging 2026-11-17 (#66 database + /api/shortcut, #67 Settings screens), not live. Next: the guide once the own domain works, then a real iPhone test, then "release" (migration to prod first).
 
 ## In plain words
 Double-tap the back of the iPhone. A Shortcut screenshots the bank's payment screen, reads the amount with Live Text, lets you fix it, asks for a category and sends it to the app. The app answers with a notification: "Saved: Food −₭25,000 (BCEL)".

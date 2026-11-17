@@ -26,6 +26,7 @@ Shortcut ──POST /api/shortcut──► Vercel (route) ──► Supabase as 
 
 ## Consequences
 - These are the only functions open to `anon` and the only `security definer` functions in `public`. The key is their whole check, so each one starts by finding the key, and the composite foreign keys still make sure the account and category belong to the key's owner.
+- Supabase's security advisor warns about both functions ("Public Can Execute SECURITY DEFINER Function", lint 0028). That is this decision, not a mistake; any other function showing up there is.
 - A stolen key can add at most 30 expenses an hour to one account until it's deleted. It can't read anything.
 - Entries from the Shortcut look like any other entry: same rules, same audit log, editable in History.
 - The goal-money question from the Add form isn't asked; the goal page shows its usual warning if a payment dips into goal money.
