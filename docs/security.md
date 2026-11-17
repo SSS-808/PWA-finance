@@ -67,6 +67,8 @@ A Server Action looks like a function call, but under the hood it's a public POS
 
 Run-permission for RPC functions is taken away from `public` and `anon` and given only to `authenticated`.
 
+**The one exception:** the two iPhone Shortcut functions (`shortcut_key_currency`, `shortcut_add_expense`) are `security definer` in `public` and run by `anon` only, because the Shortcut has no login. Each one first finds the key by its hash and does nothing without it. See §11 and [ADR-018](adr/018-shortcut-keys.md).
+
 ## 7. Errors and logging
 
 - The UI shows friendly messages ("That account no longer exists"). It never shows raw Postgres errors, which can reveal table or column names.
@@ -102,7 +104,16 @@ Decision: [ADR-013](adr/013-saved-copies-on-the-phone.md).
 
 - Since 2026-11-14 the app keeps no copies of pages on the phone ([ADR-017](adr/017-no-offline.md)). `public/sw.js` only deletes what the old offline helper saved, then removes itself.
 
-## 11. Later
+## 11. iPhone Shortcut keys
+
+Decision: [ADR-018](adr/018-shortcut-keys.md).
+
+- A key is 32 random bytes (`pw_…`), shown once. The database keeps only its SHA-256 hash, and nobody, not even its owner, can read the hash back.
+- A key can only add an expense to its one account: no reading, changing or deleting. At most 3 keys, 30 entries per key per hour.
+- `POST /api/shortcut` is open in `proxy.ts` (no login), takes the key from the `Authorization` header (never the address), and logs only error codes, never the key, the amount or the note. Browsers can't call it from other sites, because a request with an `Authorization` header needs CORS approval, which the route never gives.
+- Lost phone: delete the key in Settings → iPhone Shortcut; it stops at once.
+
+## 12. Later
 
 - Content-Security-Policy and other security headers (Phase 12). The policy must allow the helper and the manifest: `worker-src 'self'` and `manifest-src 'self'`.
 - A dependency audit (`pnpm audit`) in CI.

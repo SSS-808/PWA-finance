@@ -12,7 +12,8 @@ Phone / desktop browser (installable PWA)
 Next.js app on Vercel  ── one deployable app, split into modules
   ├─ proxy.ts           refreshes the login cookie, redirects logged-out users (convenience only)
   ├─ Server Components  read data
-  └─ Server Actions     change data (check user → validate → call Supabase)
+  ├─ Server Actions     change data (check user → validate → call Supabase)
+  └─ /api/shortcut      the iPhone Shortcut adds an expense with its key (ADR-018)
         │  carries the user's login token, so RLS applies
         ▼
 Supabase
@@ -44,6 +45,7 @@ All data access happens on the server. The browser only renders pages and submit
 | `transactions` | Income, expense, transfer, adjustment; history filters | `createTransaction`, `createTransfer`, `listTransactions(filters)` |
 | `dashboard` | Monthly summary, totals per currency | `getMonthSummary(month)` |
 | `analytics` | Insights: trends, averages, biggest expenses, budgets kept | `getInsights()` |
+| `shortcut` | iPhone Shortcut keys and adding an expense with one | `addFromShortcut()` |
 
 Later phases add `budgets`, `goals`, `networth` and `investments`.
 
