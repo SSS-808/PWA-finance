@@ -74,6 +74,8 @@ test("signed-in pages have no accessibility problems", async ({ page }) => {
     `${tripPath}/edit`,
     "/settings",
     "/settings/categories",
+    "/settings/shortcut",
+    "/settings/shortcut/new",
   ];
   for (const scheme of schemes) {
     await page.emulateMedia({ colorScheme: scheme });
