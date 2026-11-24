@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
 import { HelpHint } from "@/components/shared/help-hint";
@@ -9,6 +10,7 @@ import {
 } from "@/components/shared/skeleton";
 import { ToastOnce } from "@/components/shared/toast-once";
 import { Button } from "@/components/ui/button";
+import { shortcutEnabled } from "@/lib/features";
 import { en } from "@/messages/en";
 import {
   AddressRow,
@@ -22,6 +24,7 @@ const text = en.shortcut.settings;
 export default function ShortcutSettingsPage({
   searchParams,
 }: PageProps<"/settings/shortcut">) {
+  if (!shortcutEnabled()) notFound();
   return (
     <div className="w-full max-w-md space-y-8">
       <BackLink href="/settings" label={text.backToSettings} />
