@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/modules/auth";
 import { getProfile, todayIn } from "@/modules/profile";
+import { JAR_TYPE } from "../domain/account-types";
 import {
   accountFieldsSchema,
   createAccountSchema,
@@ -183,6 +184,7 @@ async function setArchivedAt(
     .from("accounts")
     .update({ archived_at: archivedAt })
     .eq("id", id)
+    .neq("type", JAR_TYPE)
     .select("id");
   if (error?.code === "23505") return "name_taken";
   if (error) {
