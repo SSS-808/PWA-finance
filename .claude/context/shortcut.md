@@ -1,13 +1,13 @@
 # iPhone Shortcut: add an expense from a payment screenshot
 
-Status: steps 1-2 on dev and staging 2026-11-17 (#66 database + /api/shortcut, #67 Settings screens), not live. Next: the guide once the own domain works, then a real iPhone test, then "release" (migration to prod first).
+Status: steps 1-2 on dev and staging 2026-11-17 (#66 database + /api/shortcut, #67 Settings screens), not live. The own domain `sss.fnsmaker.site` works (2026-11-24). Next: the guide, then a real iPhone test, then "release" (migration to prod first).
 
 ## In plain words
 Double-tap the back of the iPhone. A Shortcut screenshots the bank's payment screen, reads the amount with Live Text, lets you fix it, asks for a category and sends it to the app. The app answers with a notification: "Saved: Food −₭25,000 (BCEL)".
 
 ```
 Back Tap → screenshot → Live Text → confirm amount → pick category
-  → POST https://<domain>/api/shortcut  (Authorization: Bearer pw_…)
+  → POST https://sss.fnsmaker.site/api/shortcut  (Authorization: Bearer pw_…)
   → "Saved: Food −₭25,000 (BCEL)"
 ```
 
@@ -33,10 +33,10 @@ Back Tap → screenshot → Live Text → confirm amount → pick category
 1. Mockup of the Settings screen (key list, make a key, the shown-once key).
 2. PR 1: migration (`shortcut_keys` with RLS, the save functions, pgTAP), `src/app/api/shortcut/route.ts`, proxy open path, ADR-018.
 3. PR 2: Settings screen (Sonnet brief), browser test: make a key, send an entry, see it in History.
-4. Shortcut guide with the exact URL for the owner's domain.
+4. Shortcut guide with the exact URL: `https://sss.fnsmaker.site/api/shortcut`.
 5. Release: migration to prod first, then dev → main.
 
 ## Limits
 - Live Text doesn't read Lao script; bank amounts are Latin digits, so they should read. Test with a real screenshot.
 - Back Tap needs iPhone 8 or newer.
-- Needs the own domain (bought 2026-11-17) or the VPN.
+- Works without the VPN through `sss.fnsmaker.site` (connected 2026-11-24).

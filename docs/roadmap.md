@@ -12,7 +12,7 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 | 3 | Accounts | M | Done |
 | 4 | Transactions, categories, transfers | L | Done |
 | 5 | Dashboard | M | Done |
-| **5.5** | **MVP release** | M | Done: live since 2026-10-12 (in Laos it opens only with a VPN until it has its own domain). Sign-up closed, error and 404 pages, browser tests in CI and a data export are in. Loading states and the accessibility pass moved to the design phase |
+| **5.5** | **MVP release** | M | Done: live since 2026-10-12, at `https://sss.fnsmaker.site` since 2026-11-24 (no VPN needed in Laos). Sign-up closed, error and 404 pages, browser tests in CI and a data export are in. Loading states and the accessibility pass moved to the design phase |
 | 6 | Budgets | M | Done (2026-10-12) |
 | 7 | Savings goals | M | Done: released to the live site on 2026-10-12 |
 | 7.5 | Design: the new look | L | Done: released to the live site on 2026-10-31 (look A on every screen, category icons and colours, loading screens, an accessibility checker, measured at 6 widths). Plan and results: [design-brief.md](../.claude/context/design-brief.md) |
@@ -25,14 +25,15 @@ Size (part-time work, rough): **S** about 1–2 days · **M** about 3–5 days �
 
 ## Order from here (owner, 2026-11-02)
 The owner is a student in Laos, so the order now follows what helps daily use most:
-1. **Own domain** (removes the VPN; `.vercel.app` is blocked in Laos, see [deploy.md](deploy.md) §7). **On hold:** the owner can't buy one yet. Do it as soon as possible; it's a setup step, not a phase.
+1. **Own domain** (removes the VPN; `.vercel.app` is blocked in Laos, see [deploy.md](deploy.md) §7). **Done 2026-11-24:** `sss.fnsmaker.site`.
 2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out. **Done: released 2026-11-02.**
 3. **Phase 10, Analytics:** best after 2–3 months of real data. **Done: released 2026-11-13** (built early; averages fill in as months finish).
 4. ~~**Adding entries offline**~~ **Dropped 2026-11-14** (owner), together with offline viewing ([ADR-017](adr/017-no-offline.md)).
-5. **An iPhone Shortcut** (owner, 2026-11-13): screenshot a payment, read the amount on the phone, confirm, send it to the app with a key that can only add entries. Best after the own domain, so it works without the VPN.
-6. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
-7. **Phase 12, Production hardening.**
-8. **Phase 9, Investments:** only when the owner invests.
+5. **An iPhone Shortcut** (owner, 2026-11-13): screenshot a payment, read the amount on the phone, confirm, send it to the app with a key that can only add entries. Steps 1–2 on dev (#66, #67); the guide and the release are next.
+6. **Lent and borrowed** (owner, 2026-11-24): track money lent to and borrowed from people, with repayments in any currency. Plan: [loans.md](../.claude/context/loans.md).
+7. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
+8. **Phase 12, Production hardening.**
+9. **Phase 9, Investments:** only when the owner invests.
 
 ## MVP
 
