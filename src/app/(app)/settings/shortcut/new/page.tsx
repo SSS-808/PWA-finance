@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BackLink } from "@/components/shared/back-link";
 import { FormSkeleton, LoadingStatus } from "@/components/shared/skeleton";
 import { Button } from "@/components/ui/button";
+import { shortcutEnabled } from "@/lib/features";
 import { en } from "@/messages/en";
 import { listAccounts } from "@/modules/accounts";
 import { MAX_KEYS, NewKeyForm, listShortcutKeys } from "@/modules/shortcut";
@@ -10,6 +12,7 @@ import { MAX_KEYS, NewKeyForm, listShortcutKeys } from "@/modules/shortcut";
 const text = en.shortcut.settings;
 
 export default function NewShortcutKeyPage() {
+  if (!shortcutEnabled()) notFound();
   return (
     <div className="w-full max-w-md space-y-6">
       <BackLink href="/settings/shortcut" label={text.back} />

@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
+import { shortcutEnabled } from "@/lib/features";
 import { createClient } from "@/lib/supabase/server";
 import { listAccounts } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
@@ -26,6 +27,7 @@ export async function createShortcutKey(
   formData: FormData,
 ): Promise<NewKeyState> {
   await requireUser();
+  if (!shortcutEnabled()) return { status: "error", error: "unknown" };
   const parsed = newKeySchema.safeParse({
     name: textField(formData, "name"),
     accountId: textField(formData, "accountId"),
@@ -92,7 +94,7 @@ export async function createShortcutKey(
 
 export async function deleteShortcutKey(id: string): Promise<void> {
   await requireUser();
-  if (!idSchema.safeParse(id).success) notFound();
+  if (!shortcutEnabled() || !idSchema.safeParse(id).success) notFound();
   const supabase = await createClient();
   const { error } = await supabase.from("shortcut_keys").delete().eq("id", id);
   if (error) {

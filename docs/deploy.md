@@ -80,6 +80,7 @@ Good to know:
   - `NEXT_PUBLIC_SUPABASE_URL`: the project URL (Supabase → Project Settings → API)
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the **publishable** key (starts with `sb_publishable_`). Never use the secret key here.
   - `ENABLE_EXPERIMENTAL_COREPACK` = `1`: makes Vercel use the pnpm version named in `package.json` (pnpm 11; Vercel's own list stopped at pnpm 10 when this was written).
+  - `SHORTCUT_ENABLED` = `true` for **Preview only** (the practice site). Leave it out of Production until the iPhone Shortcut is ready: without it, its Settings row, pages and `/api/shortcut` stay hidden. Changing it needs a redeploy.
   - Set the **prod** values for "Production" and the **staging** values for "Preview".
   - The two `NEXT_PUBLIC_` entries must have Type **Config**, chosen before saving. Vercel refuses type "Secret" for a `NEXT_PUBLIC_` name, and a saved Secret can't be viewed or switched: delete it and add it again.
   - `Invalid API key` in the logs means the URL and the key come from different projects, or the key was cut off.

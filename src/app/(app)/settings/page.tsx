@@ -15,6 +15,7 @@ import {
   LoadingStatus,
   Skeleton,
 } from "@/components/shared/skeleton";
+import { shortcutEnabled } from "@/lib/features";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { LogoutButton, requireUser } from "@/modules/auth";
@@ -101,24 +102,26 @@ export default function SettingsPage() {
           </a>
         </div>
       </section>
-      <section aria-labelledby="settings-shortcut" className="space-y-2">
-        <h2 id="settings-shortcut" className={headingClass}>
-          {en.shortcut.settings.title}
-        </h2>
-        <div className={cardClass}>
-          <Link href="/settings/shortcut" className={rowClass}>
-            <SettingsRow
-              icon={Smartphone}
-              label={en.shortcut.settings.rowLabel}
-              detail={
-                <Suspense fallback={<Skeleton className="mt-1 h-4 w-16" />}>
-                  <KeyCount />
-                </Suspense>
-              }
-            />
-          </Link>
-        </div>
-      </section>
+      {shortcutEnabled() && (
+        <section aria-labelledby="settings-shortcut" className="space-y-2">
+          <h2 id="settings-shortcut" className={headingClass}>
+            {en.shortcut.settings.title}
+          </h2>
+          <div className={cardClass}>
+            <Link href="/settings/shortcut" className={rowClass}>
+              <SettingsRow
+                icon={Smartphone}
+                label={en.shortcut.settings.rowLabel}
+                detail={
+                  <Suspense fallback={<Skeleton className="mt-1 h-4 w-16" />}>
+                    <KeyCount />
+                  </Suspense>
+                }
+              />
+            </Link>
+          </div>
+        </section>
+      )}
       {/* Hidden inside the installed app, where there is nothing left to install */}
       <section
         aria-labelledby="settings-app"
