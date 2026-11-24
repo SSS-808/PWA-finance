@@ -479,6 +479,14 @@ Decision: [ADR-018](adr/018-shortcut-keys.md). Migration: `supabase/migrations/2
 - `shortcut_keys (user_id, name, account_id, currency, key_hash, last_used_at, window_started_at, uses_in_window)`: a key that adds expenses to one account. The foreign key `(account_id, user_id, currency)` ties it to an account of the same person in that account's currency. `key_hash` is the SHA-256 of the key in hex; the key itself is never stored. A trigger allows 3 keys per person. People can read (not the hash or the counters), make and delete their own keys; nobody can change one.
 - `shortcut_key_currency(p_key)` and `shortcut_add_expense(p_key, p_amount_minor, p_category, p_note)` are `security definer` and run by `anon` only. They hash the key themselves. The second one returns a JSON `status`: `saved` (with the amount, currency, account and category), `bad_key`, `bad_amount`, `bad_note`, `account_archived`, `duplicate`, `too_many` or `no_category`.
 
+### Lent and borrowed (built 2026-11-24)
+
+Decision: [ADR-019](adr/019-people-are-iou-jars.md). Migration: `supabase/migrations/20261124120000_people.sql`.
+
+- `people (user_id, name, archived_at)`: a person you lend to or borrow from. The name is 1–40 characters after trimming and unique per person while active. People can read, add and change (archive) their own people, never delete them.
+- `accounts` gains the type `person`, `person_id` and `due_on`. A `person` account is a jar: `person_id` is set exactly when the type is `person`, the foreign key `(person_id, user_id)` makes sure the person is the same user's, there is one open jar per person per currency, it never shows on Home and has no minimum. Only a jar can have `due_on`. The one-name-per-currency rule now skips jars. A trigger renames the jars when their person is renamed.
+- `person_jar(p_person_id, p_currency)` returns the open jar, making it when needed. `move_money_with_person(p_person_id, p_account_id, p_to_person, p_person_currency, p_person_amount_minor, p_account_amount_minor, p_date, p_description)` makes a transfer between a real account and the jar (`p_to_person` true = money goes to the person). `start_person_balance(p_person_id, p_currency, p_amount_minor, p_date, p_description)` adds an adjustment to the jar for a debt from before the app (above zero = they owe you). `forgive_person_balance(p_jar_id, p_date)` closes the jar with an expense under "Loans written off" or an income under "Debts forgiven" and returns the amount. All four are `security invoker`.
+
 ### Still a sketch
 
 | Phase | Tables | Note |

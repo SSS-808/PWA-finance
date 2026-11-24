@@ -1,6 +1,6 @@
 # Lent and borrowed: money between you and people
 
-Status: planned 2026-11-24, owner answered "defaults" plus the currency question below. Next: mockups, then build.
+Status: planned 2026-11-24, owner answered "defaults" plus the currency question below. Mockups approved the same day: https://claude.ai/artifact/6GTEdEZV2AJm3XT2116GYN (owner's edits: no explanation lines under forms, a "?" button instead of the rate box on Paid back, Forgive as a centred pop-up, Home line just "Owed ₭X · ฿Y  I owe ฿Z" with zeros hidden). Step 2 (database) is PR #69.
 
 ## In plain words
 Each person gets an **IOU jar** per currency. Lending moves money from one of your accounts into their jar; a repayment moves it back out. A jar above zero means they owe you; below zero means you owe them.

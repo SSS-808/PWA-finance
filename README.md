@@ -29,7 +29,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase (Pos
 | [development.md](docs/development.md) | Setup, scripts, testing strategy, Git workflow |
 | [roadmap.md](docs/roadmap.md) | Phases, sizes, risks |
 | [deploy.md](docs/deploy.md) | The step-by-step checklist for going online |
-| [adr/](docs/adr/) | Architecture Decision Records 001–018 |
+| [adr/](docs/adr/) | Architecture Decision Records 001–019 |
 
 ## Getting started
 
