@@ -23,6 +23,7 @@ const MORE_PAGES = [
   "/budgets",
   "/goals",
   "/trips",
+  "/people",
   "/insights",
   "/settings",
 ];

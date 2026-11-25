@@ -1,4 +1,4 @@
-import { PieChart, Plane, Tag, Target } from "lucide-react";
+import { HandCoins, PieChart, Plane, Tag, Target } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -85,7 +85,7 @@ function Tile({
   );
 }
 
-// The four feature tiles of the More page, each with a one-line status
+// The feature tiles of the More page, each with a one-line status
 export function MoreTiles({ status }: { status: MoreStatus }) {
   return (
     <ul className="grid grid-cols-2 gap-3">
@@ -112,6 +112,13 @@ export function MoreTiles({ status }: { status: MoreStatus }) {
         iconClass="bg-cat-indigo-soft text-cat-indigo"
         name={en.trips.title}
         status={tripsText(status.trips)}
+      />
+      <Tile
+        href="/people"
+        icon={HandCoins}
+        iconClass="bg-cat-amber-soft text-cat-amber"
+        name={en.people.title}
+        status={en.more.people}
       />
       <Tile
         href="/settings/categories"
