@@ -107,6 +107,17 @@ test("lending kip from an account puts a debt on the person and takes the money 
       .getByText(en.dashboard.spending, { exact: true })
       .locator("xpath=following-sibling::dd"),
   ).toHaveText("₭0.00");
+
+  // Home's short line and History's "To Nok" row both lead to Nok's page
+  const line = shown(page.getByRole("link", { name: /^Lent & borrowed/ }));
+  await expect(line).toContainText("Owed ₭100,000.00");
+  await expect(line).not.toContainText("I owe");
+
+  await page.goto("/transactions");
+  const lending = shown(page.getByRole("link", { name: /To Nok/ }));
+  await expect(lending).toBeVisible();
+  await lending.click();
+  await expect(page).toHaveURL(new RegExp(`/people/${UUID}$`));
 });
 
 test("a baht debt paid back into a kip account is paid off and the account goes up", async ({

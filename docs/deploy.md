@@ -98,6 +98,6 @@ Good to know: internet providers in Laos block every address ending in `.vercel.
 
 ### 7. Own domain: `sss.fnsmaker.site`
 - [x] Vercel → project → Domains: add the domain (done; checked 2026-11-24: `https://sss.fnsmaker.site` answers from Vercel and opens the login page).
-- [ ] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://sss.fnsmaker.site` and add `https://sss.fnsmaker.site/auth/confirm` to the Redirect URLs.
+- [x] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://sss.fnsmaker.site` and add `https://sss.fnsmaker.site/auth/confirm` to the Redirect URLs (done by the owner).
 - [ ] Open the site without a VPN, then test "Forgot password" once, because its email link uses the Site URL.
 - [ ] The installed app belongs to the old address. Delete it from the home screen, open the new address in Safari, choose Share → Add to Home Screen, and log in once inside the new app.

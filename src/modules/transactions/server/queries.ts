@@ -47,7 +47,7 @@ const MAX_ROWS = 500;
 const EXPORT_PAGE_SIZE = 1000;
 
 const HISTORY_COLUMNS =
-  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name, icon, color), trips(name)";
+  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name, type, person_id), categories(name, icon, color), trips(name)";
 
 function isTransactionKind(value: string): value is TransactionKind {
   return (TRANSACTION_KINDS as readonly string[]).includes(value);
@@ -66,7 +66,7 @@ type HistoryRecord = {
   description: string | null;
   amount_minor: number;
   currency: string;
-  accounts: { name: string } | null;
+  accounts: { name: string; type: string; person_id: string | null } | null;
   categories: { name: string; icon: string; color: string } | null;
   trips: { name: string } | null;
 };
@@ -86,6 +86,8 @@ function toHistoryRow(record: HistoryRecord): HistoryRow {
     date: record.transaction_date,
     createdAt: record.created_at,
     accountName: record.accounts?.name ?? "",
+    personId:
+      record.accounts?.type === JAR_TYPE ? record.accounts.person_id : null,
     categoryName: record.categories?.name ?? null,
     categoryLook: record.categories
       ? { icon: record.categories.icon, color: record.categories.color }
