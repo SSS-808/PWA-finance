@@ -29,8 +29,8 @@ The owner is a student in Laos, so the order now follows what helps daily use mo
 2. **Phase 11, PWA and offline:** installing on the phone first (manifest, icons, a home-screen app), then viewing data offline. Adding entries offline (saved on the phone and sent later) is a separate, later step. Data saved on the phone is wiped at log-out. **Done: released 2026-11-02.**
 3. **Phase 10, Analytics:** best after 2–3 months of real data. **Done: released 2026-11-13** (built early; averages fill in as months finish).
 4. ~~**Adding entries offline**~~ **Dropped 2026-11-14** (owner), together with offline viewing ([ADR-017](adr/017-no-offline.md)).
-5. **An iPhone Shortcut** (owner, 2026-11-13): screenshot a payment, read the amount on the phone, confirm, send it to the app with a key that can only add entries. Steps 1–2 on dev (#66, #67); the guide and the release are next.
-6. **Lent and borrowed** (owner, 2026-11-24): track money lent to and borrowed from people, with repayments in any currency. Plan: [loans.md](../.claude/context/loans.md).
+5. **An iPhone Shortcut** (owner, 2026-11-13): screenshot a payment, read the amount on the phone, confirm, send it to the app with a key that can only add entries. Built (#66, #67) and released 2026-11-25 **switched off** (#70: `SHORTCUT_ENABLED` unset in Production). Next: the step-by-step guide, a real iPhone test, then switch it on.
+6. **Lent and borrowed** (owner, 2026-11-24): track money lent to and borrowed from people, with repayments in any currency. Plan: [loans.md](../.claude/context/loans.md). **Done: released 2026-11-25** (release PR #74; #69, #71–#73, [ADR-019](adr/019-people-are-iou-jars.md)).
 7. **Phase 8, Net worth and exchange rates:** when holding dollars or baht matters more.
 8. **Phase 12, Production hardening.**
 9. **Phase 9, Investments:** only when the owner invests.
