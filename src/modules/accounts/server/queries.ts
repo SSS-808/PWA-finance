@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/modules/auth";
 import { isCurrencyCode, money, type Money } from "@/modules/money";
-import { isAccountType } from "../domain/account-types";
+import { JAR_TYPE, isAccountType } from "../domain/account-types";
 import type { Account } from "../domain/types";
 
 export type AccountDetail = Account & { openingBalance: Money };
@@ -49,12 +49,16 @@ function toAccount(
   };
 }
 
-// Active and archived accounts with their balances and goal money; the views can't be embedded, so they are merged here
+// Active and archived accounts (never IOU jars) with their balances and goal money; the views can't be embedded, so they are merged here
 export async function listAccounts(): Promise<Account[]> {
   await requireUser();
   const supabase = await createClient();
   const [accounts, balances, setAside] = await Promise.all([
-    supabase.from("accounts").select(ACCOUNT_COLUMNS).order("name"),
+    supabase
+      .from("accounts")
+      .select(ACCOUNT_COLUMNS)
+      .neq("type", JAR_TYPE)
+      .order("name"),
     supabase.from("account_balances").select("account_id, balance_minor"),
     supabase.from("account_set_aside").select("account_id, set_aside_minor"),
   ]);
@@ -84,7 +88,7 @@ export async function listAccounts(): Promise<Account[]> {
   );
 }
 
-// One account with its balance and current starting amount; a bad id or someone else's account is a 404
+// One account with its balance and current starting amount; a bad id, an IOU jar or someone else's account is a 404
 export async function getAccount(id: string): Promise<AccountDetail> {
   await requireUser();
   if (!idSchema.safeParse(id).success) notFound();
@@ -94,6 +98,7 @@ export async function getAccount(id: string): Promise<AccountDetail> {
     supabase
       .from("accounts")
       .select(ACCOUNT_COLUMNS)
+      .neq("type", JAR_TYPE)
       .eq("id", id)
       .maybeSingle(),
     supabase

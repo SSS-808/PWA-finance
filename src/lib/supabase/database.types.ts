@@ -14,9 +14,11 @@ export type Database = {
           archived_at: string | null;
           created_at: string;
           currency: string;
+          due_on: string | null;
           id: string;
           minimum_minor: number;
           name: string;
+          person_id: string | null;
           show_on_home: boolean;
           type: string;
           updated_at: string;
@@ -27,9 +29,11 @@ export type Database = {
           archived_at?: string | null;
           created_at?: string;
           currency: string;
+          due_on?: string | null;
           id?: string;
           minimum_minor?: number;
           name: string;
+          person_id?: string | null;
           show_on_home?: boolean;
           type: string;
           updated_at?: string;
@@ -39,9 +43,11 @@ export type Database = {
           archived_at?: string | null;
           created_at?: string;
           currency?: string;
+          due_on?: string | null;
           id?: string;
           minimum_minor?: number;
           name?: string;
+          person_id?: string | null;
           show_on_home?: boolean;
           type?: string;
           updated_at?: string;
@@ -54,6 +60,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "currencies";
             referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "accounts_person_fk";
+            columns: ["person_id", "user_id"];
+            isOneToOne: false;
+            referencedRelation: "people";
+            referencedColumns: ["id", "user_id"];
           },
           {
             foreignKeyName: "accounts_user_id_fkey";
@@ -315,6 +328,42 @@ export type Database = {
           },
         ];
       };
+      people: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          id?: string;
+          name: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "people_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           base_currency: string;
@@ -348,6 +397,68 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "currencies";
             referencedColumns: ["code"];
+          },
+        ];
+      };
+      shortcut_keys: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          currency: string;
+          id: string;
+          key_hash: string;
+          last_used_at: string | null;
+          name: string;
+          user_id: string;
+          uses_in_window: number;
+          window_started_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          currency: string;
+          id?: string;
+          key_hash: string;
+          last_used_at?: string | null;
+          name: string;
+          user_id?: string;
+          uses_in_window?: number;
+          window_started_at?: string | null;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          currency?: string;
+          id?: string;
+          key_hash?: string;
+          last_used_at?: string | null;
+          name?: string;
+          user_id?: string;
+          uses_in_window?: number;
+          window_started_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shortcut_keys_account_id_user_id_currency_fkey";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "account_balances";
+            referencedColumns: ["account_id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "shortcut_keys_account_id_user_id_currency_fkey";
+            columns: ["account_id", "user_id", "currency"];
+            isOneToOne: false;
+            referencedRelation: "accounts";
+            referencedColumns: ["id", "user_id", "currency"];
+          },
+          {
+            foreignKeyName: "shortcut_keys_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -612,7 +723,28 @@ export type Database = {
         Returns: string;
       };
       delete_transfer: { Args: { p_transfer_id: string }; Returns: undefined };
+      forgive_person_balance: {
+        Args: { p_date: string; p_jar_id: string };
+        Returns: number;
+      };
       label_trip_entries: { Args: { p_trip_id: string }; Returns: number };
+      move_money_with_person: {
+        Args: {
+          p_account_amount_minor: number;
+          p_account_id: string;
+          p_date: string;
+          p_description?: string;
+          p_person_amount_minor: number;
+          p_person_currency: string;
+          p_person_id: string;
+          p_to_person: boolean;
+        };
+        Returns: string;
+      };
+      person_jar: {
+        Args: { p_currency: string; p_person_id: string };
+        Returns: string;
+      };
       release_goal_shortfall: {
         Args: { p_account_id: string; p_goal_id: string; p_on: string };
         Returns: number;
@@ -629,6 +761,26 @@ export type Database = {
           p_target_balance_minor: number;
         };
         Returns: number;
+      };
+      shortcut_add_expense: {
+        Args: {
+          p_amount_minor: number;
+          p_category: string;
+          p_key: string;
+          p_note: string;
+        };
+        Returns: Json;
+      };
+      shortcut_key_currency: { Args: { p_key: string }; Returns: string };
+      start_person_balance: {
+        Args: {
+          p_amount_minor: number;
+          p_currency: string;
+          p_date: string;
+          p_description?: string;
+          p_person_id: string;
+        };
+        Returns: string;
       };
       update_account: {
         Args: {

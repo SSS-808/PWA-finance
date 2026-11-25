@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowLeftRight, Wallet } from "lucide-react";
+import { ArrowLeftRight, HandCoins, Wallet } from "lucide-react";
 import Link from "next/link";
 import { CategoryIcon } from "@/components/shared/category-icon";
 import { cn } from "@/lib/utils";
@@ -113,8 +113,21 @@ function EntryRow({ item }: { item: EntryItem }) {
   );
 }
 
+// Money lent or borrowed reads "To Nok" / "From Nok"; other transfers read "BCEL → Cash"
+function transferTitle(item: TransferItem): string {
+  const from = item.from ?? en.transactions.unknownAccount;
+  const to = item.to ?? en.transactions.unknownAccount;
+  if (item.person?.side === "to") {
+    return en.transactions.toPerson.replace("{name}", to);
+  }
+  if (item.person?.side === "from") {
+    return en.transactions.fromPerson.replace("{name}", from);
+  }
+  return `${from} → ${to}`;
+}
+
 function TransferRow({ item }: { item: TransferItem }) {
-  const { fromAmount, toAmount } = item;
+  const { fromAmount, toAmount, person } = item;
   const exchange =
     fromAmount && toAmount && fromAmount.currency !== toAmount.currency;
   const single = toAmount ?? (fromAmount ? negate(fromAmount) : null);
@@ -122,16 +135,19 @@ function TransferRow({ item }: { item: TransferItem }) {
     <>
       <span className="flex min-w-0 items-center gap-3">
         <NeutralBadge>
-          <ArrowLeftRight className="size-5" />
+          {person ? (
+            <HandCoins className="size-5" />
+          ) : (
+            <ArrowLeftRight className="size-5" />
+          )}
         </NeutralBadge>
         <span className="min-w-0">
           <span className="block text-base font-medium break-words">
-            {item.from ?? en.transactions.unknownAccount}
-            {" → "}
-            {item.to ?? en.transactions.unknownAccount}
+            {transferTitle(item)}
           </span>
           <span className="block text-sm break-words text-muted-foreground">
-            {item.note ?? en.transactions.kinds.transfer}
+            {item.note ??
+              (person ? en.people.title : en.transactions.kinds.transfer)}
           </span>
         </span>
       </span>
@@ -149,12 +165,16 @@ function TransferRow({ item }: { item: TransferItem }) {
       </span>
     </>
   );
-  // A transfer with a missing leg can't be edited, so only whole transfers are links
+  // A transfer with a missing leg can't be edited, so only whole transfers are links; lending opens the person's page
   if (fromAmount && toAmount) {
     return (
       <li>
         <Link
-          href={`/transactions/transfer/${item.id}`}
+          href={
+            person
+              ? `/people/${person.id}`
+              : `/transactions/transfer/${item.id}`
+          }
           className={`${rowClass} hover:bg-muted`}
         >
           {content}

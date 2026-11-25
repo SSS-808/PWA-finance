@@ -39,6 +39,58 @@ function item(overrides: Partial<HistoryItem> & { id: string }): HistoryItem {
 }
 
 describe("toHistoryItems", () => {
+  it("marks money lent to a person with the person on the receiving side", () => {
+    const [lent] = toHistoryItems([
+      row({
+        id: "out",
+        kind: "transfer",
+        transferId: "t1",
+        accountName: "BCEL",
+        amount: money(-100000, "LAK"),
+      }),
+      row({
+        id: "in",
+        kind: "transfer",
+        transferId: "t1",
+        accountName: "Nok",
+        personId: "p1",
+        amount: money(100000, "LAK"),
+      }),
+    ]);
+    expect(lent).toMatchObject({
+      kind: "transfer",
+      from: "BCEL",
+      to: "Nok",
+      person: { id: "p1", side: "to" },
+    });
+  });
+
+  it("marks money paid back by a person with the person on the giving side", () => {
+    const [repaid] = toHistoryItems([
+      row({
+        id: "out",
+        kind: "transfer",
+        transferId: "t2",
+        accountName: "Nok",
+        personId: "p1",
+        amount: money(-50000, "THB"),
+      }),
+      row({
+        id: "in",
+        kind: "transfer",
+        transferId: "t2",
+        accountName: "Cash",
+        personId: null,
+        amount: money(30000000, "LAK"),
+      }),
+    ]);
+    expect(repaid).toMatchObject({
+      from: "Nok",
+      to: "Cash",
+      person: { id: "p1", side: "from" },
+    });
+  });
+
   it("turns every other row into one item", () => {
     const rows = [
       row({ id: "a", note: "Lunch" }),

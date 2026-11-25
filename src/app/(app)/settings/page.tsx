@@ -1,7 +1,13 @@
-import { ChevronRight, Download, KeyRound, Tags } from "lucide-react";
+import {
+  ChevronRight,
+  Download,
+  KeyRound,
+  Smartphone,
+  Tags,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { BackLink } from "@/components/shared/back-link";
 import { InstallApp } from "@/components/shared/install-app";
 import {
@@ -9,10 +15,12 @@ import {
   LoadingStatus,
   Skeleton,
 } from "@/components/shared/skeleton";
+import { shortcutEnabled } from "@/lib/features";
 import { cn } from "@/lib/utils";
 import { en } from "@/messages/en";
 import { LogoutButton, requireUser } from "@/modules/auth";
 import { ProfileForm, getProfile, timeZoneOptions } from "@/modules/profile";
+import { listShortcutKeys } from "@/modules/shortcut";
 
 const cardClass = "overflow-hidden rounded-2xl border border-border bg-card";
 
@@ -24,9 +32,11 @@ const rowClass = "flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-muted";
 function SettingsRow({
   icon: Icon,
   label,
+  detail,
 }: {
   icon: LucideIcon;
   label: string;
+  detail?: ReactNode;
 }) {
   return (
     <>
@@ -36,7 +46,10 @@ function SettingsRow({
       >
         <Icon className="size-5" />
       </span>
-      <span className="min-w-0 flex-1 text-base font-medium">{label}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-base font-medium">{label}</span>
+        {detail}
+      </span>
       <ChevronRight
         className="size-5 shrink-0 text-muted-foreground"
         aria-hidden="true"
@@ -89,6 +102,26 @@ export default function SettingsPage() {
           </a>
         </div>
       </section>
+      {shortcutEnabled() && (
+        <section aria-labelledby="settings-shortcut" className="space-y-2">
+          <h2 id="settings-shortcut" className={headingClass}>
+            {en.shortcut.settings.title}
+          </h2>
+          <div className={cardClass}>
+            <Link href="/settings/shortcut" className={rowClass}>
+              <SettingsRow
+                icon={Smartphone}
+                label={en.shortcut.settings.rowLabel}
+                detail={
+                  <Suspense fallback={<Skeleton className="mt-1 h-4 w-16" />}>
+                    <KeyCount />
+                  </Suspense>
+                }
+              />
+            </Link>
+          </div>
+        </section>
+      )}
       {/* Hidden inside the installed app, where there is nothing left to install */}
       <section
         aria-labelledby="settings-app"
@@ -127,6 +160,15 @@ export default function SettingsPage() {
       </section>
     </div>
   );
+}
+
+async function KeyCount() {
+  const { length } = await listShortcutKeys();
+  const text = en.shortcut.settings;
+  let label: string = text.noKeys;
+  if (length === 1) label = text.keyCountOne;
+  else if (length > 1) label = text.keyCount.replace("{n}", String(length));
+  return <span className="block text-sm text-muted-foreground">{label}</span>;
 }
 
 async function ProfileSection() {

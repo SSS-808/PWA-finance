@@ -2,6 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { JAR_TYPE } from "@/modules/accounts";
 import { requireUser } from "@/modules/auth";
 import { type Money, isCurrencyCode, money, negate } from "@/modules/money";
 import {
@@ -46,7 +47,7 @@ const MAX_ROWS = 500;
 const EXPORT_PAGE_SIZE = 1000;
 
 const HISTORY_COLUMNS =
-  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name), categories(name, icon, color), trips(name)";
+  "id, kind, transfer_id, transaction_date, created_at, description, amount_minor, currency, accounts(name, type, person_id), categories(name, icon, color), trips(name)";
 
 function isTransactionKind(value: string): value is TransactionKind {
   return (TRANSACTION_KINDS as readonly string[]).includes(value);
@@ -65,7 +66,7 @@ type HistoryRecord = {
   description: string | null;
   amount_minor: number;
   currency: string;
-  accounts: { name: string } | null;
+  accounts: { name: string; type: string; person_id: string | null } | null;
   categories: { name: string; icon: string; color: string } | null;
   trips: { name: string } | null;
 };
@@ -85,6 +86,8 @@ function toHistoryRow(record: HistoryRecord): HistoryRow {
     date: record.transaction_date,
     createdAt: record.created_at,
     accountName: record.accounts?.name ?? "",
+    personId:
+      record.accounts?.type === JAR_TYPE ? record.accounts.person_id : null,
     categoryName: record.categories?.name ?? null,
     categoryLook: record.categories
       ? { icon: record.categories.icon, color: record.categories.color }
@@ -249,12 +252,13 @@ type LegRecord = {
   currency: string;
   description: string | null;
   transaction_date: string;
-  accounts: { name: string } | null;
+  accounts: { name: string; type: string } | null;
 };
 
 type Leg = {
   accountId: string;
   accountName: string;
+  isJar: boolean;
   amount: Money;
   date: string;
   note: string | null;
@@ -263,7 +267,7 @@ type Leg = {
 type TransferLegs = { out: Leg; into: Leg };
 
 const LEG_COLUMNS =
-  "account_id, amount_minor, currency, description, transaction_date, accounts(name)";
+  "account_id, amount_minor, currency, description, transaction_date, accounts(name, type)";
 
 function toLeg(record: LegRecord): Leg {
   // The database checks this value, so anything else is a bug
@@ -273,6 +277,7 @@ function toLeg(record: LegRecord): Leg {
   return {
     accountId: record.account_id,
     accountName: record.accounts?.name ?? "",
+    isJar: record.accounts?.type === JAR_TYPE,
     amount: money(record.amount_minor, record.currency),
     date: record.transaction_date,
     note: record.description,
@@ -299,11 +304,11 @@ async function loadLegs(transferId: string): Promise<TransferLegs | null> {
   return { out: toLeg(out), into: toLeg(into) };
 }
 
-// A transfer that is yours and not deleted, as the edit form needs it; anything else is a 404
+// A transfer that is yours and not deleted, as the edit form needs it; money lent or borrowed and anything else is a 404
 export async function getTransfer(transferId: string): Promise<Transfer> {
   await requireUser();
   const legs = await loadLegs(transferId);
-  if (!legs) notFound();
+  if (!legs || legs.out.isJar || legs.into.isJar) notFound();
   return {
     id: transferId,
     from: legs.out.accountId,

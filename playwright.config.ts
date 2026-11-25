@@ -20,5 +20,7 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // The tests cover the iPhone Shortcut, which is off unless switched on
+    env: { SHORTCUT_ENABLED: "true" },
   },
 });

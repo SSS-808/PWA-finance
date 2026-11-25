@@ -80,6 +80,7 @@ Good to know:
   - `NEXT_PUBLIC_SUPABASE_URL`: the project URL (Supabase → Project Settings → API)
   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the **publishable** key (starts with `sb_publishable_`). Never use the secret key here.
   - `ENABLE_EXPERIMENTAL_COREPACK` = `1`: makes Vercel use the pnpm version named in `package.json` (pnpm 11; Vercel's own list stopped at pnpm 10 when this was written).
+  - `SHORTCUT_ENABLED` = `true` for **Preview only** (the practice site). Leave it out of Production until the iPhone Shortcut is ready: without it, its Settings row, pages and `/api/shortcut` stay hidden. Changing it needs a redeploy.
   - Set the **prod** values for "Production" and the **staging** values for "Preview".
   - The two `NEXT_PUBLIC_` entries must have Type **Config**, chosen before saving. Vercel refuses type "Secret" for a `NEXT_PUBLIC_` name, and a saved Secret can't be viewed or switched: delete it and add it again.
   - `Invalid API key` in the logs means the URL and the key come from different projects, or the key was cut off.
@@ -87,7 +88,7 @@ Good to know:
 - [ ] Don't add Vercel's Supabase integration. It copies the secret key into the project; we only want the two public values.
 - [ ] Turn on Deployment Protection for preview links, so only you can open them
 
-Good to know: internet providers in Laos block every address ending in `.vercel.app` (found 2026-10-12; it only opens with a VPN). The block is on the name, so the site needs its own domain to open normally.
+Good to know: internet providers in Laos block every address ending in `.vercel.app` (found 2026-10-12; it only opens with a VPN). The block is on the name, so the site has its own domain, `sss.fnsmaker.site` (§7).
 
 ### 6. After the deploy
 - [ ] On your phone: sign up → confirm the email → log in → add an expense → log out → forgot password → log in with the new password
@@ -95,8 +96,8 @@ Good to know: internet providers in Laos block every address ending in `.vercel.
 - [ ] Supabase **Security Advisor** shows no errors
 - [ ] From now on: a branch and a PR for every change ([development.md §6](development.md#6-git-workflow))
 
-### 7. When you buy a domain
-- [ ] Vercel → project → Domains: buy or add the domain. Bought inside Vercel, it connects itself.
-- [ ] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://<your-domain>` and add `https://<your-domain>/auth/confirm` to the Redirect URLs.
+### 7. Own domain: `sss.fnsmaker.site`
+- [x] Vercel → project → Domains: add the domain (done; checked 2026-11-24: `https://sss.fnsmaker.site` answers from Vercel and opens the login page).
+- [x] Supabase prod → Authentication → URL Configuration: change the Site URL to `https://sss.fnsmaker.site` and add `https://sss.fnsmaker.site/auth/confirm` to the Redirect URLs (done by the owner).
 - [ ] Open the site without a VPN, then test "Forgot password" once, because its email link uses the Site URL.
 - [ ] The installed app belongs to the old address. Delete it from the home screen, open the new address in Safari, choose Share → Add to Home Screen, and log in once inside the new app.

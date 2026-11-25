@@ -2,13 +2,13 @@
 
 A mobile-first personal finance PWA. Track money across cash, bank, card and loan accounts in LAK, USD and THB, then plan budgets, savings goals, net worth and investments. Recording an expense should take a few seconds.
 
-**Status:** MVP in progress. Login, settings and accounts work; transactions (Phase 4) are being built. See the [roadmap](docs/roadmap.md).
+**Status:** live at [sss.fnsmaker.site](https://sss.fnsmaker.site) for one person (sign-up is closed). Accounts, entries and transfers, the Home dashboard, budgets, savings goals, trips, Insights, and installing on the phone all work. Next: the iPhone Shortcut, money lent and borrowed, then net worth. See the [roadmap](docs/roadmap.md).
 
 ## Stack
 
 Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase (PostgreSQL, Auth, Row Level Security) · Zod · React Hook Form · Recharts · Vitest · Playwright · Vercel
 
-## Engineering highlights (planned)
+## Engineering highlights
 
 - Money is stored as a whole number of the currency's smallest unit, always with its currency. No floating-point maths. ([ADR-003](docs/adr/003-money-integer-minor-units.md))
 - Balances are worked out from transactions, never stored, so they can't drift. ([ADR-005](docs/adr/005-derived-balances.md))
@@ -29,7 +29,7 @@ Next.js (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Supabase (Pos
 | [development.md](docs/development.md) | Setup, scripts, testing strategy, Git workflow |
 | [roadmap.md](docs/roadmap.md) | Phases, sizes, risks |
 | [deploy.md](docs/deploy.md) | The step-by-step checklist for going online |
-| [adr/](docs/adr/) | Architecture Decision Records 001–009 |
+| [adr/](docs/adr/) | Architecture Decision Records 001–019 |
 
 ## Getting started
 
