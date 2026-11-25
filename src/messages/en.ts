@@ -273,6 +273,10 @@ export const en = {
   },
   people: {
     title: "Lent & borrowed",
+    homeLine: {
+      owed: "Owed {amounts}",
+      owe: "I owe {amounts}",
+    },
     back: "Lent & borrowed",
     edit: "Edit",
     lend: "Lend",
@@ -875,6 +879,8 @@ export const en = {
     today: "Today",
     yesterday: "Yesterday",
     unknownAccount: "?",
+    toPerson: "To {name}",
+    fromPerson: "From {name}",
     empty: "No transactions yet",
     addOne: "Add one",
     saved: "Saved: {label} {amount}",

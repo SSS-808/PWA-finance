@@ -16,6 +16,7 @@ import {
   getDashboard,
   mainFirst,
 } from "@/modules/dashboard";
+import { PeopleLine, listPeople, totals } from "@/modules/people";
 import { getProfile, todayIn } from "@/modules/profile";
 import { TripLine, getCurrentTrip } from "@/modules/trips";
 import {
@@ -56,10 +57,13 @@ async function HomeContent({
   const currentMonth = today.slice(0, 7);
   // "all" and bad values fall back to this month
   const month = parseFilters(params, today).month ?? currentMonth;
-  const [{ cards, recent, allSwitchedOff }, currentTrip] = await Promise.all([
-    getDashboard(month),
-    getCurrentTrip(today),
-  ]);
+  const [{ cards, recent, allSwitchedOff }, currentTrip, people] =
+    await Promise.all([
+      getDashboard(month),
+      getCurrentTrip(today),
+      listPeople(),
+    ]);
+  const { owed, owe } = totals(people);
   const ordered = mainFirst(cards, profile.baseCurrency);
   const withSpending = ordered.filter(
     (card) => card.summary.byCategory.length > 0,
@@ -97,6 +101,9 @@ async function HomeContent({
           </BalanceCarousel>
           {currentTrip !== null ? (
             <TripLine current={currentTrip} today={today} />
+          ) : null}
+          {owed.length > 0 || owe.length > 0 ? (
+            <PeopleLine owed={owed} owe={owe} />
           ) : null}
           {withSpending.length > 0 ? (
             withSpending.map((card) => (

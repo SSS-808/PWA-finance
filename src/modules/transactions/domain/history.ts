@@ -8,6 +8,8 @@ export type HistoryRow = {
   date: string;
   createdAt: string;
   accountName: string;
+  // Set when the account is an IOU jar (money lent or borrowed)
+  personId?: string | null;
   categoryName: string | null;
   categoryLook: { icon: string; color: string } | null;
   note: string | null;
@@ -38,6 +40,8 @@ export type TransferItem = {
   fromAmount: Money | null;
   toAmount: Money | null;
   note: string | null;
+  // Money lent or borrowed: the person and which side of the transfer they are on
+  person?: { id: string; side: "from" | "to" };
 };
 
 export type HistoryItem = EntryItem | TransferItem;
@@ -84,9 +88,11 @@ export function toHistoryItems(rows: readonly HistoryRow[]): HistoryItem[] {
     if (isNegative(row.amount)) {
       transfer.from = row.accountName;
       transfer.fromAmount = row.amount;
+      if (row.personId) transfer.person = { id: row.personId, side: "from" };
     } else {
       transfer.to = row.accountName;
       transfer.toAmount = row.amount;
+      if (row.personId) transfer.person = { id: row.personId, side: "to" };
     }
     transfer.note ??= row.note;
   }

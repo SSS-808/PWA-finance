@@ -1,4 +1,4 @@
-export { openJars } from "./domain/calculations";
+export { openJars, totals } from "./domain/calculations";
 export type { MoveKind } from "./domain/types";
 export {
   getPerson,
@@ -14,4 +14,5 @@ export { JarCard } from "./ui/jar-card";
 export { MoveForm } from "./ui/move-form";
 export { PeopleNotice } from "./ui/notice";
 export { PeopleOverview } from "./ui/people-overview";
+export { PeopleLine } from "./ui/people-line";
 export { RepayForm } from "./ui/repay-form";
